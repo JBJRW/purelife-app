@@ -1,1 +1,7 @@
-{"version":2,"builds":[{"src":"index.html","use":"@vercel/static"}]}
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "build",
+  "framework": "create-react-app",
+  "installCommand": "npm install"
+}
+
