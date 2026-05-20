@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 // ── PALETA OFICIAL PURELIFE ─────────────────────────────────
 const C = {
   dark:    '#0F1F17',
