@@ -1591,7 +1591,7 @@ async function sendMsg(){
     const endpoint=PROXY_URL||"https://api.anthropic.com/v1/messages";
     const res=await fetch(endpoint,{
       method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,system:T[lang].sysPrompt,messages:history})
+      body:JSON.stringify({model:"claude-sonnet-4-5",max_tokens:1000,system:T[lang].sysPrompt,messages:history})
     });
     const data=await res.json();
     hideTyping();
@@ -1749,7 +1749,7 @@ async function generateAIScript(){
   const prompt=`You are Dr. Smoothie at PureLive Wellness Club. Generate a 30-second video script for "${r.name}" (goal: ${r.goal}). Ingredients: ${r.ings.join(', ')}. Return ONLY valid JSON, no markdown:\n{"intro":"Opening line max 8 words","name_reveal":"One sentence about the smoothie","ingredient_highlight":"Main ingredient wellness benefit max 12 words","benefit_1":"First lifestyle benefit max 10 words no medical claims","benefit_2":"Second lifestyle benefit max 10 words","benefit_3":"Third lifestyle benefit max 10 words","why_this":"Why this smoothie max 15 words","cta":"Call to action PureLive Club max 10 words","tagline":"Brand tagline max 6 words"}\nRules: No medical claims. Use: supports, commonly associated with, lifestyle benefit. Tone: warm, wellness-focused.`;
   try{
     const endpoint2=PROXY_URL||'https://api.anthropic.com/v1/messages';
-    const res=await fetch(endpoint2,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:500,messages:[{role:'user',content:prompt}]})});
+    const res=await fetch(endpoint2,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:500,messages:[{role:'user',content:prompt}]})});
     const data=await res.json();
     const text=data.content?.[0]?.text||'{}';
     videoScript=JSON.parse(text.replace(/```json|```/g,'').trim());
