@@ -1,20 +1,16 @@
 import { useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import DrSmoothieAI from "./components/DrSmoothieAI";
-
+import CommunityHub from "./components/community/CommunityHub";
+import CreatorSpace from "./components/community/CreatorSpace";
 export default function App() {
-  useEffect(() => {
-    // Prevent flash of unstyled content
-    document.body.style.background = "#040A06";
-  }, []);
-
+  useEffect(() => { document.body.style.background = "#040A06"; }, []);
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<DrSmoothieAI />} />
-        <Route path="/chat" element={<DrSmoothieAI />} />
-        <Route path="/join" element={<DrSmoothieAI />} />
-        <Route path="/smoothies" element={<DrSmoothieAI />} />
+        <Route path="/community" element={<CommunityHub />} />
+        <Route path="/creators" element={<CreatorSpace />} />
         <Route path="*" element={<DrSmoothieAI />} />
       </Routes>
     </BrowserRouter>
