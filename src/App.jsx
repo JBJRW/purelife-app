@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import AuthModal from './components/auth/AuthModal';
 import DrSmoothieAI from './DrSmoothieAI';
 import CommunityHub from './components/community/CommunityHub';
