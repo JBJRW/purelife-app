@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 
 export default function AuthModal({ onClose }) {
   const { signIn, signUp } = useAuth();
