@@ -2,10 +2,10 @@
 import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import AuthModal from './component/auth/AuthModal';
-import DrSmoothieAI from './component/DrSmoothieAI';
-import CommunityHub from './component/community/CommunityHub';
-import CreatorSpace from './component/community/CreatorSpace';
+import AuthModal from './components/auth/AuthModal';
+import DrSmoothieAI from './components/DrSmoothieAI';
+import CommunityHub from './components/community/CommunityHub';
+import CreatorSpace from './components/community/CreatorSpace';
 
 function ProtectedRoute({ children }) {
   const { user } = useAuth();
