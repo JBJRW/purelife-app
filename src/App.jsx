@@ -1,9 +1,9 @@
 
-import { useState } from 'react';
+mport { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import AuthModal from './components/auth/AuthModal';
-import DrSmoothieAI from '.components/DrSmoothieAI';
+import DrSmoothieAI from './components/DrSmoothieAI';
 import CommunityHub from './components/community/CommunityHub';
 import CreatorSpace from './components/community/CreatorSpace';
 
