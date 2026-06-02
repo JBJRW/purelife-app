@@ -1,33 +1,41 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { AuthProvider, useAuth } from './context/AuthContext'
-import DrSmoothieAI from './DrSmoothieAI'
-import CommunityHub from './components/community/CommunityHub'
-import CreatorSpace from './components/community/CreatorSpace'
-import Login from './pages/Login'
-import Register from './pages/Register'
+import { useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import AuthModal from './components/auth/AuthModal';
+import DrSmoothieAI from './DrSmoothieAI';
+import CommunityHub from './components/community/CommunityHub';
+import CreatorSpace from './components/community/CreatorSpace';
 
 function ProtectedRoute({ children }) {
-  const { user, loading } = useAuth()
-  if (loading) return (
-    <div style={{minHeight:'100vh',background:'#040A06',display:'flex',alignItems:'center',justifyContent:'center'}}>
-      <div style={{color:'#1AE05A',fontSize:32}}>🌿</div>
-    </div>
-  )
-  return user ? children : <Navigate to="/login" replace />
+  const { user } = useAuth();
+  const [showAuth, setShowAuth] = useState(false);
+  if (!user) return (
+    <>
+      {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
+      <div style={{minHeight:'100vh',background:'#040A06',display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column',gap:20}}>
+        <div style={{fontSize:48}}>🌿</div>
+        <h2 style={{color:'#F2EDE4',fontFamily:"'Fraunces',serif",fontSize:28}}>Área exclusiva</h2>
+        <p style={{color:'#8A9E8F'}}>Necesitas cuenta para acceder</p>
+        <button onClick={() => setShowAuth(true)}
+          style={{background:'#1AE05A',color:'#040A06',border:'none',borderRadius:12,padding:'14px 32px',fontWeight:700,fontSize:16,cursor:'pointer'}}>
+          Entrar / Registrarse
+        </button>
+      </div>
+    </>
+  );
+  return children;
 }
 
 function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<DrSmoothieAI />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/app" element={<ProtectedRoute><DrSmoothieAI /></ProtectedRoute>} />
+      <Route path="/chat" element={<DrSmoothieAI />} />
       <Route path="/community" element={<ProtectedRoute><CommunityHub /></ProtectedRoute>} />
       <Route path="/creators" element={<ProtectedRoute><CreatorSpace /></ProtectedRoute>} />
-      <Route path="*" element={<DrSmoothieAI />} />
+      <Route path="*" element={<Navigate to="/" />} />
     </Routes>
-  )
+  );
 }
 
 export default function App() {
@@ -37,5 +45,5 @@ export default function App() {
         <AppRoutes />
       </BrowserRouter>
     </AuthProvider>
-  )
+  );
 }
