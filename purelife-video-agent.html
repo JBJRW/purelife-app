@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Video Agent — PureLife AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --gold: #C9A84C;
+  --gold-light: #E8C96A;
+  --gold-dim: rgba(201,168,76,0.12);
+  --black: #060606;
+  --deep: #0A0A0A;
+  --panel: #111;
+  --card: #141414;
+  --white: #F4EFE6;
+  --muted: rgba(244,239,230,0.42);
+  --border: rgba(201,168,76,0.13);
+  --green: #4CAF6A;
+  --blue: #4A90D9;
+  --red: #E05555;
+  --purple: #9B6BE8;
+}
+html { scroll-behavior: smooth; }
+body {
+  background: var(--black);
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── ANIMATED BG ── */
+.bg-film {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 15% 15%, rgba(201,168,76,0.06) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 60% at 85% 85%, rgba(74,144,217,0.04) 0%, transparent 55%),
+    var(--black);
+}
+/* Film grain overlay */
+.bg-film::after {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+/* ── HEADER ── */
+header {
+  position: sticky; top: 0; z-index: 50;
+  padding: 18px 40px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(6,6,6,0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+.logo { font-family: 'Bebas Neue'; font-size: 20px; letter-spacing: 3px; color: var(--gold); }
+.logo span { color: var(--white); }
+.header-right { display: flex; align-items: center; gap: 16px; }
+.agent-badge {
+  display: flex; align-items: center; gap: 7px;
+  background: rgba(155,107,232,0.1);
+  border: 1px solid rgba(155,107,232,0.25);
+  color: #B08EF0; font-size: 11px; letter-spacing: 1.5px;
+  text-transform: uppercase; padding: 6px 14px; border-radius: 100px;
+}
+.agent-dot { width: 6px; height: 6px; background: #9B6BE8; border-radius: 50%; animation: agentPulse 2s infinite; }
+@keyframes agentPulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(155,107,232,0.4); }
+  50% { box-shadow: 0 0 0 6px rgba(155,107,232,0); }
+}
+
+/* ── LAYOUT ── */
+.app { position: relative; z-index: 1; }
+main { max-width: 1100px; margin: 0 auto; padding: 56px 24px 100px; }
+
+/* ── HERO INTRO ── */
+.hero-intro { text-align: center; margin-bottom: 64px; }
+.hero-eyebrow {
+  font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 18px;
+  display: flex; align-items: center; justify-content: center; gap: 14px;
+}
+.hero-eyebrow::before,.hero-eyebrow::after { content:''; flex:1; max-width:80px; height:1px; background: var(--border); }
+.hero-intro h1 {
+  font-family: 'Playfair Display'; font-size: clamp(38px, 6vw, 72px);
+  font-weight: 900; line-height: 1.0; margin-bottom: 18px;
+}
+.hero-intro h1 em { font-style: italic; color: var(--gold); }
+.hero-intro p { font-size: 16px; color: var(--muted); max-width: 580px; margin: 0 auto; line-height: 1.8; }
+
+/* ── PIPELINE TRACKER ── */
+.pipeline {
+  display: flex; align-items: center; gap: 0;
+  margin-bottom: 52px; background: var(--panel);
+  border: 1px solid var(--border); border-radius: 12px;
+  overflow: hidden;
+}
+.pipe-step {
+  flex: 1; padding: 16px 20px;
+  display: flex; align-items: center; gap: 10px;
+  font-size: 12px; letter-spacing: 0.5px;
+  color: var(--muted); border-right: 1px solid var(--border);
+  transition: all 0.4s;
+  position: relative;
+}
+.pipe-step:last-child { border-right: none; }
+.pipe-step.active { color: var(--gold); background: rgba(201,168,76,0.05); }
+.pipe-step.done { color: var(--green); }
+.pipe-step.active::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+  background: var(--gold);
+}
+.pipe-step.done::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+  background: var(--green);
+}
+.pipe-icon { font-size: 18px; }
+.pipe-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+
+/* ── SECTION CARD ── */
+.section-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 18px; overflow: hidden;
+  margin-bottom: 28px;
+  animation: fadeUp 0.5s ease both;
+}
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(20px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.section-card-header {
+  padding: 24px 32px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 14px;
+  background: rgba(255,255,255,0.02);
+}
+.section-card-icon {
+  width: 40px; height: 40px;
+  background: var(--gold-dim);
+  border: 1px solid rgba(201,168,76,0.25);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+.section-card-title { font-family: 'Playfair Display'; font-size: 20px; font-weight: 700; }
+.section-card-title em { font-style: italic; color: var(--gold); }
+.section-card-sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
+.section-card-body { padding: 32px; }
+
+/* ── FORM ELEMENTS ── */
+.field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+.field label { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(244,239,230,0.45); font-weight: 500; }
+.field input, .field select, .field textarea {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(201,168,76,0.15);
+  border-radius: 10px; padding: 13px 16px;
+  color: var(--white); font-family: 'DM Sans'; font-size: 14px;
+  outline: none; transition: all 0.3s; width: 100%;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,168,76,0.08);
+  background: rgba(201,168,76,0.03);
+}
+.field input::placeholder, .field textarea::placeholder { color: rgba(244,239,230,0.2); }
+.field select option { background: #1a1a1a; }
+.field textarea { resize: vertical; min-height: 100px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+/* ── CHIPS ── */
+.chips-wrap { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.chip {
+  padding: 8px 16px; border-radius: 100px;
+  border: 1px solid rgba(201,168,76,0.18);
+  color: rgba(244,239,230,0.55); font-size: 13px;
+  cursor: pointer; transition: all 0.25s; user-select: none;
+  background: transparent;
+}
+.chip:hover { border-color: var(--gold); color: var(--white); }
+.chip.on { background: var(--gold); border-color: var(--gold); color: var(--black); font-weight: 600; }
+
+/* ── VIDEO STYLE CARDS ── */
+.style-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.style-card {
+  padding: 20px 16px; border-radius: 12px;
+  border: 1px solid rgba(201,168,76,0.15);
+  cursor: pointer; transition: all 0.3s; text-align: center;
+  background: rgba(255,255,255,0.02);
+}
+.style-card:hover { border-color: var(--gold); background: rgba(201,168,76,0.05); }
+.style-card.selected {
+  border-color: var(--gold); background: rgba(201,168,76,0.1);
+  box-shadow: 0 0 20px rgba(201,168,76,0.1);
+}
+.style-icon { font-size: 32px; margin-bottom: 8px; }
+.style-name { font-size: 13px; font-weight: 600; margin-bottom: 4px; color: var(--white); }
+.style-desc { font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+/* ── DURATION SLIDER ── */
+.dur-display {
+  font-family: 'Playfair Display'; font-size: 48px; font-weight: 700;
+  color: var(--gold); text-align: center; margin: 8px 0;
+}
+.dur-display span { font-size: 18px; font-family: 'DM Sans'; color: var(--muted); }
+input[type=range] {
+  width: 100%; -webkit-appearance: none;
+  height: 3px; background: rgba(201,168,76,0.15); border-radius: 4px; outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%;
+  background: var(--gold); cursor: pointer; box-shadow: 0 0 14px rgba(201,168,76,0.5);
+}
+
+/* ── GENERATE BTN ── */
+.btn-generate {
+  width: 100%; padding: 18px;
+  background: linear-gradient(135deg, #C9A84C 0%, #E8C96A 50%, #C9A84C 100%);
+  background-size: 200% 100%;
+  color: var(--black); border: none; border-radius: 12px;
+  font-family: 'DM Sans'; font-size: 16px; font-weight: 700;
+  cursor: pointer; transition: all 0.4s;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  letter-spacing: 0.3px;
+  animation: shimmer 3s ease infinite;
+}
+@keyframes shimmer { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+.btn-generate:hover { transform: scale(1.02); box-shadow: 0 8px 40px rgba(201,168,76,0.35); }
+.btn-generate:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+
+/* ── GENERATING STATE ── */
+.gen-overlay {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 60px 32px; gap: 28px; text-align: center;
+}
+.gen-visual {
+  position: relative; width: 100px; height: 100px;
+}
+.gen-ring-outer {
+  position: absolute; inset: 0; border-radius: 50%;
+  border: 2px solid rgba(201,168,76,0.1);
+  border-top-color: var(--gold);
+  animation: spin 1.2s linear infinite;
+}
+.gen-ring-inner {
+  position: absolute; inset: 14px; border-radius: 50%;
+  border: 1px solid rgba(201,168,76,0.08);
+  border-bottom-color: var(--gold-light);
+  animation: spin 0.8s linear infinite reverse;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.gen-center-icon { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 28px; }
+.gen-title { font-family: 'Playfair Display'; font-size: 28px; font-weight: 700; }
+.gen-title em { color: var(--gold); font-style: italic; }
+.gen-substeps { display: flex; flex-direction: column; gap: 12px; text-align: left; width: 100%; max-width: 380px; }
+.gen-substep {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px; border-radius: 10px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.04);
+  font-size: 13px; color: var(--muted);
+  transition: all 0.5s;
+}
+.gen-substep.active { color: var(--gold); background: rgba(201,168,76,0.06); border-color: rgba(201,168,76,0.15); }
+.gen-substep.done { color: var(--green); background: rgba(76,175,106,0.05); border-color: rgba(76,175,106,0.15); }
+
+/* ── STORYBOARD ── */
+.storyboard-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 32px; flex-wrap: wrap; gap: 16px;
+}
+.sb-meta { display: flex; gap: 16px; flex-wrap: wrap; }
+.sb-tag {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  padding: 6px 14px; border-radius: 100px;
+  font-size: 12px; color: var(--muted);
+}
+.sb-tag strong { color: var(--white); }
+
+.scenes-grid { display: flex; flex-direction: column; gap: 16px; }
+.scene-card {
+  background: var(--card);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px; overflow: hidden;
+  transition: all 0.35s;
+  animation: fadeUp 0.4s ease both;
+}
+.scene-card:hover { border-color: rgba(201,168,76,0.25); transform: translateX(4px); }
+.scene-inner { display: grid; grid-template-columns: 200px 1fr; min-height: 160px; }
+.scene-visual {
+  position: relative;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 20px 16px; gap: 8px;
+  border-right: 1px solid rgba(255,255,255,0.05);
+  overflow: hidden;
+}
+.scene-visual::before {
+  content: ''; position: absolute; inset: 0;
+  opacity: 0.6;
+}
+.scene-num {
+  font-family: 'Bebas Neue'; font-size: 56px; line-height: 1;
+  color: rgba(255,255,255,0.12); position: absolute; top: 8px; right: 10px;
+}
+.scene-emoji { font-size: 36px; position: relative; z-index: 1; }
+.scene-duration {
+  font-size: 11px; letter-spacing: 1px; text-transform: uppercase;
+  color: rgba(255,255,255,0.4); position: relative; z-index: 1;
+}
+.scene-type-badge {
+  font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
+  padding: 4px 10px; border-radius: 100px;
+  position: relative; z-index: 1;
+}
+.scene-content { padding: 20px 24px; display: flex; flex-direction: column; justify-content: center; gap: 10px; }
+.scene-label {
+  font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--gold); font-weight: 600;
+}
+.scene-text {
+  font-size: 15px; line-height: 1.7; color: rgba(244,239,230,0.82);
+  font-style: italic; font-family: 'Playfair Display';
+}
+.scene-direction {
+  font-size: 12px; color: var(--muted); line-height: 1.5;
+  border-left: 2px solid rgba(201,168,76,0.25); padding-left: 12px;
+}
+
+/* Scene color themes */
+.scene-card[data-type="hook"] .scene-visual::before { background: linear-gradient(135deg, rgba(201,168,76,0.15), rgba(201,168,76,0.05)); }
+.scene-card[data-type="hook"] .scene-type-badge { background: rgba(201,168,76,0.15); color: var(--gold); }
+.scene-card[data-type="problema"] .scene-visual::before { background: linear-gradient(135deg, rgba(224,85,85,0.12), rgba(224,85,85,0.04)); }
+.scene-card[data-type="problema"] .scene-type-badge { background: rgba(224,85,85,0.12); color: #E05555; }
+.scene-card[data-type="ciencia"] .scene-visual::before { background: linear-gradient(135deg, rgba(74,144,217,0.12), rgba(74,144,217,0.04)); }
+.scene-card[data-type="ciencia"] .scene-type-badge { background: rgba(74,144,217,0.12); color: #4A90D9; }
+.scene-card[data-type="receta"] .scene-visual::before { background: linear-gradient(135deg, rgba(76,175,106,0.12), rgba(76,175,106,0.04)); }
+.scene-card[data-type="receta"] .scene-type-badge { background: rgba(76,175,106,0.12); color: var(--green); }
+.scene-card[data-type="resultado"] .scene-visual::before { background: linear-gradient(135deg, rgba(155,107,232,0.12), rgba(155,107,232,0.04)); }
+.scene-card[data-type="resultado"] .scene-type-badge { background: rgba(155,107,232,0.12); color: #B08EF0; }
+.scene-card[data-type="cta"] .scene-visual::before { background: linear-gradient(135deg, rgba(201,168,76,0.2), rgba(232,201,106,0.08)); }
+.scene-card[data-type="cta"] .scene-type-badge { background: rgba(201,168,76,0.2); color: var(--gold-light); }
+
+/* ── FULL SCRIPT VIEW ── */
+.script-view {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px; padding: 28px 32px;
+  font-size: 14px; line-height: 1.9;
+  color: rgba(244,239,230,0.75);
+  max-height: 400px; overflow-y: auto;
+  font-family: 'DM Sans';
+}
+.script-view::-webkit-scrollbar { width: 4px; }
+.script-view::-webkit-scrollbar-track { background: transparent; }
+.script-view::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.3); border-radius: 4px; }
+
+/* ── VIDEO PRODUCTION PANEL ── */
+.production-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+.prod-option {
+  padding: 20px; border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.02);
+  cursor: pointer; transition: all 0.3s;
+}
+.prod-option:hover { border-color: var(--gold); background: rgba(201,168,76,0.04); }
+.prod-option.selected { border-color: var(--gold); background: rgba(201,168,76,0.08); }
+.prod-option-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.prod-icon { font-size: 22px; }
+.prod-name { font-size: 14px; font-weight: 600; }
+.prod-badge {
+  margin-left: auto; font-size: 10px; letter-spacing: 1px;
+  text-transform: uppercase; padding: 3px 10px; border-radius: 100px;
+}
+.badge-live { background: rgba(76,175,106,0.15); color: var(--green); border: 1px solid rgba(76,175,106,0.2); }
+.badge-soon { background: rgba(201,168,76,0.1); color: var(--gold); border: 1px solid rgba(201,168,76,0.2); }
+.prod-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+.prod-features { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+.prod-feat { font-size: 10px; padding: 3px 8px; background: rgba(255,255,255,0.04); border-radius: 100px; color: var(--muted); }
+
+/* ── API KEY INPUT ── */
+.api-key-row {
+  display: flex; gap: 12px; align-items: center;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(201,168,76,0.15);
+  border-radius: 10px; padding: 12px 16px;
+  margin-bottom: 20px;
+}
+.api-key-row input {
+  flex: 1; background: transparent; border: none;
+  color: var(--white); font-family: 'DM Sans'; font-size: 14px;
+  outline: none; font-family: monospace; letter-spacing: 1px;
+}
+.api-key-row input::placeholder { color: rgba(244,239,230,0.2); font-family: 'DM Sans'; letter-spacing: 0; }
+.api-key-row label { font-size: 11px; color: var(--gold); letter-spacing: 1px; white-space: nowrap; }
+
+/* ── VIDEO RESULT ── */
+.video-result {
+  border: 1px solid rgba(76,175,106,0.25);
+  border-radius: 14px; overflow: hidden;
+  background: rgba(76,175,106,0.04);
+}
+.video-result-header {
+  padding: 16px 24px; display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid rgba(76,175,106,0.15);
+  font-size: 13px; color: var(--green);
+  background: rgba(76,175,106,0.06);
+}
+.video-player-placeholder {
+  aspect-ratio: 16/9; background: var(--deep);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 16px; color: var(--muted); font-size: 14px;
+}
+.play-btn-big {
+  width: 64px; height: 64px;
+  background: var(--gold); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; cursor: pointer;
+  box-shadow: 0 0 30px rgba(201,168,76,0.4);
+  transition: transform 0.2s;
+}
+.play-btn-big:hover { transform: scale(1.1); }
+
+/* ── ACTIONS ── */
+.actions-row { display: flex; gap: 12px; flex-wrap: wrap; }
+.btn-primary {
+  background: var(--gold); color: var(--black);
+  border: none; border-radius: 100px; padding: 13px 28px;
+  font-family: 'DM Sans'; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: all 0.3s;
+}
+.btn-primary:hover { background: var(--gold-light); transform: scale(1.03); }
+.btn-ghost {
+  background: transparent; color: var(--muted);
+  border: 1px solid rgba(255,255,255,0.1); border-radius: 100px;
+  padding: 12px 24px; font-family: 'DM Sans'; font-size: 14px;
+  cursor: pointer; transition: all 0.3s;
+}
+.btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+
+/* ── TABS ── */
+.tabs { display: flex; gap: 4px; background: rgba(255,255,255,0.04); padding: 4px; border-radius: 10px; margin-bottom: 24px; }
+.tab {
+  flex: 1; padding: 10px 16px; border-radius: 8px; border: none;
+  font-family: 'DM Sans'; font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all 0.3s; color: var(--muted);
+  background: transparent;
+}
+.tab.active { background: rgba(201,168,76,0.12); color: var(--gold); }
+
+/* ── DISCLAIMER ── */
+.disclaimer {
+  margin-top: 24px; padding: 14px 20px;
+  background: rgba(201,168,76,0.03); border: 1px solid rgba(201,168,76,0.08);
+  border-radius: 10px; font-size: 11px; color: rgba(244,239,230,0.28);
+  line-height: 1.6; text-align: center;
+}
+
+/* ── VIDEO QUEUE ── */
+.queue-item {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px; background: var(--card);
+  border: 1px solid rgba(255,255,255,0.06); border-radius: 10px;
+  margin-bottom: 10px; transition: all 0.3s;
+}
+.queue-thumb {
+  width: 56px; height: 40px; border-radius: 6px;
+  background: rgba(201,168,76,0.1);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0;
+}
+.queue-info { flex: 1; }
+.queue-title { font-size: 13px; font-weight: 500; margin-bottom: 3px; }
+.queue-meta { font-size: 11px; color: var(--muted); }
+.queue-status { font-size: 11px; padding: 4px 10px; border-radius: 100px; }
+.status-done { background: rgba(76,175,106,0.12); color: var(--green); }
+.status-gen { background: rgba(201,168,76,0.12); color: var(--gold); animation: statusBlink 1.5s ease infinite; }
+@keyframes statusBlink { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 700px) {
+  header { padding: 14px 20px; }
+  main { padding: 36px 16px 80px; }
+  .pipeline { display: none; }
+  .scene-inner { grid-template-columns: 80px 1fr; }
+  .scene-visual { padding: 12px 8px; }
+  .scene-emoji { font-size: 24px; }
+  .style-grid { grid-template-columns: 1fr 1fr; }
+  .production-grid { grid-template-columns: 1fr; }
+  .grid-2 { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="bg-film"></div>
+<div class="app">
+
+<!-- HEADER -->
+<header>
+  <div class="logo">Pure<span>Life</span> · Video Agent</div>
+  <div class="header-right">
+    <div class="agent-badge">
+      <div class="agent-dot"></div>
+      AI Video Studio
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- HERO -->
+  <div class="hero-intro">
+    <div class="hero-eyebrow">Motor de Video Educativo con IA</div>
+    <h1>Videos que <em>transforman</em><br>vidas, no que informan.</h1>
+    <p>El AI genera un guión humanístico basado en el diagnóstico de salud del usuario, lo divide en escenas cinematográficas y produce el video educativo personalizado.</p>
+  </div>
+
+  <!-- PIPELINE -->
+  <div class="pipeline" id="pipeline">
+    <div class="pipe-step active" id="pipe0"><span class="pipe-icon">📋</span><span class="pipe-label">Perfil</span></div>
+    <div class="pipe-step" id="pipe1"><span class="pipe-icon">✍️</span><span class="pipe-label">Guión</span></div>
+    <div class="pipe-step" id="pipe2"><span class="pipe-icon">🎬</span><span class="pipe-label">Storyboard</span></div>
+    <div class="pipe-step" id="pipe3"><span class="pipe-icon">🎥</span><span class="pipe-label">Producción</span></div>
+    <div class="pipe-step" id="pipe4"><span class="pipe-icon">✅</span><span class="pipe-label">Listo</span></div>
+  </div>
+
+  <!-- PHASE 0: PROFILE INPUT -->
+  <div id="phase0">
+    <!-- Perfil del usuario -->
+    <div class="section-card">
+      <div class="section-card-header">
+        <div class="section-card-icon">👤</div>
+        <div>
+          <div class="section-card-title">Perfil del <em>usuario</em></div>
+          <div class="section-card-sub">Pega el diagnóstico o ingresa los datos manualmente</div>
+        </div>
+      </div>
+      <div class="section-card-body">
+        <div class="grid-2">
+          <div class="field">
+            <label>Nombre del usuario</label>
+            <input type="text" id="u_name" placeholder="Ej: María García">
+          </div>
+          <div class="field">
+            <label>Edad</label>
+            <input type="number" id="u_age" placeholder="34">
+          </div>
+        </div>
+        <div class="field">
+          <label>Condiciones de salud relevantes</label>
+          <input type="text" id="u_cond" placeholder="Ej: inflamación crónica, colesterol alto, poca energía…">
+        </div>
+        <div class="field">
+          <label>Objetivos principales</label>
+          <input type="text" id="u_goals" placeholder="Ej: más energía, perder grasa, mejorar digestión…">
+        </div>
+        <div class="field">
+          <label>Ingredientes recomendados en su protocolo</label>
+          <input type="text" id="u_ingr" placeholder="Ej: cúrcuma, jengibre, espinaca, remolacha, manzana verde…">
+        </div>
+        <div class="field">
+          <label>Idioma del video</label>
+          <select id="u_lang">
+            <option value="Español">Español</option>
+            <option value="Inglés">English</option>
+            <option value="Portugués">Português</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Estilo del video -->
+    <div class="section-card">
+      <div class="section-card-header">
+        <div class="section-card-icon">🎬</div>
+        <div>
+          <div class="section-card-title">Estilo del <em>video</em></div>
+          <div class="section-card-sub">El tono visual y narrativo define el impacto emocional</div>
+        </div>
+      </div>
+      <div class="section-card-body">
+        <div class="style-grid" id="styleGrid">
+          <div class="style-card selected" data-style="documental" onclick="selectStyle(this)">
+            <div class="style-icon">🌿</div>
+            <div class="style-name">Documental Natural</div>
+            <div class="style-desc">Narración calmada, imágenes de naturaleza, ingredientes frescos. Genera confianza.</div>
+          </div>
+          <div class="style-card" data-style="cientifico" onclick="selectStyle(this)">
+            <div class="style-icon">🔬</div>
+            <div class="style-name">Científico Visual</div>
+            <div class="style-desc">Datos, animaciones de moléculas, gráficos. Credibilidad académica.</div>
+          </div>
+          <div class="style-card" data-style="testimonial" onclick="selectStyle(this)">
+            <div class="style-icon">❤️</div>
+            <div class="style-name">Testimonial Humano</div>
+            <div class="style-desc">Historia personal, emocional, relatable. El usuario se ve reflejado.</div>
+          </div>
+          <div class="style-card" data-style="motivacional" onclick="selectStyle(this)">
+            <div class="style-icon">⚡</div>
+            <div class="style-name">Motivacional</div>
+            <div class="style-desc">Ritmo rápido, música energizante, calls-to-action poderosos.</div>
+          </div>
+          <div class="style-card" data-style="educativo" onclick="selectStyle(this)">
+            <div class="style-icon">📚</div>
+            <div class="style-name">Educativo Paso a Paso</div>
+            <div class="style-desc">Estructura clara, segmentada. Ideal para enseñar protocolos.</div>
+          </div>
+          <div class="style-card" data-style="cinematico" onclick="selectStyle(this)">
+            <div class="style-icon">🎥</div>
+            <div class="style-name">Cinematográfico</div>
+            <div class="style-desc">Tomas lentas, luz dorada, narración poética. Premium y aspiracional.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Duración y formato -->
+    <div class="section-card">
+      <div class="section-card-header">
+        <div class="section-card-icon">⏱️</div>
+        <div>
+          <div class="section-card-title">Duración y <em>formato</em></div>
+          <div class="section-card-sub">Cada segundo cuenta — calibra el impacto</div>
+        </div>
+      </div>
+      <div class="section-card-body">
+        <div class="dur-display" id="durDisplay">60 <span>segundos</span></div>
+        <input type="range" id="durSlider" min="30" max="120" step="15" value="60"
+          oninput="document.getElementById('durDisplay').innerHTML=this.value+' <span>segundos</span>'">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:8px;">
+          <span>30s · Reel</span><span>60s · Estándar</span><span>90s · Profundo</span><span>2min · Tutorial</span>
+        </div>
+
+        <div style="margin-top:28px;">
+          <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(244,239,230,0.45);margin-bottom:12px;">Formato de distribución</div>
+          <div class="chips-wrap" id="formatChips">
+            <div class="chip on" onclick="toggleChip(this)">📱 Vertical 9:16 (Reels/TikTok)</div>
+            <div class="chip" onclick="toggleChip(this)">📺 Horizontal 16:9 (YouTube)</div>
+            <div class="chip" onclick="toggleChip(this)">⬛ Cuadrado 1:1 (Instagram)</div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px;">
+          <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(244,239,230,0.45);margin-bottom:12px;">Tono de voz del narrador</div>
+          <div class="chips-wrap" id="toneChips">
+            <div class="chip on" onclick="selectChip('tone',this)">🤗 Cálido y cercano</div>
+            <div class="chip" onclick="selectChip('tone',this)">🎓 Profesional y experto</div>
+            <div class="chip" onclick="selectChip('tone',this)">💪 Motivador y enérgico</div>
+            <div class="chip" onclick="selectChip('tone',this)">🧘 Sereno y reflexivo</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GENERATE SCRIPT BTN -->
+    <button class="btn-generate" onclick="generateScript()">
+      ✍️ Generar Guión con IA
+    </button>
+    <div class="disclaimer">
+      El video educativo presentará información sobre los beneficios funcionales de ingredientes naturales.
+      dr.smoothie.ai no hace afirmaciones médicas — solo bienestar funcional basado en propiedades de ingredientes.
+    </div>
+  </div>
+
+  <!-- PHASE 1: GENERATING -->
+  <div id="phase1" style="display:none;">
+    <div class="section-card">
+      <div class="section-card-body">
+        <div class="gen-overlay">
+          <div class="gen-visual">
+            <div class="gen-ring-outer"></div>
+            <div class="gen-ring-inner"></div>
+            <div class="gen-center-icon">✍️</div>
+          </div>
+          <div>
+            <div class="gen-title">Escribiendo tu <em>guión…</em></div>
+            <div style="color:var(--muted);font-size:14px;margin-top:6px;">La IA está construyendo cada escena</div>
+          </div>
+          <div class="gen-substeps">
+            <div class="gen-substep active" id="gs1"><span>🎯</span> Analizando perfil y objetivos del usuario</div>
+            <div class="gen-substep" id="gs2"><span>📖</span> Construyendo narrativa humanística</div>
+            <div class="gen-substep" id="gs3"><span>🎬</span> Dividiendo en escenas cinematográficas</div>
+            <div class="gen-substep" id="gs4"><span>🎙️</span> Calibrando tono y ritmo de narración</div>
+            <div class="gen-substep" id="gs5"><span>✅</span> Finalizando guión de producción</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 2: STORYBOARD + SCRIPT -->
+  <div id="phase2" style="display:none;">
+    <!-- Storyboard header -->
+    <div class="section-card">
+      <div class="section-card-header">
+        <div class="section-card-icon">🎬</div>
+        <div>
+          <div class="section-card-title">Storyboard <em>generado</em></div>
+          <div class="section-card-sub">Revisa cada escena antes de producir el video</div>
+        </div>
+      </div>
+      <div class="section-card-body">
+        <div class="storyboard-header">
+          <div class="sb-meta" id="sbMeta"></div>
+          <div class="actions-row">
+            <button class="btn-ghost" onclick="showFullScript()">📄 Ver guión completo</button>
+            <button class="btn-primary" onclick="goToProduction()">🎥 Producir video →</button>
+          </div>
+        </div>
+
+        <!-- TABS -->
+        <div class="tabs">
+          <button class="tab active" onclick="switchTab('storyboard',this)">🎬 Storyboard</button>
+          <button class="tab" onclick="switchTab('script',this)">📄 Guión completo</button>
+        </div>
+
+        <div id="tabStoryboard">
+          <div class="scenes-grid" id="scenesGrid"></div>
+        </div>
+        <div id="tabScript" style="display:none;">
+          <div class="script-view" id="scriptFull"></div>
+          <div class="actions-row" style="margin-top:16px;">
+            <button class="btn-primary" onclick="copyScript()">📋 Copiar guión</button>
+            <button class="btn-ghost" onclick="regenerateScript()">🔄 Regenerar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 3: PRODUCTION -->
+  <div id="phase3" style="display:none;">
+    <div class="section-card">
+      <div class="section-card-header">
+        <div class="section-card-icon">🎥</div>
+        <div>
+          <div class="section-card-title">Producir el <em>video</em></div>
+          <div class="section-card-sub">Elige la plataforma de generación de video con IA</div>
+        </div>
+      </div>
+      <div class="section-card-body">
+        <div class="production-grid">
+          <div class="prod-option selected" id="prodFal" onclick="selectProd('fal')">
+            <div class="prod-option-header">
+              <span class="prod-icon">⚡</span>
+              <span class="prod-name">fal.ai</span>
+              <span class="prod-badge badge-live">Live</span>
+            </div>
+            <div class="prod-desc">Generación de video con IA directamente desde el guión. Kling v2.6 Pro o Veo 3.1.</div>
+            <div class="prod-features">
+              <span class="prod-feat">Kling v2.6 Pro</span>
+              <span class="prod-feat">Veo 3.1</span>
+              <span class="prod-feat">4K output</span>
+            </div>
+          </div>
+          <div class="prod-option" id="prodHey" onclick="selectProd('heygen')">
+            <div class="prod-option-header">
+              <span class="prod-icon">🧑‍💼</span>
+              <span class="prod-name">HeyGen Avatar</span>
+              <span class="prod-badge badge-soon">Tu avatar</span>
+            </div>
+            <div class="prod-desc">Tu avatar personalizado narra el guión. Conectar con tu API key de HeyGen.</div>
+            <div class="prod-features">
+              <span class="prod-feat">Avatar propio</span>
+              <span class="prod-feat">Voz clonada</span>
+              <span class="prod-feat">Multiidioma</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="prodConfigFal">
+          <div class="api-key-row">
+            <label>🔑 FAL KEY</label>
+            <input type="password" id="falKey" placeholder="9c79e1dc-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
+          </div>
+          <div class="field">
+            <label>Motor de video</label>
+            <select id="falModel">
+              <option value="fal-ai/kling-video/v2/master/text-to-video">Kling v2.6 Master (Recomendado)</option>
+              <option value="fal-ai/veo3">Veo 3.1 (Alta calidad)</option>
+              <option value="fal-ai/fast-animatediff/text-to-video">AnimateDiff Fast (Rápido)</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="prodConfigHey" style="display:none;">
+          <div class="api-key-row">
+            <label>🔑 HEYGEN KEY</label>
+            <input type="password" id="heyKey" placeholder="Tu HeyGen API Key">
+          </div>
+          <div class="field">
+            <label>ID de tu avatar</label>
+            <input type="text" id="heyAvatar" placeholder="Ej: avatar_jorge_001">
+          </div>
+          <div class="field">
+            <label>ID de voz</label>
+            <input type="text" id="heyVoice" placeholder="Ej: voice_es_jorge">
+          </div>
+        </div>
+
+        <button class="btn-generate" id="btnProduce" onclick="produceVideo()">
+          🎥 Producir Video Ahora
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 4: VIDEO RESULT -->
+  <div id="phase4" style="display:none;">
+    <div class="section-card">
+      <div class="section-card-header">
+        <div class="section-card-icon">✅</div>
+        <div>
+          <div class="section-card-title">Video <em>listo</em></div>
+          <div class="section-card-sub">Tu video educativo personalizado está listo para publicar</div>
+        </div>
+      </div>
+      <div class="section-card-body">
+        <div class="video-result" id="videoResultContainer">
+          <div class="video-result-header">
+            ✅ Video generado exitosamente — <span id="videoUserName"></span>
+          </div>
+          <div id="videoPlayerArea">
+            <div class="video-player-placeholder">
+              <div class="play-btn-big" id="playBtn">▶</div>
+              <div id="videoStatus">Procesando video…</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions-row" style="margin-top:20px;">
+          <button class="btn-primary" id="btnDownload" style="display:none;" onclick="downloadVideo()">⬇️ Descargar MP4</button>
+          <button class="btn-ghost" onclick="goBack()">← Editar guión</button>
+          <button class="btn-ghost" onclick="resetAll()">🔄 Nuevo video</button>
+        </div>
+
+        <!-- VIDEO QUEUE -->
+        <div style="margin-top:32px;">
+          <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;">Historial de videos generados</div>
+          <div id="videoQueue"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<script>
+let selectedStyle = 'documental';
+let selectedTone  = '🤗 Cálido y cercano';
+let selectedProd  = 'fal';
+let scriptData    = null;
+let videoQueue    = [];
+let currentVideoUrl = null;
+
+// ── UI HELPERS ──
+function selectStyle(el) {
+  document.querySelectorAll('.style-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedStyle = el.dataset.style;
+}
+function toggleChip(el) { el.classList.toggle('on'); }
+function selectChip(group, el) {
+  document.querySelectorAll(`#${group}Chips .chip`).forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+  selectedTone = el.textContent.trim();
+}
+function setPipe(idx) {
+  for(let i=0;i<5;i++){
+    const p = document.getElementById('pipe'+i);
+    p.className = 'pipe-step' + (i < idx ? ' done' : i === idx ? ' active' : '');
+  }
+}
+function showPhase(n) {
+  [0,1,2,3,4].forEach(i => document.getElementById('phase'+i).style.display = i===n?'block':'none');
+  setPipe(n===1?1:n===2?2:n===3?3:n===4?4:0);
+}
+function switchTab(tab, el) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tabStoryboard').style.display = tab==='storyboard'?'block':'none';
+  document.getElementById('tabScript').style.display = tab==='script'?'block':'none';
+}
+function selectProd(p) {
+  selectedProd = p;
+  ['fal','heygen'].forEach(id=>{
+    document.getElementById('prod'+id.charAt(0).toUpperCase()+id.slice(1)).classList.toggle('selected', id===p);
+  });
+  document.getElementById('prodConfigFal').style.display = p==='fal'?'block':'none';
+  document.getElementById('prodConfigHey').style.display = p==='heygen'?'block':'none';
+}
+function showFullScript() { switchTab('script', document.querySelectorAll('.tab')[1]); }
+function goToProduction() { showPhase(3); setPipe(3); }
+function goBack() { showPhase(2); }
+function regenerateScript() { showPhase(0); }
+
+// ── COPY SCRIPT ──
+function copyScript() {
+  if (!scriptData) return;
+  const txt = scriptData.scenes.map((s,i)=>
+    `ESCENA ${i+1} — ${s.type.toUpperCase()}\nTexto: ${s.text}\nDirección: ${s.direction}\n`
+  ).join('\n');
+  navigator.clipboard.writeText(txt).then(()=>alert('✅ Guión copiado'));
+}
+
+// ── GENERATE SCRIPT ──
+async function generateScript() {
+  const name   = document.getElementById('u_name').value.trim() || 'el usuario';
+  const age    = document.getElementById('u_age').value || 'adulto';
+  const cond   = document.getElementById('u_cond').value.trim() || 'bienestar general';
+  const goals  = document.getElementById('u_goals').value.trim() || 'más energía y salud';
+  const ingr   = document.getElementById('u_ingr').value.trim() || 'jugos y smoothies naturales';
+  const lang   = document.getElementById('u_lang').value;
+  const dur    = document.getElementById('durSlider').value;
+
+  showPhase(1);
+
+  // Animate gen steps
+  const delays = [600, 1400, 2200, 3000, 3800];
+  delays.forEach((d,i) => setTimeout(() => {
+    const el = document.getElementById('gs'+(i+1));
+    if (el) { el.classList.add('done'); el.querySelector('span').textContent='✅'; }
+    if (i<4 && document.getElementById('gs'+(i+2))) document.getElementById('gs'+(i+2)).classList.add('active');
+  }, d));
+
+  const styleMap = {
+    documental: 'documental naturalista — narración serena, imágenes de ingredientes frescos en la naturaleza',
+    cientifico: 'científico visual — datos, propiedades moleculares, gráficos de efectos en el cuerpo',
+    testimonial: 'testimonial humano — historia personal, emocional, el usuario como protagonista de su cambio',
+    motivacional: 'motivacional — ritmo rápido, energía, calls-to-action, música inspiradora',
+    educativo: 'educativo paso a paso — instrucciones claras, segmentadas, fáciles de seguir',
+    cinematico: 'cinematográfico premium — tomas lentas, luz dorada, narración poética y aspiracional'
+  };
+
+  const prompt = `Eres el guionista de elite de dr.smoothie.ai / PureLife Wellness Club. Tu especialidad es crear videos educativos humanísticos que transforman la vida de las personas a través del poder de los jugos naturales y smoothies funcionales.
+
+Perfil del usuario:
+- Nombre: ${name}, ${age} años
+- Condiciones: ${cond}
+- Objetivos: ${goals}
+- Ingredientes de su protocolo: ${ingr}
+- Duración del video: ${dur} segundos
+- Estilo visual: ${styleMap[selectedStyle] || selectedStyle}
+- Tono de narración: ${selectedTone}
+- Idioma: ${lang}
+
+Crea UN GUIÓN COMPLETO de video educativo humanístico EXACTAMENTE en este formato JSON (sin texto adicional, solo JSON):
+
+{
+  "title": "Título del video (máx 60 chars)",
+  "subtitle": "Subtítulo emotivo",
+  "duration": ${dur},
+  "totalScenes": 6,
+  "scenes": [
+    {
+      "num": 1,
+      "type": "hook",
+      "emoji": "🌅",
+      "duration": "0-${Math.round(dur*0.12)}s",
+      "text": "El texto que dice el narrador en voz alta (poderoso, emocional, directo al corazón)",
+      "direction": "Descripción visual de la escena para el equipo de producción o IA generadora"
+    },
+    {
+      "num": 2,
+      "type": "problema",
+      "emoji": "😔",
+      "duration": "${Math.round(dur*0.13)}-${Math.round(dur*0.28)}s",
+      "text": "Narración que conecta con el dolor o problema que vive ${name}",
+      "direction": "Descripción visual"
+    },
+    {
+      "num": 3,
+      "type": "ciencia",
+      "emoji": "🔬",
+      "duration": "${Math.round(dur*0.29)}-${Math.round(dur*0.48)}s",
+      "text": "Explicación científica SIMPLE de por qué estos ingredientes funcionan para sus condiciones específicas",
+      "direction": "Descripción visual"
+    },
+    {
+      "num": 4,
+      "type": "receta",
+      "emoji": "🥤",
+      "duration": "${Math.round(dur*0.49)}-${Math.round(dur*0.68)}s",
+      "text": "La receta específica de su protocolo con los ingredientes recomendados — paso a paso",
+      "direction": "Descripción visual de preparación de la receta"
+    },
+    {
+      "num": 5,
+      "type": "resultado",
+      "emoji": "✨",
+      "duration": "${Math.round(dur*0.69)}-${Math.round(dur*0.85)}s",
+      "text": "Qué puede esperar sentir y ver en su cuerpo — resultados reales y esperanzadores",
+      "direction": "Descripción visual de transformación positiva"
+    },
+    {
+      "num": 6,
+      "type": "cta",
+      "emoji": "🚀",
+      "duration": "${Math.round(dur*0.86)}-${dur}s",
+      "text": "Call to action emotivo — invitación a unirse a PureLife y transformar su vida",
+      "direction": "Logo PureLife / dr.smoothie.ai, URL, ambiente inspirador"
+    }
+  ],
+  "fullScript": "El guión completo corrido de ${dur} segundos como lo leería el narrador, sin etiquetas de escena, fluido y natural",
+  "productionNotes": "Notas de producción: música recomendada, ritmo de corte, efectos especiales sugeridos",
+  "visualPrompt": "Prompt en inglés optimizado para generación con IA de video (fal.ai/Kling) describiendo la atmósfera visual general del video"
+}
+
+CRÍTICO: Responde SOLO JSON puro. Nada antes ni después. El texto del narrador debe ser humanístico, cálido, científicamente fundamentado pero accessible. Nunca haga afirmaciones médicas — usa "puede ayudar", "se asocia con", "las propiedades de", etc.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 2000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    const data = await res.json();
+    let raw = data.content?.[0]?.text || '{}';
+    // Strip markdown fences if present
+    raw = raw.replace(/```json|```/g, '').trim();
+    const json = JSON.parse(raw);
+    scriptData = json;
+
+    setTimeout(() => renderStoryboard(json, name, dur), 4200);
+  } catch (err) {
+    setTimeout(() => {
+      scriptData = getFallbackScript(name, ingr, goals, dur);
+      renderStoryboard(scriptData, name, dur);
+    }, 4200);
+  }
+}
+
+// ── FALLBACK SCRIPT ──
+function getFallbackScript(name, ingr, goals, dur) {
+  return {
+    title: `Tu protocolo de bienestar, ${name}`,
+    subtitle: 'La naturaleza tiene la respuesta que buscabas',
+    duration: parseInt(dur),
+    totalScenes: 6,
+    scenes: [
+      { num:1, type:'hook', emoji:'🌅', duration:`0-8s`, text:`${name}, hay algo que la naturaleza lleva siglos sabiendo y que la ciencia moderna acaba de confirmar.`, direction:'Amanecer sobre campo verde, luz dorada, cámara lenta' },
+      { num:2, type:'problema', emoji:'😔', duration:`8-20s`, text:`Millones de personas se despiertan cada día sintiendo lo mismo que tú: esa fatiga que no desaparece, esa sensación de que algo no está bien.`, direction:'Persona mirando el techo, luz gris, ritmo lento' },
+      { num:3, type:'ciencia', emoji:'🔬', duration:`20-35s`, text:`Los ingredientes como ${ingr} contienen compuestos bioactivos que actúan directamente sobre los procesos de inflamación y energía celular.`, direction:'Animación molecular, colores vibrantes, ingredientes frescos en close-up' },
+      { num:4, type:'receta', emoji:'🥤', duration:`35-50s`, text:`Tu protocolo: mezcla los ingredientes de tu plan personalizado cada mañana. 20 minutos antes de tu primera comida. Constancia es la clave.`, direction:'Manos preparando jugo, ingredientes coloridos, cocina luminosa' },
+      { num:5, type:'resultado', emoji:'✨', duration:`50-58s`, text:`En 14 días, ${name}, empezarás a notar la diferencia. Tu cuerpo fue diseñado para prosperar — solo necesita los ingredientes correctos.`, direction:'Persona activa, sonriendo, llena de energía, luz natural' },
+      { num:6, type:'cta', emoji:'🚀', duration:`58-${dur}s`, text:`Únete a PureLife. Tu rutina personalizada te espera en dr.smoothie.ai`, direction:'Logo PureLife dorado sobre fondo oscuro, URL, música inspiradora' }
+    ],
+    fullScript: `${name}, hay algo que la naturaleza lleva siglos sabiendo y que la ciencia moderna acaba de confirmar. Millones de personas se despiertan cada día sintiendo lo mismo que tú: esa fatiga que no desaparece. Los ingredientes como ${ingr} contienen compuestos bioactivos que actúan directamente sobre los procesos de inflamación y energía celular. Tu protocolo: cada mañana, constancia es la clave. En 14 días empezarás a notar la diferencia. Únete a PureLife — dr.smoothie.ai`,
+    productionNotes: 'Música: ambient orgánico, 80-90 BPM. Paleta: verdes, dorados, blancos. Sin cortes bruscos.',
+    visualPrompt: 'cinematic wellness documentary, natural lighting, fresh ingredients, golden hour, slow motion, organic textures, green and gold palette, 4K'
+  };
+}
+
+// ── RENDER STORYBOARD ──
+function renderStoryboard(data, name, dur) {
+  // Meta tags
+  const meta = document.getElementById('sbMeta');
+  meta.innerHTML = `
+    <div class="sb-tag"><strong>${data.title||'Video Personalizado'}</strong></div>
+    <div class="sb-tag">⏱️ <strong>${data.duration||dur}s</strong></div>
+    <div class="sb-tag">🎬 <strong>${data.scenes?.length||6} escenas</strong></div>
+    <div class="sb-tag">🌐 <strong>${document.getElementById('u_lang').value}</strong></div>
+  `;
+
+  // Scenes
+  const grid = document.getElementById('scenesGrid');
+  grid.innerHTML = '';
+  (data.scenes || []).forEach((scene, i) => {
+    const card = document.createElement('div');
+    card.className = 'scene-card';
+    card.dataset.type = scene.type || 'hook';
+    card.style.animationDelay = `${i * 0.1}s`;
+    card.innerHTML = `
+      <div class="scene-inner">
+        <div class="scene-visual">
+          <div class="scene-num">0${scene.num||i+1}</div>
+          <div class="scene-emoji">${scene.emoji||'🎬'}</div>
+          <div class="scene-duration">${scene.duration||''}</div>
+          <div class="scene-type-badge">${(scene.type||'escena').toUpperCase()}</div>
+        </div>
+        <div class="scene-content">
+          <div class="scene-label">Narración</div>
+          <div class="scene-text">"${scene.text||''}"</div>
+          <div class="scene-direction">🎥 ${scene.direction||''}</div>
+        </div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+
+  // Full script
+  document.getElementById('scriptFull').innerHTML = `
+    <p style="margin-bottom:16px;color:var(--gold);font-size:13px;font-weight:600;letter-spacing:1px;text-transform:uppercase;">GUIÓN COMPLETO — ${data.duration||dur}s</p>
+    <p style="margin-bottom:20px;">${(data.fullScript||'').replace(/\n/g,'<br>')}</p>
+    ${data.productionNotes ? `<p style="border-top:1px solid var(--border);padding-top:16px;margin-top:8px;font-size:12px;color:var(--muted);">📋 NOTAS DE PRODUCCIÓN: ${data.productionNotes}</p>` : ''}
+    ${data.visualPrompt ? `<p style="margin-top:12px;font-size:12px;color:rgba(74,144,217,0.8);font-family:monospace;">🤖 VISUAL PROMPT: ${data.visualPrompt}</p>` : ''}
+  `;
+
+  showPhase(2);
+}
+
+// ── PRODUCE VIDEO ──
+async function produceVideo() {
+  const falKey = document.getElementById('falKey').value.trim();
+  const heyKey = document.getElementById('heyKey')?.value.trim();
+  const name   = document.getElementById('u_name').value.trim() || 'Usuario';
+
+  document.getElementById('videoUserName').textContent = name;
+  showPhase(4);
+
+  const statusEl  = document.getElementById('videoStatus');
+  const playerArea = document.getElementById('videoPlayerArea');
+
+  if (selectedProd === 'fal') {
+    if (!falKey) {
+      playerArea.innerHTML = renderVideoPlaceholder(
+        '🔑 API Key requerida',
+        'Ingresa tu fal.ai API key en el paso anterior para generar el video.',
+        false
+      );
+      statusEl && (statusEl.textContent = '');
+      addToQueue(name, 'fal.ai', 'pending');
+      return;
+    }
+
+    statusEl && (statusEl.textContent = 'Enviando a fal.ai…');
+
+    const model = document.getElementById('falModel').value;
+    const visualPrompt = scriptData?.visualPrompt ||
+      'cinematic wellness video, fresh natural ingredients, golden light, slow motion, green and gold palette, 4K';
+    const fullPrompt = `${visualPrompt}. Educational wellness video about natural juices and smoothies. Warm, humanistic, inspiring.`;
+
+    try {
+      // Submit to fal.ai
+      const submitRes = await fetch(`https://queue.fal.run/${model}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Key ${falKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          prompt: fullPrompt,
+          duration: Math.min(parseInt(document.getElementById('durSlider').value), 10),
+          aspect_ratio: '9:16',
+          num_frames: 16
+        })
+      });
+
+      if (!submitRes.ok) {
+        const err = await submitRes.json();
+        throw new Error(err.detail || `Error ${submitRes.status}`);
+      }
+
+      const submitData = await submitRes.json();
+      const requestId = submitData.request_id;
+
+      if (!requestId) throw new Error('No se obtuvo request_id de fal.ai');
+
+      statusEl && (statusEl.textContent = `Generando… ID: ${requestId.slice(0,8)}… (puede tomar 1-3 min)`);
+      addToQueue(name, 'fal.ai · ' + model.split('/').pop(), 'generating');
+
+      // Poll for result
+      await pollFalResult(requestId, falKey, model, playerArea, name);
+
+    } catch (err) {
+      playerArea.innerHTML = renderVideoPlaceholder(
+        '⚠️ Error de generación',
+        `${err.message}. Verifica tu API key y saldo en fal.ai.`,
+        false
+      );
+    }
+
+  } else {
+    // HeyGen — show info
+    playerArea.innerHTML = renderVideoPlaceholder(
+      '🧑‍💼 HeyGen Avatar',
+      'La generación con tu avatar personalizado requiere configuración del servidor. El guión está listo para enviarlo a HeyGen Studio o via API.',
+      false
+    );
+    addToQueue(name, 'HeyGen Avatar', 'pending');
+    showHeyGenScript(name);
+  }
+}
+
+async function pollFalResult(requestId, apiKey, model, playerArea, name) {
+  const maxAttempts = 60;
+  let attempts = 0;
+  const statusEl = document.getElementById('videoStatus');
+
+  const baseModel = model.split('/').slice(0,2).join('/');
+
+  while (attempts < maxAttempts) {
+    await new Promise(r => setTimeout(r, 3000));
+    attempts++;
+
+    try {
+      const pollRes = await fetch(`https://queue.fal.run/${model}/requests/${requestId}`, {
+        headers: { 'Authorization': `Key ${apiKey}` }
+      });
+
+      if (!pollRes.ok) continue;
+      const pollData = await pollRes.json();
+
+      if (statusEl) statusEl.textContent = `Estado: ${pollData.status||'procesando'} (${attempts * 3}s)`;
+
+      if (pollData.status === 'COMPLETED' || pollData.video || pollData.videos || pollData.output) {
+        const videoUrl = pollData.video?.url ||
+          pollData.videos?.[0]?.url ||
+          pollData.output?.video?.url ||
+          pollData.url;
+
+        if (videoUrl) {
+          currentVideoUrl = videoUrl;
+          playerArea.innerHTML = `
+            <video controls autoplay style="width:100%;max-height:500px;background:#000;" src="${videoUrl}">
+              Tu navegador no soporta video HTML5.
+            </video>
+          `;
+          document.getElementById('btnDownload').style.display = 'inline-flex';
+          updateQueueStatus(name, 'done');
+          return;
+        }
+      }
+
+      if (pollData.status === 'FAILED' || pollData.error) {
+        throw new Error(pollData.error || 'La generación falló en fal.ai');
+      }
+
+    } catch (e) {
+      if (attempts > 10) {
+        playerArea.innerHTML = renderVideoPlaceholder('⏱️ Timeout', 'El video está tomando más tiempo del esperado. Verifica en fal.ai dashboard.', false);
+        return;
+      }
+    }
+  }
+
+  playerArea.innerHTML = renderVideoPlaceholder('⏱️ Tiempo agotado', 'El video sigue procesando en fal.ai. Revisa tu dashboard para descargarlo.', false);
+}
+
+function renderVideoPlaceholder(title, msg, hasPlay) {
+  return `
+    <div class="video-player-placeholder" style="min-height:260px;padding:40px;text-align:center;gap:16px;flex-direction:column;">
+      ${hasPlay ? `<div class="play-btn-big">▶</div>` : `<div style="font-size:40px;">${title.includes('Error')||title.includes('Timeout')?'⚠️':'🎬'}</div>`}
+      <div style="font-size:16px;font-weight:600;color:var(--white);">${title}</div>
+      <div style="font-size:13px;color:var(--muted);max-width:400px;line-height:1.7;">${msg}</div>
+    </div>
+  `;
+}
+
+function showHeyGenScript(name) {
+  const script = scriptData?.fullScript || 'Guión pendiente de generación';
+  const info = document.createElement('div');
+  info.style.cssText = 'margin-top:20px;padding:20px;background:rgba(74,144,217,0.06);border:1px solid rgba(74,144,217,0.2);border-radius:12px;';
+  info.innerHTML = `
+    <div style="font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:#4A90D9;margin-bottom:12px;">📋 Guión para HeyGen Studio</div>
+    <div style="font-size:13px;line-height:1.8;color:rgba(244,239,230,0.7);font-style:italic;">"${script}"</div>
+    <div style="margin-top:16px;">
+      <button class="btn-primary" onclick="navigator.clipboard.writeText(\`${script.replace(/`/g,"'")}\`).then(()=>alert('✅ Copiado'))">
+        📋 Copiar para HeyGen
+      </button>
+    </div>
+  `;
+  document.querySelector('#phase4 .section-card-body').appendChild(info);
+}
+
+function addToQueue(name, platform, status) {
+  const q = document.getElementById('videoQueue');
+  const id = Date.now();
+  const item = document.createElement('div');
+  item.className = 'queue-item'; item.id = 'qi_'+id;
+  item.innerHTML = `
+    <div class="queue-thumb">${platform.includes('HeyGen')?'🧑‍💼':'🎥'}</div>
+    <div class="queue-info">
+      <div class="queue-title">${name} — ${scriptData?.title||'Video Personalizado'}</div>
+      <div class="queue-meta">${platform} · ${new Date().toLocaleTimeString('es-ES')}</div>
+    </div>
+    <div class="queue-status ${status==='done'?'status-done':'status-gen'}" id="qs_${id}">
+      ${status==='done'?'✅ Listo':status==='pending'?'⏳ Pendiente':'⚡ Generando'}
+    </div>
+  `;
+  q.prepend(item);
+  return id;
+}
+
+function updateQueueStatus(name, status) {
+  document.querySelectorAll('.queue-status').forEach(el => {
+    if (el.className.includes('status-gen')) {
+      el.className = 'queue-status status-done';
+      el.textContent = '✅ Listo';
+    }
+  });
+}
+
+function downloadVideo() {
+  if (!currentVideoUrl) return;
+  const a = document.createElement('a');
+  a.href = currentVideoUrl; a.download = 'purelife-video.mp4'; a.click();
+}
+
+function resetAll() {
+  scriptData = null; currentVideoUrl = null;
+  document.getElementById('videoQueue').innerHTML = '';
+  showPhase(0); setPipe(0);
+}
+</script>
+</body>
+</html>
