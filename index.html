@@ -3043,6 +3043,16 @@ async function saveUserSession(goal, smoothieName){
 
 // Load config on startup
 setTimeout(loadConfig, 500);
+// Auto-load LTX key
+setTimeout(()=>{
+  const ltxKey = 'ltxv_jko5XTZ7Nqd9xIQ0ugf90n7TFjbRRk_VNiMrSWTwSaK0Ndm9-OtZ_6-E8LPe7RX-sJ5OSanCnpuyc-h9ZM0jiCLu5MXGRaGerkWUBnVFGN4GZ8g32wQM9yCdXo-RMbSUfoXhQ-Sry43eLBuSKKNB_QRWQwIKlx5a2URO4HPR-4sDRjoh';
+  localStorage.setItem('ltx_key', ltxKey);
+  window.LTX_KEY = ltxKey;
+  const inp = document.getElementById('ltxApiKey');
+  if(inp) inp.value = ltxKey;
+  const el = document.getElementById('ltxKeyStatus');
+  if(el){ el.textContent='✅ LTX 2.3 ready — Open source · Apache 2.0'; el.style.color='#059669'; }
+}, 800);
 
 
 // ══ AUTO ANALYTICS ══
@@ -3705,7 +3715,7 @@ function showToast(msg){
   <!-- Video Model Selection -->
   <div class="kai-label">🎬 Video Model</div>
   <div class="vid-model-grid">
-    <div class="vid-model-card act" data-vmodel="seedance" onclick="setVidModel(this)">
+    <div class="vid-model-card" data-vmodel="seedance" onclick="setVidModel(this)">
       <div class="vid-model-ico">🌱</div>
       <div class="vid-model-name">Seedance</div>
       <div class="vid-model-tag">4K</div>
@@ -3719,6 +3729,16 @@ function showToast(msg){
       <div class="vid-model-ico">🎯</div>
       <div class="vid-model-name">Veo</div>
       <div class="vid-model-tag">PRO</div>
+      <div class="vid-model-card act" data-vmodel="ltx-2-3-fast" onclick="setVidModel(this)">
+        <div class="vid-model-ico">⚡</div>
+        <div class="vid-model-name">LTX Fast</div>
+        <div class="vid-model-tag" style="background:#dcfce7;color:#059669;">FREE</div>
+      </div>
+      <div class="vid-model-card" data-vmodel="ltx-2-3-pro" onclick="setVidModel(this)">
+        <div class="vid-model-ico">🌟</div>
+        <div class="vid-model-name">LTX Pro</div>
+        <div class="vid-model-tag" style="background:#ede9fe;color:#7c3aed;">4K+Audio</div>
+      </div>
     </div>
   </div>
 
@@ -4193,9 +4213,9 @@ setTimeout(() => {
 // MCP endpoint: https://mcp.higgsfield.ai/mcp
 // ══════════════════════════════════════════════════════
 
-let kaiVidModel = 'seedance';
+let kaiVidModel = 'ltx-2-3-fast';
 let kaiVidPreset = 'cinematic wellness';
-let kaiVidRes = '4K';
+let kaiVidRes = '1920x1080';
 let kaiVidAspect = '9:16';
 let kaiVidDuration = 10;
 let currentVideoUrl = null;
