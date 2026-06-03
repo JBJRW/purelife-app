@@ -3597,6 +3597,7 @@ function showToast(msg){
   <div class="kai-panel">
 
     <!-- API Key -->
+    <!-- Higgsfield Key -->
     <div class="kai-api-row" id="kaiApiRow">
       <span style="font-size:14px;">🔑</span>
       <input class="kai-api-inp" id="kaiApiKey" type="password" 
@@ -3604,6 +3605,15 @@ function showToast(msg){
         oninput="saveHiggsfieldKey(this.value)"/>
       <button class="kai-api-save" onclick="testHiggsfieldKey()">Verify</button>
     </div>
+    <!-- LTX Key -->
+    <div class="kai-api-row" style="border-color:#bbf7d0;background:#f0fdf4;">
+      <span style="font-size:14px;">🎬</span>
+      <input class="kai-api-inp" id="ltxApiKey" type="password" 
+        placeholder="LTX API key (ltxv_...)" 
+        oninput="saveLTXKey(this.value)"/>
+      <button class="kai-api-save" style="background:#059669;" onclick="testLTXKey()">Verify</button>
+    </div>
+    <div id="ltxKeyStatus" style="font-size:11px;color:#6b7280;margin-bottom:12px;text-align:center;"></div>
     <div id="kaiKeyStatus" style="font-size:11px;color:#6b7280;margin-bottom:12px;text-align:center;"></div>
 
     <!-- Prompt -->
@@ -3753,6 +3763,9 @@ function showToast(msg){
     <div class="res-pill" data-res="1080p" onclick="setVidRes(this)">1080p</div>
     <div class="res-pill act" data-res="4K" onclick="setVidRes(this)">4K ✨</div>
     <div class="res-pill premium" data-res="4K-hdr" onclick="setVidRes(this)">4K HDR</div>
+    <div class="res-pill" data-res="1920x1080" onclick="setVidRes(this)" style="border-color:#86efac;color:#059669;">LTX 1080p</div>
+    <div class="res-pill" data-res="1280x720" onclick="setVidRes(this)" style="border-color:#86efac;color:#059669;">LTX 720p</div>
+    <div class="res-pill" data-res="1080x1920" onclick="setVidRes(this)" style="border-color:#86efac;color:#059669;">LTX Portrait</div>
   </div>
 
   <!-- Aspect Ratio -->
@@ -3916,6 +3929,22 @@ async function kaiGenerate(){
 
   try{
     let images = [];
+
+    // ── LTX 2.3 ENGINE ──
+    if(kaiVidModel.startsWith('ltx')){
+      statusMsg.textContent = '⚡ LTX 2.3 generating your video...';
+      try{
+        const ltxUrl = await generateWithLTX(fullPrompt, kaiVidModel, kaiVidDuration, kaiVidRes, 24);
+        if(ltxUrl){
+          clearInterval(progInterval);
+          progressBar.style.width = '100%';
+          statusMsg.textContent = '✅ LTX video ready!';
+          currentVideoUrl = ltxUrl;
+          setTimeout(()=>{ status.classList.remove('show'); showVideoResult(ltxUrl); btn.disabled=false; btn.textContent='🎬 Generate 4K Video'; }, 600);
+          return;
+        }
+      } catch(e){ console.log('[LTX] Error:', e.message); statusMsg.textContent = '⚠️ LTX error — trying fallback...'; }
+    }
 
     if(key && key.length > 10){
       // Real Higgsfield API call
@@ -4316,6 +4345,22 @@ async function kaiGenerateVideo(){
   try{
     let videoUrl = null;
     let genId = null;
+
+    // ── LTX 2.3 ENGINE ──
+    if(kaiVidModel.startsWith('ltx')){
+      statusMsg.textContent = '⚡ LTX 2.3 generating your video...';
+      try{
+        const ltxUrl = await generateWithLTX(fullPrompt, kaiVidModel, kaiVidDuration, kaiVidRes, 24);
+        if(ltxUrl){
+          clearInterval(progInterval);
+          progressBar.style.width = '100%';
+          statusMsg.textContent = '✅ LTX video ready!';
+          currentVideoUrl = ltxUrl;
+          setTimeout(()=>{ status.classList.remove('show'); showVideoResult(ltxUrl); btn.disabled=false; btn.textContent='🎬 Generate 4K Video'; }, 600);
+          return;
+        }
+      } catch(e){ console.log('[LTX] Error:', e.message); statusMsg.textContent = '⚠️ LTX error — trying fallback...'; }
+    }
 
     if(key && key.length > 10){
       // Real Higgsfield API
@@ -5503,6 +5548,119 @@ window.showPage = function(p){
   if(_origShowPageForShop) _origShowPageForShop(p);
   if(p === 'menu') setTimeout(addShopBtnToRecipes, 400);
 };
+</script>
+<script>
+// ══════════════════════════════════════════
+// LTX 2.3 VIDEO GENERATION ENGINE
+// Apache 2.0 — Open Source by Lightricks
+// ══════════════════════════════════════════
+const LTX_API = 'https://api.ltx.video';
+const LTX_API_KEY_DEFAULT = 'ltxv_jko5XTZ7Nqd9xIQ0ugf90n7TFjbRRk_VNiMrSWTwSaK0Ndm9-OtZ_6-E8LPe7RX-sJ5OSanCnpuyc-h9ZM0jiCLu5MXGRaGerkWUBnVFGN4GZ8g32wQM9yCdXo-RMbSUfoXhQ-Sry43eLBuSKKNB_QRWQwIKlx5a2URO4HPR-4sDRjoh';
+
+function saveLTXKey(val){
+  localStorage.setItem('ltx_key', val);
+  window.LTX_KEY = val;
+}
+
+async function testLTXKey(){
+  const key = document.getElementById('ltxApiKey')?.value || 
+              localStorage.getItem('ltx_key') || LTX_API_KEY_DEFAULT;
+  const el = document.getElementById('ltxKeyStatus');
+  if(el) { el.textContent = '⏳ Testing LTX...'; el.style.color='#f59e0b'; }
+
+  // Test with a minimal request
+  try{
+    const res = await fetch(LTX_API + '/v2/text-to-video', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+      body: JSON.stringify({
+        prompt:'test green smoothie',
+        model:'ltx-2-3-fast',
+        duration:3,
+        resolution:'1280x720'
+      })
+    });
+    const data = await res.json();
+    if(data.id){
+      if(el){ el.textContent = '✅ LTX 2.3 connected — Open source, ready!'; el.style.color='#059669'; }
+      window.LTX_KEY = key;
+      localStorage.setItem('ltx_key', key);
+    } else {
+      if(el){ el.textContent = '❌ LTX key invalid'; el.style.color='#ef4444'; }
+    }
+  } catch(e){
+    if(el){ el.textContent = '❌ LTX connection failed'; el.style.color='#ef4444'; }
+  }
+}
+
+async function generateWithLTX(prompt, model, duration, resolution, fps){
+  const key = localStorage.getItem('ltx_key') || window.LTX_KEY || LTX_API_KEY_DEFAULT;
+
+  // Map resolutions to LTX format
+  const resMap = {
+    '4K':'1920x1080', '4K-hdr':'1920x1080',
+    '1080p':'1920x1080', '720p':'1280x720',
+    '1920x1080':'1920x1080', '1280x720':'1280x720',
+    '1080x1920':'1080x1920', // portrait
+    '9:16':'1080x1920', '1:1':'1080x1080', '16:9':'1920x1080'
+  };
+  const ltxRes = resMap[resolution] || '1920x1080';
+  
+  // Aspect ratio → portrait detection
+  const isPortrait = ltxRes === '1080x1920' || kaiVidAspect === '9:16';
+  const finalRes = isPortrait ? '1080x1920' : ltxRes;
+
+  // Submit async job
+  const submitRes = await fetch(LTX_API + '/v2/text-to-video', {
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+    body: JSON.stringify({
+      prompt: prompt + ', high quality, cinematic, wellness brand',
+      model: model.startsWith('ltx') ? model : 'ltx-2-3-fast',
+      duration: Math.min(duration, 20),
+      resolution: finalRes,
+      fps: fps || 24,
+      generate_audio: true
+    })
+  });
+
+  const job = await submitRes.json();
+  if(!job.id) throw new Error(job.error?.message || 'LTX submit failed');
+  
+  console.log('[LTX] Job submitted:', job.id);
+
+  // Poll for result
+  const pollUrl = LTX_API + '/v2/text-to-video/' + job.id;
+  for(let i = 0; i < 60; i++){
+    await new Promise(r => setTimeout(r, 3000));
+    const pollRes = await fetch(pollUrl, {
+      headers:{'Authorization':'Bearer '+key}
+    });
+    const pollData = await pollRes.json();
+    console.log('[LTX] Status:', pollData.status);
+    
+    if(pollData.status === 'completed'){
+      return pollData.result?.video_url;
+    }
+    if(pollData.status === 'failed'){
+      throw new Error('LTX generation failed: ' + (pollData.error || 'unknown'));
+    }
+  }
+  throw new Error('LTX timeout');
+}
+
+// Auto-load LTX key on startup
+setTimeout(()=>{
+  const saved = localStorage.getItem('ltx_key') || LTX_API_KEY_DEFAULT;
+  if(saved){
+    const inp = document.getElementById('ltxApiKey');
+    if(inp) inp.value = saved;
+    window.LTX_KEY = saved;
+    const el = document.getElementById('ltxKeyStatus');
+    if(el){ el.textContent='✅ LTX 2.3 ready — Open source · Apache 2.0'; el.style.color='#059669'; }
+    localStorage.setItem('ltx_key', saved);
+  }
+}, 700);
 </script>
 </body>
 </html
