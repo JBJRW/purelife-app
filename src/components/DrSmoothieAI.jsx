@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import AuthModal from "./auth/AuthModal";
 
 /* ═══════════════════════════════════════════════════════════════
    PURELIFE WELLNESS CLUB — dr.smoothie.ai
@@ -422,6 +423,7 @@ async function callClaude(messages) {
 function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showAuth, setShowAuth] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 30);
@@ -430,6 +432,7 @@ function Nav() {
   }, []);
 
   return (
+    <>
     <nav style={{
       position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000,
       height: 60,
@@ -469,12 +472,14 @@ function Nav() {
 
       {/* CTA */}
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        <span className="nav-link nav-desktop" style={{ cursor: "pointer" }}>Entrar</span>
-        <button className="btn-primary" style={{ padding: "8px 18px", fontSize: 12 }}>
+        <span className="nav-link nav-desktop" style={{ cursor: "pointer" }} onClick={() => setShowAuth(true)}>Entrar</span>
+        <button className="btn-primary" style={{ padding: "8px 18px", fontSize: 12 }} onClick={() => setShowAuth(true)}>
           Comenzar gratis
         </button>
       </div>
     </nav>
+    {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
+    </>
   );
 }
 
