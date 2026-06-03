@@ -1,43 +1,40 @@
-const CACHE_NAME='dr-smoothie-v3';
-const PRECACHE=['/'];
+const CACHE_NAME = 'purelive-v1.0';
+const CORE_FILES = [
+  './dr-smoothie-ai-v2.html',
+  './manifest.json'
+];
 
-self.addEventListener('install',e=>{
-  e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(PRECACHE)));
-  self.skipWaiting();
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(CORE_FILES))
+      .then(() => self.skipWaiting())
+  );
 });
 
-self.addEventListener('activate',e=>{
-  e.waitUntil(caches.keys().then(keys=>
-    Promise.all(keys.filter(k=>k!==CACHE_NAME).map(k=>caches.delete(k)))
-  ));
-  self.clients.claim();
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+    ).then(() => self.clients.claim())
+  );
 });
 
-self.addEventListener('fetch',e=>{
-  const url=new URL(e.request.url);
-  // Never cache API calls or YouTube
-  if(url.hostname.includes('anthropic.com')||url.hostname.includes('supabase')||url.hostname.includes('youtube')||url.hostname.includes('workers.dev'))return;
-  // Cache-first for fonts
-  if(url.hostname.includes('googleapis.com')||url.hostname.includes('gstatic.com')){
-    e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(res=>{
-      const clone=res.clone();caches.open(CACHE_NAME).then(c=>c.put(e.request,clone));return res;
-    })));return;
+self.addEventListener('fetch', event => {
+  // Network first for API calls, cache first for assets
+  if (event.request.url.includes('anthropic.com') || 
+      event.request.url.includes('youtube.com') ||
+      event.request.url.includes('googleapis.com')) {
+    event.respondWith(fetch(event.request).catch(() => new Response('Offline', {status: 503})));
+  } else {
+    event.respondWith(
+      caches.match(event.request)
+        .then(cached => cached || fetch(event.request).then(resp => {
+          const clone = resp.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+          return resp;
+        }))
+        .catch(() => caches.match('./dr-smoothie-ai-v2.html'))
+    );
   }
-  // Network-first for navigation
-  if(e.request.mode==='navigate'){
-    e.respondWith(fetch(e.request).then(res=>{
-      const clone=res.clone();caches.open(CACHE_NAME).then(c=>c.put(e.request,clone));return res;
-    }).catch(()=>caches.match('/index.html')));return;
-  }
-  // Cache-first for everything else
-  e.respondWith(caches.match(e.request).then(r=>{
-    if(r)return r;
-    return fetch(e.request).then(res=>{
-      if(res.ok&&e.request.method==='GET'){const clone=res.clone();caches.open(CACHE_NAME).then(c=>c.put(e.request,clone));}
-      return res;
-    }).catch(()=>{
-      if(e.request.headers.get('accept')?.includes('text/html'))return caches.match('/index.html');
-      return new Response('Offline',{status:503});
-    });
-  }));
 });

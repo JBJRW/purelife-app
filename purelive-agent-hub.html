@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>PureLive · Agent Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green:#1a7a3a;--green2:#25a84e;--lime:#b8ff4a;
+  --dark:#060e08;--card:#0e1e10;--border:rgba(78,201,78,.15);
+  --text:#e4f5e8;--sub:#6b9e80;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--dark);color:var(--text);min-height:100vh;overflow-x:hidden;}
+
+/* ── HEADER ── */
+.hdr{
+  background:linear-gradient(135deg,#060e08,#0e2010,#162e12);
+  padding:32px 20px 24px;text-align:center;
+  border-bottom:1px solid var(--border);position:relative;overflow:hidden;
+}
+.hdr::before{content:"🌿";position:absolute;right:-20px;top:-20px;font-size:180px;opacity:.04;}
+.hdr-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:5px 14px;border-radius:50px;
+  background:rgba(78,201,78,.1);border:1px solid rgba(78,201,78,.25);
+  font-size:10px;font-weight:800;color:#7effa0;letter-spacing:2px;
+  text-transform:uppercase;margin-bottom:12px;
+}
+.hdr-title{font-family:"Playfair Display",serif;font-size:26px;font-weight:900;margin-bottom:6px;}
+.hdr-title em{font-style:italic;background:linear-gradient(90deg,#7effa0,#c8ff4a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hdr-sub{font-size:12px;color:var(--sub);font-weight:500;}
+
+/* ── STATUS BAR ── */
+.status-bar{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 20px;background:rgba(0,0,0,.3);
+  border-bottom:1px solid var(--border);overflow-x:auto;
+  scrollbar-width:none;
+}
+.st-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.st-dot.on{background:#4fffb0;box-shadow:0 0 8px rgba(79,255,176,.6);animation:stPulse 2s infinite;}
+.st-dot.off{background:rgba(255,255,255,.2);}
+.st-dot.busy{background:#ffaa00;animation:stPulse 1s infinite;}
+@keyframes stPulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+.st-label{font-size:10px;font-weight:700;color:rgba(255,255,255,.5);white-space:nowrap;margin-right:12px;}
+.st-label.on{color:#7effa0;}
+.st-label.busy{color:#ffaa00;}
+
+/* ── MAIN ── */
+.main{padding:20px;max-width:600px;margin:0 auto;}
+
+/* ── AGENT CARDS ── */
+.agents{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
+.agent{
+  background:var(--card);border-radius:20px;padding:18px 14px;
+  border:1px solid var(--border);cursor:pointer;
+  transition:all .25s;position:relative;overflow:hidden;
+}
+.agent::before{
+  content:"";position:absolute;inset:0;opacity:0;
+  transition:opacity .3s;border-radius:20px;
+}
+.agent:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.4);}
+.agent.active{border-color:rgba(79,255,176,.5);}
+.agent.active::before{opacity:1;}
+.agent.running .agent-ico{animation:spin 1.5s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* Agent accent colors */
+.agent[data-id="video"]::before{background:radial-gradient(circle at 30% 30%,rgba(220,60,60,.08),transparent 60%);}
+.agent[data-id="video"]{--acc:#ff6b6b;}
+.agent[data-id="translate"]::before{background:radial-gradient(circle at 30% 30%,rgba(60,120,220,.08),transparent 60%);}
+.agent[data-id="translate"]{--acc:#6b9fff;}
+.agent[data-id="content"]::before{background:radial-gradient(circle at 30% 30%,rgba(180,60,220,.08),transparent 60%);}
+.agent[data-id="content"]{--acc:#bf6bff;}
+.agent[data-id="ai"]::before{background:radial-gradient(circle at 30% 30%,rgba(60,200,100,.08),transparent 60%);}
+.agent[data-id="ai"]{--acc:#4fffb0;}
+
+.agent-ico{font-size:28px;margin-bottom:10px;display:block;}
+.agent-name{font-family:"Playfair Display",serif;font-size:14px;font-weight:800;margin-bottom:4px;color:var(--text);}
+.agent-desc{font-size:10px;color:var(--sub);font-weight:500;line-height:1.5;margin-bottom:10px;}
+.agent-status{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 8px;border-radius:20px;
+  font-size:9px;font-weight:800;
+  background:rgba(255,255,255,.06);color:rgba(255,255,255,.4);
+  transition:all .3s;
+}
+.agent.active .agent-status{background:rgba(79,255,176,.12);color:#7effa0;}
+.agent.running .agent-status{background:rgba(255,170,0,.12);color:#ffaa00;}
+.agent-status-dot{width:5px;height:5px;border-radius:50%;background:currentColor;}
+
+/* ── PIPELINE ── */
+.pipeline{
+  background:var(--card);border-radius:20px;padding:18px;
+  border:1px solid var(--border);margin-bottom:20px;
+}
+.pipe-title{font-size:12px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px;}
+.pipe-steps{display:flex;align-items:center;gap:0;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;}
+.pipe-step{
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  flex-shrink:0;min-width:70px;
+}
+.pipe-circle{
+  width:42px;height:42px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;border:2px solid rgba(255,255,255,.1);
+  background:rgba(255,255,255,.04);transition:all .4s;
+}
+.pipe-step.done .pipe-circle{border-color:var(--acc,#4fffb0);background:rgba(79,255,176,.1);}
+.pipe-step.running .pipe-circle{border-color:#ffaa00;background:rgba(255,170,0,.1);animation:pipePulse .8s ease-in-out infinite alternate;}
+@keyframes pipePulse{from{box-shadow:0 0 0 rgba(255,170,0,.3);}to{box-shadow:0 0 16px rgba(255,170,0,.5);}}
+.pipe-lbl{font-size:9px;font-weight:700;color:rgba(255,255,255,.3);text-align:center;transition:color .3s;}
+.pipe-step.done .pipe-lbl,.pipe-step.running .pipe-lbl{color:rgba(255,255,255,.7);}
+.pipe-arrow{font-size:14px;color:rgba(255,255,255,.12);flex-shrink:0;margin:0 2px;padding-bottom:18px;transition:color .4s;}
+.pipe-arrow.active{color:rgba(79,255,176,.5);}
+
+/* ── CONTROL PANEL ── */
+.control{
+  background:var(--card);border-radius:20px;padding:18px;
+  border:1px solid var(--border);margin-bottom:20px;
+}
+.ctrl-title{font-size:12px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px;}
+
+.input-row{margin-bottom:12px;}
+.input-lbl{font-size:11px;font-weight:700;color:var(--sub);margin-bottom:5px;}
+.ctrl-input{
+  width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);
+  border-radius:12px;padding:10px 14px;
+  color:var(--text);font-family:"Plus Jakarta Sans",sans-serif;
+  font-size:13px;font-weight:500;outline:none;transition:border-color .2s;
+  resize:none;
+}
+.ctrl-input:focus{border-color:rgba(78,201,78,.4);}
+
+.lang-pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.lp{
+  padding:5px 12px;border-radius:50px;
+  border:1.5px solid rgba(255,255,255,.1);
+  background:rgba(255,255,255,.04);color:rgba(255,255,255,.5);
+  font-size:11px;font-weight:800;cursor:pointer;transition:all .2s;
+}
+.lp.act{background:rgba(78,201,78,.15);border-color:rgba(79,255,176,.5);color:#7effa0;}
+
+.run-btn{
+  width:100%;padding:14px;border-radius:14px;border:none;
+  background:linear-gradient(135deg,var(--green),var(--green2));
+  color:#fff;font-weight:800;font-size:14px;cursor:pointer;
+  transition:all .25s;display:flex;align-items:center;justify-content:center;gap:8px;
+  box-shadow:0 6px 20px rgba(45,154,80,.3);
+}
+.run-btn:hover{transform:scale(1.02);box-shadow:0 8px 28px rgba(45,154,80,.4);}
+.run-btn:disabled{opacity:.5;transform:none;cursor:not-allowed;}
+.run-btn.running{background:linear-gradient(135deg,#c87020,#e09040);}
+
+/* ── OUTPUT TERMINAL ── */
+.terminal{
+  background:#030a04;border-radius:20px;padding:16px;
+  border:1px solid var(--border);margin-bottom:20px;
+  font-family:monospace;min-height:200px;max-height:420px;
+  overflow-y:auto;
+}
+.term-bar{
+  display:flex;align-items:center;gap:6px;margin-bottom:12px;
+  padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.06);
+}
+.term-dot{width:10px;height:10px;border-radius:50%;}
+.term-title{font-size:11px;color:rgba(255,255,255,.3);font-family:"Plus Jakarta Sans",sans-serif;font-weight:700;flex:1;}
+.term-clear{font-size:10px;color:rgba(255,255,255,.2);cursor:pointer;font-family:"Plus Jakarta Sans",sans-serif;font-weight:700;}
+.term-clear:hover{color:rgba(255,255,255,.5);}
+
+.term-line{font-size:12px;line-height:1.7;margin-bottom:2px;}
+.tl-time{color:rgba(255,255,255,.2);margin-right:6px;}
+.tl-agent{font-weight:700;margin-right:6px;}
+.tl-video .tl-agent{color:#ff6b6b;}
+.tl-translate .tl-agent{color:#6b9fff;}
+.tl-content .tl-agent{color:#bf6bff;}
+.tl-ai .tl-agent{color:#4fffb0;}
+.tl-system .tl-agent{color:#ffaa00;}
+.tl-success .tl-agent{color:#4fffb0;}
+.tl-msg{color:rgba(255,255,255,.7);}
+.cursor{display:inline-block;width:7px;height:13px;background:#4fffb0;animation:blink .8s infinite;margin-left:2px;vertical-align:middle;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+
+/* ── RESULT ── */
+.result-box{
+  background:var(--card);border-radius:20px;padding:18px;
+  border:1px solid rgba(79,255,176,.2);margin-bottom:20px;
+  display:none;
+}
+.result-box.show{display:block;animation:fadeIn .5s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.result-title{font-family:"Playfair Display",serif;font-size:16px;font-weight:800;margin-bottom:14px;color:#c8ff4a;}
+.result-section{margin-bottom:14px;}
+.rs-label{font-size:10px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;}
+.rs-content{
+  background:rgba(255,255,255,.04);border-radius:12px;padding:12px 14px;
+  font-size:13px;color:var(--text);line-height:1.7;
+  border:1px solid rgba(255,255,255,.06);
+}
+.rs-content em{color:#7effa0;font-style:italic;}
+.video-chips{display:flex;gap:6px;flex-wrap:wrap;}
+.vc{padding:5px 12px;border-radius:50px;background:rgba(255,100,100,.1);border:1px solid rgba(255,100,100,.2);font-size:11px;color:#ff9999;font-weight:700;}
+.lang-flags{display:flex;gap:8px;flex-wrap:wrap;}
+.lf{font-size:13px;}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-badge">🌿 PureLive · AI System</div>
+  <div class="hdr-title">Agent <em>Hub</em></div>
+  <div class="hdr-sub">4 specialized agents · Connected · Working together</div>
+</div>
+
+<!-- STATUS BAR -->
+<div class="status-bar">
+  <div class="st-dot on" id="dot-video"></div>
+  <span class="st-label on" id="lbl-video">🎬 Video</span>
+  <div class="st-dot on" id="dot-translate"></div>
+  <span class="st-label on" id="lbl-translate">🌍 Translate</span>
+  <div class="st-dot on" id="dot-content"></div>
+  <span class="st-label on" id="lbl-content">📝 Content</span>
+  <div class="st-dot on" id="dot-ai"></div>
+  <span class="st-label on" id="lbl-ai">🤖 Dr. Smoothie AI</span>
+</div>
+
+<div class="main">
+
+<!-- AGENT CARDS -->
+<div class="agents">
+
+  <div class="agent" data-id="video" onclick="focusAgent('video')">
+    <span class="agent-ico">🎬</span>
+    <div class="agent-name">Video Agent</div>
+    <div class="agent-desc">Finds the best smoothie tutorial videos for each goal and category</div>
+    <div class="agent-status"><span class="agent-status-dot"></span><span>Ready</span></div>
+  </div>
+
+  <div class="agent" data-id="translate" onclick="focusAgent('translate')">
+    <span class="agent-ico">🌍</span>
+    <div class="agent-name">Translate Agent</div>
+    <div class="agent-desc">Translates all content to EN, ES, PT, FR — pure, no mixing</div>
+    <div class="agent-status"><span class="agent-status-dot"></span><span>Ready</span></div>
+  </div>
+
+  <div class="agent" data-id="content" onclick="focusAgent('content')">
+    <span class="agent-ico">📝</span>
+    <div class="agent-name">Content Agent</div>
+    <div class="agent-desc">Creates recipes, descriptions and wellness copy for all smoothies</div>
+    <div class="agent-status"><span class="agent-status-dot"></span><span>Ready</span></div>
+  </div>
+
+  <div class="agent" data-id="ai" onclick="focusAgent('ai')">
+    <span class="agent-ico">🤖</span>
+    <div class="agent-name">Dr. Smoothie AI</div>
+    <div class="agent-desc">Generates personalized wellness responses using Claude API</div>
+    <div class="agent-status"><span class="agent-status-dot"></span><span>Ready</span></div>
+  </div>
+
+</div>
+
+<!-- PIPELINE -->
+<div class="pipeline">
+  <div class="pipe-title">⚡ Agent Pipeline</div>
+  <div class="pipe-steps">
+    <div class="pipe-step" id="ps-content" data-acc="#bf6bff">
+      <div class="pipe-circle">📝</div>
+      <div class="pipe-lbl">Content</div>
+    </div>
+    <div class="pipe-arrow" id="pa1">→</div>
+    <div class="pipe-step" id="ps-translate" data-acc="#6b9fff">
+      <div class="pipe-circle">🌍</div>
+      <div class="pipe-lbl">Translate</div>
+    </div>
+    <div class="pipe-arrow" id="pa2">→</div>
+    <div class="pipe-step" id="ps-video" data-acc="#ff6b6b">
+      <div class="pipe-circle">🎬</div>
+      <div class="pipe-lbl">Video</div>
+    </div>
+    <div class="pipe-arrow" id="pa3">→</div>
+    <div class="pipe-step" id="ps-ai" data-acc="#4fffb0">
+      <div class="pipe-circle">🤖</div>
+      <div class="pipe-lbl">Dr. AI</div>
+    </div>
+    <div class="pipe-arrow" id="pa4">→</div>
+    <div class="pipe-step" id="ps-final">
+      <div class="pipe-circle">✅</div>
+      <div class="pipe-lbl">Result</div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTROL PANEL -->
+<div class="control">
+  <div class="ctrl-title">🎯 Mission Control</div>
+
+  <div class="input-row">
+    <div class="input-lbl">Smoothie Goal / Topic</div>
+    <input class="ctrl-input" id="goalInput" placeholder="e.g. Energy boost smoothie, Weight loss, Heart health..." />
+  </div>
+
+  <div class="input-row">
+    <div class="input-lbl">Target Languages</div>
+    <div class="lang-pills">
+      <div class="lp act" data-l="en" onclick="toggleLang(this)">🇺🇸 EN</div>
+      <div class="lp act" data-l="es" onclick="toggleLang(this)">🇪🇸 ES</div>
+      <div class="lp act" data-l="pt" onclick="toggleLang(this)">🇧🇷 PT</div>
+      <div class="lp act" data-l="fr" onclick="toggleLang(this)">🇫🇷 FR</div>
+    </div>
+  </div>
+
+  <div class="input-row">
+    <div class="input-lbl">Active Agents</div>
+    <div class="lang-pills">
+      <div class="lp act" data-a="content" onclick="toggleAgent(this)">📝 Content</div>
+      <div class="lp act" data-a="translate" onclick="toggleAgent(this)">🌍 Translate</div>
+      <div class="lp act" data-a="video" onclick="toggleAgent(this)">🎬 Video</div>
+      <div class="lp act" data-a="ai" onclick="toggleAgent(this)">🤖 Dr. AI</div>
+    </div>
+  </div>
+
+  <button class="run-btn" id="runBtn" onclick="runPipeline()">
+    🚀 Run All Agents
+  </button>
+</div>
+
+<!-- TERMINAL -->
+<div class="terminal">
+  <div class="term-bar">
+    <div class="term-dot" style="background:#ff5f57;"></div>
+    <div class="term-dot" style="background:#febc2e;"></div>
+    <div class="term-dot" style="background:#28c840;"></div>
+    <div class="term-title">Agent Terminal · PureLive Hub</div>
+    <div class="term-clear" onclick="clearTerm()">Clear</div>
+  </div>
+  <div id="termOut">
+    <div class="term-line tl-system">
+      <span class="tl-time">[00:00]</span>
+      <span class="tl-agent">SYSTEM</span>
+      <span class="tl-msg">PureLive Agent Hub initialized. 4 agents ready.</span>
+    </div>
+    <div class="term-line tl-system">
+      <span class="tl-time">[00:00]</span>
+      <span class="tl-agent">SYSTEM</span>
+      <span class="tl-msg">Enter your smoothie goal and tap Run All Agents to begin.</span>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div class="result-box" id="resultBox">
+  <div class="result-title">🌿 Pipeline Complete — Final Result</div>
+  <div id="resultContent"></div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+const ACTIVE_LANGS = new Set(['en','es','pt','fr']);
+const ACTIVE_AGENTS = new Set(['content','translate','video','ai']);
+let isRunning = false;
+let startTime = Date.now();
+
+function pad(n){return String(n).padStart(2,'0');}
+function getTime(){
+  const s = Math.floor((Date.now()-startTime)/1000);
+  return `[${pad(Math.floor(s/60))}:${pad(s%60)}]`;
+}
+
+function log(agent, msg, type=''){
+  const out = document.getElementById('termOut');
+  const line = document.createElement('div');
+  line.className = `term-line tl-${agent}`;
+  line.innerHTML = `<span class="tl-time">${getTime()}</span><span class="tl-agent">${agent.toUpperCase()}</span><span class="tl-msg">${msg}</span>`;
+  out.appendChild(line);
+  out.scrollTop = out.scrollHeight;
+}
+
+function clearTerm(){
+  document.getElementById('termOut').innerHTML = '';
+  startTime = Date.now();
+}
+
+function toggleLang(el){
+  const l = el.dataset.l;
+  el.classList.toggle('act');
+  if(ACTIVE_LANGS.has(l)) ACTIVE_LANGS.delete(l);
+  else ACTIVE_LANGS.add(l);
+}
+
+function toggleAgent(el){
+  const a = el.dataset.a;
+  el.classList.toggle('act');
+  if(ACTIVE_AGENTS.has(a)) ACTIVE_AGENTS.delete(a);
+  else ACTIVE_AGENTS.add(a);
+}
+
+function focusAgent(id){
+  document.querySelectorAll('.agent').forEach(a=>a.classList.remove('active'));
+  document.querySelector(`.agent[data-id="${id}"]`).classList.add('active');
+}
+
+function setAgentState(id, state){
+  const card = document.querySelector(`.agent[data-id="${id}"]`);
+  const dot = document.getElementById(`dot-${id}`);
+  const lbl = document.getElementById(`lbl-${id}`);
+  const statusEl = card.querySelector('.agent-status span:last-child');
+  card.classList.remove('active','running');
+
+  if(state === 'running'){
+    card.classList.add('running');
+    dot.className = 'st-dot busy';
+    lbl.className = 'st-label busy';
+    statusEl.textContent = 'Running...';
+  } else if(state === 'done'){
+    card.classList.add('active');
+    dot.className = 'st-dot on';
+    lbl.className = 'st-label on';
+    statusEl.textContent = 'Done ✓';
+  } else {
+    dot.className = 'st-dot on';
+    lbl.className = 'st-label on';
+    statusEl.textContent = 'Ready';
+  }
+}
+
+function setPipeStep(id, state){
+  const step = document.getElementById(`ps-${id}`);
+  if(!step) return;
+  step.classList.remove('done','running');
+  if(state) step.classList.add(state);
+}
+
+function setPipeArrow(id, active){
+  const arrow = document.getElementById(`pa${id}`);
+  if(arrow) arrow.classList.toggle('active', active);
+}
+
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+async function callClaudeAgent(systemPrompt, userPrompt){
+  const resp = await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      model:'claude-sonnet-4-5-20250929',
+      max_tokens:1000,
+      system: systemPrompt,
+      messages:[{role:'user',content:userPrompt}]
+    })
+  });
+  const data = await resp.json();
+  return data.content?.[0]?.text || '';
+}
+
+async function runPipeline(){
+  if(isRunning) return;
+  const goal = document.getElementById('goalInput').value.trim();
+  if(!goal){ alert('Enter a smoothie goal first'); return; }
+
+  isRunning = true;
+  startTime = Date.now();
+  const btn = document.getElementById('runBtn');
+  btn.disabled = true;
+  btn.classList.add('running');
+  btn.textContent = '⏳ Agents Working...';
+
+  document.getElementById('resultBox').classList.remove('show');
+  clearTerm();
+
+  const langs = [...ACTIVE_LANGS];
+  const pipeline = {};
+
+  log('system', `Starting pipeline for: "${goal}"`);
+  log('system', `Active agents: ${[...ACTIVE_AGENTS].join(', ')}`);
+  log('system', `Target languages: ${langs.join(', ')}`);
+  await sleep(400);
+
+  // ═══ AGENT 1: CONTENT ═══
+  if(ACTIVE_AGENTS.has('content')){
+    setAgentState('content','running');
+    setPipeStep('content','running');
+    log('content', `Generating recipe and wellness content for "${goal}"...`);
+    await sleep(300);
+
+    try{
+      const contentResult = await callClaudeAgent(
+        `You are the Content Agent for PureLive Wellness Club. Generate structured smoothie content. 
+         Respond ONLY with valid JSON, no markdown, no explanation.
+         Format: {"name":"smoothie name","tagline":"short tagline","ingredients":["item1","item2","item3","item4","item5"],"benefits":["benefit1","benefit2","benefit3"],"instructions":"2-3 sentence prep method","wellness_note":"one sentence wellness insight"}`,
+        `Create content for a ${goal} smoothie for PureLive Club.`
+      );
+
+      log('content', `Content generated successfully`);
+      try{
+        pipeline.content = JSON.parse(contentResult.replace(/```json|```/g,'').trim());
+        log('content', `Recipe: "${pipeline.content.name}" · ${pipeline.content.ingredients.length} ingredients`);
+      } catch(e){
+        pipeline.content = {name:goal+' Smoothie',tagline:'Your wellness blend',ingredients:['spinach','banana','mango','ginger','coconut water'],benefits:['Energy boost','Nutrient rich','Anti-inflammatory'],instructions:'Blend all ingredients until smooth.',wellness_note:'Rich in natural antioxidants.'};
+        log('content', `Content parsed (fallback)`);
+      }
+    } catch(e){
+      log('content', `API call failed — using default content`);
+      pipeline.content = {name:goal+' Smoothie',tagline:'Your wellness blend',ingredients:['spinach','banana','mango','ginger','coconut water'],benefits:['Energy boost','Nutrient rich','Anti-inflammatory'],instructions:'Blend all ingredients until smooth.',wellness_note:'Rich in natural antioxidants.'};
+    }
+
+    setAgentState('content','done');
+    setPipeStep('content','done');
+    setPipeArrow(1,true);
+    await sleep(400);
+  }
+
+  // ═══ AGENT 2: TRANSLATE ═══
+  if(ACTIVE_AGENTS.has('translate') && pipeline.content){
+    setAgentState('translate','running');
+    setPipeStep('translate','running');
+    log('translate', `Translating content to: ${langs.join(', ')}...`);
+    await sleep(300);
+
+    pipeline.translations = {};
+
+    for(const lang of langs){
+      if(lang === 'en'){
+        pipeline.translations.en = pipeline.content;
+        log('translate', `EN · Original (no translation needed)`);
+        continue;
+      }
+      const langNames = {es:'Spanish',pt:'Portuguese (Brazil)',fr:'French'};
+      try{
+        const transResult = await callClaudeAgent(
+          `You are the Translation Agent for PureLive Wellness Club. 
+           Translate the given JSON content to ${langNames[lang]}.
+           Keep ALL JSON keys in English. Only translate the VALUES.
+           Respond ONLY with valid JSON, no markdown, no explanation.`,
+          `Translate this smoothie content to ${langNames[lang]}: ${JSON.stringify(pipeline.content)}`
+        );
+        try{
+          pipeline.translations[lang] = JSON.parse(transResult.replace(/```json|```/g,'').trim());
+          log('translate', `${lang.toUpperCase()} · Translation complete`);
+        } catch(e){
+          pipeline.translations[lang] = pipeline.content;
+          log('translate', `${lang.toUpperCase()} · Parse error — using original`);
+        }
+      } catch(e){
+        pipeline.translations[lang] = pipeline.content;
+        log('translate', `${lang.toUpperCase()} · API error — using original`);
+      }
+      await sleep(200);
+    }
+
+    setAgentState('translate','done');
+    setPipeStep('translate','done');
+    setPipeArrow(2,true);
+    await sleep(400);
+  }
+
+  // ═══ AGENT 3: VIDEO ═══
+  if(ACTIVE_AGENTS.has('video')){
+    setAgentState('video','running');
+    setPipeStep('video','running');
+    log('video', `Finding best YouTube videos for "${goal}"...`);
+    await sleep(300);
+
+    try{
+      const videoResult = await callClaudeAgent(
+        `You are the Video Agent for PureLive Wellness Club. 
+         Find relevant YouTube video IDs for smoothie tutorials.
+         Respond ONLY with valid JSON array, no markdown, no explanation.
+         Format: [{"id":"YOUTUBE_ID_11_CHARS","title":"video title","duration":"X min"},...]
+         Use real, existing YouTube video IDs for smoothie/wellness content.
+         Return exactly 3 videos.`,
+        `Find 3 YouTube tutorial videos for: ${goal} smoothie recipe`
+      );
+      try{
+        pipeline.videos = JSON.parse(videoResult.replace(/```json|```/g,'').trim());
+        log('video', `Found ${pipeline.videos.length} tutorial videos`);
+        pipeline.videos.forEach((v,i)=>log('video',`Video ${i+1}: "${v.title}" (${v.duration})`));
+      } catch(e){
+        pipeline.videos = [
+          {id:'dMjFGxNhw78',title:`${goal} Smoothie Recipe`,duration:'4 min'},
+          {id:'9B1U3w5v-SY',title:`Best ${goal} Blend`,duration:'3 min'},
+          {id:'BxFuomNS9oQ',title:`${goal} Tutorial`,duration:'5 min'}
+        ];
+        log('video', `Videos ready (fallback library)`);
+      }
+    } catch(e){
+      pipeline.videos = [{id:'dMjFGxNhw78',title:`${goal} Smoothie`,duration:'4 min'}];
+      log('video', `API error — using curated fallback`);
+    }
+
+    setAgentState('video','done');
+    setPipeStep('video','done');
+    setPipeArrow(3,true);
+    await sleep(400);
+  }
+
+  // ═══ AGENT 4: DR. SMOOTHIE AI ═══
+  if(ACTIVE_AGENTS.has('ai')){
+    setAgentState('ai','running');
+    setPipeStep('ai','running');
+    log('ai', `Dr. Smoothie AI generating wellness response...`);
+    await sleep(300);
+
+    try{
+      const aiResult = await callClaudeAgent(
+        `You are Dr. Smoothie AI, a cheerful wellness guide at PureLive Club.
+         Generate a warm, engaging wellness recommendation.
+         Keep it under 120 words. Positive, natural, human tone.
+         End with: "🌿 Dr. Smoothie AI · PureLive Wellness Club · General wellness guidance only"`,
+        `A user is looking for a ${goal} smoothie. ${pipeline.content ? `The smoothie is called "${pipeline.content.name}" and contains: ${pipeline.content?.ingredients?.join(', ')}.` : ''} Give them an enthusiastic wellness recommendation.`
+      );
+      pipeline.aiResponse = aiResult;
+      log('ai', `Wellness response generated (${aiResult.split(' ').length} words)`);
+    } catch(e){
+      pipeline.aiResponse = `This ${goal} smoothie is exactly what your body needs! Packed with natural goodness, it supports your wellness journey every day. 🌿 Dr. Smoothie AI · PureLive Wellness Club · General wellness guidance only`;
+      log('ai', `Response ready (offline fallback)`);
+    }
+
+    setAgentState('ai','done');
+    setPipeStep('ai','done');
+    setPipeArrow(4,true);
+    await sleep(400);
+  }
+
+  // ═══ FINAL RESULT ═══
+  setPipeStep('final','done');
+  log('success', `Pipeline complete! All agents delivered results.`);
+  await sleep(300);
+
+  showResult(pipeline, goal, langs);
+
+  btn.disabled = false;
+  btn.classList.remove('running');
+  btn.textContent = '🚀 Run All Agents';
+  isRunning = false;
+}
+
+function showResult(pipeline, goal, langs){
+  const box = document.getElementById('resultBox');
+  const content = document.getElementById('resultContent');
+  let html = '';
+
+  // Content section
+  if(pipeline.content){
+    const c = pipeline.content;
+    html += `
+    <div class="result-section">
+      <div class="rs-label">📝 Content Agent — Recipe</div>
+      <div class="rs-content">
+        <strong>${c.name}</strong> — <em>${c.tagline}</em><br><br>
+        🥝 <strong>Ingredients:</strong> ${c.ingredients?.join(', ')}<br><br>
+        ✨ <strong>Benefits:</strong> ${c.benefits?.join(' · ')}<br><br>
+        📋 <strong>How to make it:</strong> ${c.instructions}<br><br>
+        🌿 ${c.wellness_note}
+      </div>
+    </div>`;
+  }
+
+  // Translations
+  if(pipeline.translations){
+    const available = Object.keys(pipeline.translations);
+    html += `
+    <div class="result-section">
+      <div class="rs-label">🌍 Translate Agent — Languages</div>
+      <div class="rs-content">
+        <div class="lang-flags">`;
+    const flags = {en:'🇺🇸',es:'🇪🇸',pt:'🇧🇷',fr:'🇫🇷'};
+    const names = {en:'English',es:'Español',pt:'Português',fr:'Français'};
+    available.forEach(l=>{
+      const t = pipeline.translations[l];
+      html += `<div><span class="lf">${flags[l]}</span> <strong>${names[l]}</strong>: ${t?.name || goal+' Smoothie'}</div>`;
+    });
+    html += `</div></div></div>`;
+  }
+
+  // Videos
+  if(pipeline.videos){
+    html += `
+    <div class="result-section">
+      <div class="rs-label">🎬 Video Agent — Tutorials</div>
+      <div class="rs-content">
+        <div class="video-chips">`;
+    pipeline.videos.forEach(v=>{
+      html += `<div class="vc" onclick="window.open('https://youtube.com/watch?v=${v.id}','_blank')">▶ ${v.title} · ${v.duration}</div>`;
+    });
+    html += `</div></div></div>`;
+  }
+
+  // AI Response
+  if(pipeline.aiResponse){
+    html += `
+    <div class="result-section">
+      <div class="rs-label">🤖 Dr. Smoothie AI — Wellness Response</div>
+      <div class="rs-content">${pipeline.aiResponse}</div>
+    </div>`;
+  }
+
+  content.innerHTML = html;
+  box.classList.add('show');
+  box.scrollIntoView({behavior:'smooth',block:'start'});
+}
+</script>
+</body>
+</html>
