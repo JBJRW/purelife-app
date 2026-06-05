@@ -816,6 +816,79 @@
   .legal-disclaimer { background:rgba(0,201,123,0.06); border:1px solid rgba(0,201,123,0.18); border-radius:12px; padding:12px 14px; font-size:10.5px; color:var(--muted); line-height:1.6; margin-top:10px; }
   .legal-disclaimer strong { color:var(--emerald); }
 
+
+  /* ── LONGEVITY PROTOCOL ── */
+  .protocol-section { padding:80px 24px; max-width:1100px; margin:0 auto; }
+  .quiz-wrapper { display:grid; grid-template-columns:1fr 1.2fr; gap:32px; margin-top:48px; align-items:start; }
+  @media(max-width:800px){ .quiz-wrapper { grid-template-columns:1fr; } }
+
+  /* Progress bar */
+  .quiz-progress-bar { background:var(--surface2); border-radius:30px; height:6px; margin-bottom:28px; overflow:hidden; }
+  .quiz-progress-fill { height:100%; background:linear-gradient(90deg,var(--gold),var(--emerald)); border-radius:30px; transition:width 0.4s ease; }
+  .quiz-step-label { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:8px; display:flex; justify-content:space-between; }
+
+  /* Steps */
+  .quiz-step { display:none; animation:fadeUp 0.3s ease; }
+  .quiz-step.active { display:block; }
+  .quiz-question { font-family:'Cormorant Garamond',serif; font-size:1.6rem; font-weight:600; margin-bottom:20px; line-height:1.3; }
+  .quiz-question em { color:var(--gold); font-style:italic; }
+
+  /* Option buttons */
+  .quiz-options { display:flex; flex-direction:column; gap:10px; }
+  .quiz-option {
+    background:var(--surface2); border:1px solid var(--border);
+    border-radius:14px; padding:13px 16px; font-size:13px;
+    color:var(--cream); cursor:pointer; text-align:left;
+    transition:0.2s; display:flex; align-items:center; gap:12px;
+  }
+  .quiz-option:hover { border-color:var(--gold); background:rgba(201,168,76,0.06); }
+  .quiz-option.selected { border-color:var(--gold); background:rgba(201,168,76,0.1); color:var(--gold); font-weight:600; }
+  .quiz-option-icon { width:36px; height:36px; border-radius:10px; object-fit:cover; flex-shrink:0; }
+
+  /* Multi-select options */
+  .quiz-multi { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .quiz-multi .quiz-option { flex-direction:column; text-align:center; align-items:center; padding:12px 8px; font-size:11px; }
+  .quiz-multi .quiz-option-icon { width:44px; height:44px; margin-bottom:2px; }
+
+  /* Input fields */
+  .quiz-inputs { display:flex; flex-direction:column; gap:12px; }
+  .quiz-input-group label { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; display:block; margin-bottom:5px; }
+  .quiz-input-group input, .quiz-input-group select {
+    width:100%; background:var(--surface2); border:1px solid var(--border);
+    border-radius:14px; padding:12px 16px; color:var(--cream);
+    font-size:14px; font-family:'DM Sans',sans-serif; outline:none; transition:0.2s;
+  }
+  .quiz-input-group input:focus, .quiz-input-group select:focus { border-color:var(--gold); }
+  .quiz-input-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+
+  /* Nav buttons */
+  .quiz-nav { display:flex; gap:10px; margin-top:20px; }
+  .quiz-btn-next { flex:1; background:linear-gradient(135deg,var(--gold),var(--gold2)); color:#000; border:none; padding:14px; border-radius:40px; font-weight:800; font-size:14px; cursor:pointer; transition:0.2s; }
+  .quiz-btn-next:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(201,168,76,0.3); }
+  .quiz-btn-back { background:var(--surface2); border:1px solid var(--border); color:var(--muted); padding:14px 20px; border-radius:40px; font-size:13px; cursor:pointer; }
+
+  /* Right panel — protocol preview */
+  .protocol-preview {
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:28px;
+    padding:28px;
+    position:sticky;
+    top:80px;
+  }
+  .protocol-preview-header { display:flex; align-items:center; gap:12px; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid #1e1e1e; }
+  .protocol-avatar { width:44px; height:44px; border-radius:50%; overflow:hidden; flex-shrink:0; }
+  .protocol-result { display:none; }
+  .protocol-result.show { display:block; animation:fadeUp 0.5s ease; }
+  .protocol-item { display:flex; gap:12px; align-items:flex-start; padding:12px 0; border-bottom:1px solid #1a1a1a; }
+  .protocol-item:last-child { border-bottom:none; }
+  .protocol-item-img { width:48px; height:48px; border-radius:12px; object-fit:cover; flex-shrink:0; }
+  .protocol-item-info h4 { font-size:13px; font-weight:600; margin-bottom:3px; }
+  .protocol-item-info p { font-size:11px; color:var(--muted); line-height:1.5; }
+  .protocol-tag { display:inline-block; background:rgba(201,168,76,0.1); border:1px solid rgba(201,168,76,0.2); color:var(--gold); font-size:9px; font-weight:700; padding:2px 8px; border-radius:20px; text-transform:uppercase; letter-spacing:0.08em; margin-top:4px; }
+  .protocol-legal { background:rgba(0,201,123,0.05); border:1px solid rgba(0,201,123,0.15); border-radius:12px; padding:12px; margin-top:16px; font-size:10.5px; color:var(--muted); line-height:1.6; }
+  .protocol-legal strong { color:var(--emerald); }
+
 </style>
 </head>
 <body>
@@ -1248,6 +1321,294 @@
   </div>
 </section>
 
+
+
+<!-- ═══════════════════════════════════════
+     PROTOCOLO DE LONGEVIDAD PERSONALIZADO
+     Agente 5 — Dr. Smoothie AI
+═══════════════════════════════════════ -->
+<section class="protocol-section" id="protocolo">
+  <div class="section-header reveal">
+    <span class="section-label">Agente 5 — Dr. Smoothie AI</span>
+    <h2 class="section-title">Tu <em>Protocolo de Longevidad</em><br>personalizado</h2>
+    <p style="color:var(--muted);font-size:14px;margin-top:10px;max-width:520px;">Responde 6 preguntas. La IA diseña tu rutina de mejora completa — smoothies, horarios, ingredientes y protocolo diario.</p>
+  </div>
+
+  <div class="quiz-wrapper reveal">
+
+    <!-- LEFT: Cuestionario -->
+    <div>
+      <!-- Progress -->
+      <div class="quiz-step-label">
+        <span id="stepLabel">Paso 1 de 6</span>
+        <span id="stepPct">16%</span>
+      </div>
+      <div class="quiz-progress-bar">
+        <div class="quiz-progress-fill" id="quizProgress" style="width:16%"></div>
+      </div>
+
+      <!-- PASO 1: Datos personales -->
+      <div class="quiz-step active" id="step1">
+        <div class="quiz-question">Cuéntanos sobre <em>ti</em></div>
+        <div class="quiz-inputs">
+          <div class="quiz-input-group">
+            <label>Tu nombre</label>
+            <input type="text" id="q_name" placeholder="Nombre completo">
+          </div>
+          <div class="quiz-input-grid">
+            <div class="quiz-input-group">
+              <label>Edad</label>
+              <input type="number" id="q_age" placeholder="Ej. 35" min="18" max="99">
+            </div>
+            <div class="quiz-input-group">
+              <label>Sexo</label>
+              <select id="q_sex">
+                <option value="">Selecciona</option>
+                <option>Masculino</option>
+                <option>Femenino</option>
+                <option>Prefiero no decir</option>
+              </select>
+            </div>
+          </div>
+          <div class="quiz-input-grid">
+            <div class="quiz-input-group">
+              <label>Peso (kg)</label>
+              <input type="number" id="q_weight" placeholder="Ej. 70">
+            </div>
+            <div class="quiz-input-group">
+              <label>Altura (cm)</label>
+              <input type="number" id="q_height" placeholder="Ej. 170">
+            </div>
+          </div>
+        </div>
+        <div class="quiz-nav">
+          <button class="quiz-btn-next" onclick="nextStep(1)">Continuar →</button>
+        </div>
+      </div>
+
+      <!-- PASO 2: Objetivo principal -->
+      <div class="quiz-step" id="step2">
+        <div class="quiz-question">Tu objetivo <em>principal</em></div>
+        <div class="quiz-options">
+          <button class="quiz-option" onclick="selectOpt(this,'obj','Mas energia y vitalidad')">
+            <img class="quiz-option-icon" src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=72&h=72&fit=crop&q=80" alt="">
+            Mas energia y vitalidad diaria
+          </button>
+          <button class="quiz-option" onclick="selectOpt(this,'obj','Reducir inflamacion')">
+            <img class="quiz-option-icon" src="https://images.unsplash.com/photo-1638176066666-ffb2f013c7dd?w=72&h=72&fit=crop&q=80" alt="">
+            Reducir inflamacion y dolor
+          </button>
+          <button class="quiz-option" onclick="selectOpt(this,'obj','Mejorar digestion')">
+            <img class="quiz-option-icon" src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=72&h=72&fit=crop&q=80" alt="">
+            Mejorar digestion y microbioma
+          </button>
+          <button class="quiz-option" onclick="selectOpt(this,'obj','Perder peso saludable')">
+            <img class="quiz-option-icon" src="https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?w=72&h=72&fit=crop&q=80" alt="">
+            Control de peso saludable
+          </button>
+          <button class="quiz-option" onclick="selectOpt(this,'obj','Dormir mejor')">
+            <img class="quiz-option-icon" src="https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=72&h=72&fit=crop&q=80" alt="">
+            Mejorar calidad del sueno
+          </button>
+          <button class="quiz-option" onclick="selectOpt(this,'obj','Longevidad general')">
+            <img class="quiz-option-icon" src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=72&h=72&fit=crop&q=80" alt="">
+            Longevidad y bienestar general
+          </button>
+        </div>
+        <div class="quiz-nav">
+          <button class="quiz-btn-back" onclick="prevStep(2)">← Atras</button>
+          <button class="quiz-btn-next" onclick="nextStep(2)">Continuar →</button>
+        </div>
+      </div>
+
+      <!-- PASO 3: Sintomas actuales -->
+      <div class="quiz-step" id="step3">
+        <div class="quiz-question">Sintomas que <em>sientes ahora</em></div>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:16px;">Selecciona todos los que apliquen</p>
+        <div class="quiz-multi">
+          <button class="quiz-option" onclick="toggleMulti(this,'sint','Fatiga')">
+            <img class="quiz-option-icon" src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=88&h=88&fit=crop&q=80" alt="">
+            Fatiga constante
+          </button>
+          <button class="quiz-option" onclick="toggleMulti(this,'sint','Digestion lenta')">
+            <img class="quiz-option-icon" src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=88&h=88&fit=crop&q=80" alt="">
+            Digestion lenta
+          </button>
+          <button class="quiz-option" onclick="toggleMulti(this,'sint','Inflamacion')">
+            <img class="quiz-option-icon" src="https://images.unsplash.com/photo-1615485500704-8e990f9900f7?w=88&h=88&fit=crop&q=80" alt="">
+            Inflamacion
+          </button>
+          <button class="quiz-option" onclick="toggleMulti(this,'sint','Mal sueno')">
+            <img class="quiz-option-icon" src="https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=88&h=88&fit=crop&q=80" alt="">
+            Mal sueno
+          </button>
+          <button class="quiz-option" onclick="toggleMulti(this,'sint','Estres alto')">
+            <img class="quiz-option-icon" src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=88&h=88&fit=crop&q=80&crop=face" alt="">
+            Estres alto
+          </button>
+          <button class="quiz-option" onclick="toggleMulti(this,'sint','Ninguno')">
+            <img class="quiz-option-icon" src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=88&h=88&fit=crop&q=80" alt="">
+            Me siento bien
+          </button>
+        </div>
+        <div class="quiz-nav">
+          <button class="quiz-btn-back" onclick="prevStep(3)">← Atras</button>
+          <button class="quiz-btn-next" onclick="nextStep(3)">Continuar →</button>
+        </div>
+      </div>
+
+      <!-- PASO 4: Habitos actuales -->
+      <div class="quiz-step" id="step4">
+        <div class="quiz-question">Tus habitos <em>actuales</em></div>
+        <div class="quiz-inputs">
+          <div class="quiz-input-group">
+            <label>Horas de sueno por noche</label>
+            <select id="q_sleep">
+              <option>Menos de 5 horas</option>
+              <option>5-6 horas</option>
+              <option selected>7-8 horas</option>
+              <option>Mas de 8 horas</option>
+            </select>
+          </div>
+          <div class="quiz-input-group">
+            <label>Ejercicio semanal</label>
+            <select id="q_exercise">
+              <option>Ninguno</option>
+              <option>1-2 veces</option>
+              <option selected>3-4 veces</option>
+              <option>Todos los dias</option>
+            </select>
+          </div>
+          <div class="quiz-input-group">
+            <label>Agua que tomas al dia</label>
+            <select id="q_water">
+              <option>Menos de 1 litro</option>
+              <option selected>1-2 litros</option>
+              <option>2-3 litros</option>
+              <option>Mas de 3 litros</option>
+            </select>
+          </div>
+          <div class="quiz-input-group">
+            <label>Dieta actual</label>
+            <select id="q_diet">
+              <option>Sin restricciones</option>
+              <option>Vegetariana</option>
+              <option>Vegana</option>
+              <option>Sin gluten</option>
+              <option>Sin lactosa</option>
+              <option>Keto / Low carb</option>
+            </select>
+          </div>
+        </div>
+        <div class="quiz-nav">
+          <button class="quiz-btn-back" onclick="prevStep(4)">← Atras</button>
+          <button class="quiz-btn-next" onclick="nextStep(4)">Continuar →</button>
+        </div>
+      </div>
+
+      <!-- PASO 5: Alergias -->
+      <div class="quiz-step" id="step5">
+        <div class="quiz-question">Alergias o <em>restricciones</em></div>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:16px;">Para personalizar tu protocolo sin riesgos</p>
+        <div class="quiz-multi">
+          <button class="quiz-option" onclick="toggleMulti(this,'alg','Nueces')">
+            <img class="quiz-option-icon" src="https://images.unsplash.com/photo-1599599810769-bcde5a160d32?w=88&h=88&fit=crop&q=80" alt="">
+            Nueces / frutos secos
+          </button>
+          <button class="quiz-option" onclick="toggleMulti(this,'alg','Lacteos')">
+            <img class="quiz-option-icon" src="https://images.unsplash.com/photo-1550583724-b2692b85b150?w=88&h=88&fit=crop&q=80" alt="">
+            Lacteos
+          </button>
+          <button class="quiz-option" onclick="toggleMulti(this,'alg','Gluten')">
+            <img class="quiz-option-icon" src="https://images.unsplash.com/photo-1509440159596-0249088772ff?w=88&h=88&fit=crop&q=80" alt="">
+            Gluten
+          </button>
+          <button class="quiz-option" onclick="toggleMulti(this,'alg','Citricos')">
+            <img class="quiz-option-icon" src="https://images.unsplash.com/photo-1582979512210-99b6a53386f9?w=88&h=88&fit=crop&q=80" alt="">
+            Citricos
+          </button>
+          <button class="quiz-option" onclick="toggleMulti(this,'alg','Jengibre')">
+            <img class="quiz-option-icon" src="https://images.unsplash.com/photo-1615485500704-8e990f9900f7?w=88&h=88&fit=crop&q=80" alt="">
+            Jengibre / especias
+          </button>
+          <button class="quiz-option selected" onclick="toggleMulti(this,'alg','Ninguna')">
+            <img class="quiz-option-icon" src="https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=88&h=88&fit=crop&q=80" alt="">
+            Sin alergias
+          </button>
+        </div>
+        <div class="quiz-nav">
+          <button class="quiz-btn-back" onclick="prevStep(5)">← Atras</button>
+          <button class="quiz-btn-next" onclick="nextStep(5)">Continuar →</button>
+        </div>
+      </div>
+
+      <!-- PASO 6: Compromiso -->
+      <div class="quiz-step" id="step6">
+        <div class="quiz-question">Nivel de <em>compromiso</em></div>
+        <div class="quiz-options">
+          <button class="quiz-option" onclick="selectOpt(this,'comp','Basico')">
+            <img class="quiz-option-icon" src="https://images.unsplash.com/photo-1559181567-c3190aae6c67?w=72&h=72&fit=crop&q=80" alt="">
+            <div><strong>Basico</strong> — 1 smoothie al dia, 10 min</div>
+          </button>
+          <button class="quiz-option" onclick="selectOpt(this,'comp','Intermedio')">
+            <img class="quiz-option-icon" src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=72&h=72&fit=crop&q=80" alt="">
+            <div><strong>Intermedio</strong> — Protocolo 7 dias, 20 min/dia</div>
+          </button>
+          <button class="quiz-option" onclick="selectOpt(this,'comp','Avanzado')">
+            <img class="quiz-option-icon" src="https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?w=72&h=72&fit=crop&q=80" alt="">
+            <div><strong>Avanzado</strong> — Protocolo 30 dias completo</div>
+          </button>
+        </div>
+        <div class="quiz-nav">
+          <button class="quiz-btn-back" onclick="prevStep(6)">← Atras</button>
+          <button class="quiz-btn-next" onclick="generateProtocol()" style="background:linear-gradient(135deg,var(--emerald),#00a86b);">Generar mi protocolo →</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT: Protocol Preview -->
+    <div class="protocol-preview">
+      <div class="protocol-preview-header">
+        <div class="protocol-avatar">
+          <img src="https://purelife-app-umber.vercel.app/purelife-logo.png" style="width:100%;height:100%;object-fit:cover;" alt="PureLife">
+        </div>
+        <div>
+          <div style="font-weight:700;font-size:14px;">Dr. Smoothie AI</div>
+          <div style="font-size:11px;color:var(--emerald);">Analizando tu perfil...</div>
+        </div>
+      </div>
+
+      <!-- Estado inicial -->
+      <div id="protocolPlaceholder">
+        <div style="text-align:center;padding:32px 16px;">
+          <img src="https://purelife-app-umber.vercel.app/purelife-logo.png" style="width:64px;height:64px;border-radius:50%;opacity:0.4;margin-bottom:16px;" alt="">
+          <p style="font-size:13px;color:var(--muted);line-height:1.7;">Completa el cuestionario y Dr. Smoothie AI disenhara tu protocolo personalizado de longevidad.</p>
+        </div>
+      </div>
+
+      <!-- Resultado generado -->
+      <div class="protocol-result" id="protocolResult">
+        <div style="margin-bottom:16px;">
+          <div id="protocolTitle" style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:600;margin-bottom:4px;"></div>
+          <div id="protocolSubtitle" style="font-size:12px;color:var(--muted);"></div>
+        </div>
+
+        <div id="protocolItems"></div>
+
+        <button onclick="document.getElementById('checkout').scrollIntoView({behavior:'smooth'})"
+          style="width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;padding:14px;border-radius:40px;font-weight:800;font-size:14px;cursor:pointer;margin-top:16px;">
+          Activar protocolo completo — $182/ano
+        </button>
+
+        <div class="protocol-legal">
+          <strong>Nota importante:</strong> Este protocolo tiene proposito <strong>motivacional y educativo</strong>. PureLife es una plataforma nutricional, no un servicio medico. Los ingredientes mencionados se basan en informacion nutricional publica. <strong>Consulta a tu medico</strong> antes de iniciar cambios en tu alimentacion si tienes condiciones de salud preexistentes.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
 
 <section class="chat-section">
   <div class="section-header reveal" style="max-width:1100px;margin:0 auto;">
@@ -1805,6 +2166,115 @@
       btn.disabled = false;
       preview.scrollIntoView({behavior:'smooth', block:'nearest'});
     }, 1500);
+  }
+
+
+  // ── LONGEVITY PROTOCOL QUIZ ──
+  var quizData = { name:'', age:'', obj:'', sint:[], alg:[], comp:'' };
+  var currentStep = 1;
+  var totalSteps = 6;
+
+  function updateProgress(step) {
+    var pct = Math.round((step / totalSteps) * 100);
+    document.getElementById('quizProgress').style.width = pct + '%';
+    document.getElementById('stepLabel').textContent = 'Paso ' + step + ' de ' + totalSteps;
+    document.getElementById('stepPct').textContent = pct + '%';
+  }
+
+  function nextStep(step) {
+    if (step === 1) {
+      quizData.name = document.getElementById('q_name').value || 'Amigo';
+      quizData.age = document.getElementById('q_age').value;
+    }
+    document.getElementById('step' + step).classList.remove('active');
+    var next = step + 1;
+    if (next <= totalSteps) {
+      document.getElementById('step' + next).classList.add('active');
+      currentStep = next;
+      updateProgress(next);
+    }
+  }
+
+  function prevStep(step) {
+    document.getElementById('step' + step).classList.remove('active');
+    var prev = step - 1;
+    if (prev >= 1) {
+      document.getElementById('step' + prev).classList.add('active');
+      currentStep = prev;
+      updateProgress(prev);
+    }
+  }
+
+  function selectOpt(btn, key, val) {
+    var parent = btn.closest('.quiz-options');
+    if (parent) parent.querySelectorAll('.quiz-option').forEach(function(b){ b.classList.remove('selected'); });
+    btn.classList.add('selected');
+    quizData[key] = val;
+  }
+
+  function toggleMulti(btn, key, val) {
+    btn.classList.toggle('selected');
+    if (!quizData[key]) quizData[key] = [];
+    var idx = quizData[key].indexOf(val);
+    if (idx > -1) quizData[key].splice(idx, 1);
+    else quizData[key].push(val);
+  }
+
+  var protocolDB = {
+    'Mas energia y vitalidad': {
+      title: 'Protocolo Energia Total',
+      subtitle: 'Optimizado para vitalidad maxima',
+      items: [
+        { img:'https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=96&h=96&fit=crop&q=80', name:'Smoothie Verde Matutino', desc:'Espinaca + pina + jengibre + agua de coco. 7:00 AM en ayunas.', tag:'Diario' },
+        { img:'https://images.unsplash.com/photo-1543352634-a1c51d9f1fa7?w=96&h=96&fit=crop&q=80', name:'Leche Dorada Nocturna', desc:'Curcuma + leche de almendra + pimienta negra. 30 min antes de dormir.', tag:'Noche' },
+        { img:'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=96&h=96&fit=crop&q=80', name:'Rutina de movimiento', desc:'10 min de estiramiento + exposicion solar matutina para regular cortisol.', tag:'Manana' }
+      ]
+    },
+    'Reducir inflamacion': {
+      title: 'Protocolo Anti-Inflamatorio',
+      subtitle: 'Plan 30 dias con ingredientes clave',
+      items: [
+        { img:'https://images.unsplash.com/photo-1638176066666-ffb2f013c7dd?w=96&h=96&fit=crop&q=80', name:'Smoothie Dorado Matutino', desc:'Curcuma + jengibre + pina + pimienta negra. Potente combinacion anti-inflamatoria.', tag:'Prioridad 1' },
+        { img:'https://images.unsplash.com/photo-1559181567-c3190aae6c67?w=96&h=96&fit=crop&q=80', name:'Jugo Antioxidante', desc:'Frutos rojos + remolacha + manzana verde. Combate radicales libres.', tag:'Tarde' },
+        { img:'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=96&h=96&fit=crop&q=80', name:'Eliminar procesados', desc:'Reducir azucar refinada y aceites vegetales procesados durante 30 dias.', tag:'Habito' }
+      ]
+    },
+    'Mejorar digestion': {
+      title: 'Protocolo Microbioma',
+      subtitle: 'Reset digestivo en 21 dias',
+      items: [
+        { img:'https://images.unsplash.com/photo-1615485500704-8e990f9900f7?w=96&h=96&fit=crop&q=80', name:'Agua con Jengibre en Ayunas', desc:'Jengibre fresco + limon + agua tibia. Activa enzimas digestivas naturales.', tag:'Primer paso' },
+        { img:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=96&h=96&fit=crop&q=80', name:'Smoothie de Fibra Verde', desc:'Espinaca + platano verde + semillas de chia + leche de coco.', tag:'Prebiotico' },
+        { img:'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=96&h=96&fit=crop&q=80', name:'Fermentados naturales', desc:'Incorporar kefir de coco o kombucha como probiotico diario.', tag:'Probiotico' }
+      ]
+    }
+  };
+
+  function generateProtocol() {
+    var btn = document.querySelector('#step6 .quiz-btn-next');
+    btn.textContent = 'Generando tu protocolo...';
+    btn.disabled = true;
+
+    setTimeout(function(){
+      var obj = quizData.obj || 'Mas energia y vitalidad';
+      var data = protocolDB[obj] || protocolDB['Mas energia y vitalidad'];
+      var name = quizData.name || 'tu';
+
+      document.getElementById('protocolTitle').textContent = 'Protocolo para ' + name;
+      document.getElementById('protocolSubtitle').textContent = data.title + ' — ' + data.subtitle;
+
+      var itemsHTML = '';
+      data.items.forEach(function(item){
+        itemsHTML += '<div class="protocol-item"><img class="protocol-item-img" src="' + item.img + '" alt=""><div class="protocol-item-info"><h4>' + item.name + '</h4><p>' + item.desc + '</p><span class="protocol-tag">' + item.tag + '</span></div></div>';
+      });
+      document.getElementById('protocolItems').innerHTML = itemsHTML;
+
+      document.getElementById('protocolPlaceholder').style.display = 'none';
+      document.getElementById('protocolResult').classList.add('show');
+
+      btn.textContent = 'Protocolo generado';
+      document.getElementById('protocolResult').scrollIntoView({behavior:'smooth', block:'nearest'});
+    }, 2000);
   }
 
 </script>
