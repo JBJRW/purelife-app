@@ -399,18 +399,17 @@ async function callClaude(messages) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      system: [{
-        type: "text",
-        text: WELLNESS_PROMPT,
-        cache_control: { type: "ephemeral" }, // ← TurboQuant Fase 1
-      }],
+      system: WELLNESS_PROMPT,
       messages,
     }),
   });
-  if (!res.ok) throw new Error(`API ${res.status}`);
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error?.message || `API ${res.status}`);
+  }
   const data = await res.json();
   return {
-    text: data.content?.[0]?.text ?? "",
+    text: data.content?.[0]?.text ?? "Sin respuesta del servidor.",
     usage: data.usage ?? {},
   };
 }
@@ -1099,23 +1098,45 @@ function VideoStudio() {
     }
   };
 
-  const generateVideo = () => {
+  const generateVideo = async () => {
     setPhase("generating-video"); setProgress(0);
-    addLog(`🎬 Renderizando en ${resolution} · ${model} · ${duration}s...`);
+    addLog(`🎬 Generando video real con Claude + fal.ai · ${resolution} · ${model} · ${duration}s...`);
+
+    // Simular progreso mientras espera
     let p = 0;
     timerRef.current = setInterval(() => {
-      p += Math.random() * 3.5 + 1.2;
-      if (p >= 100) {
-        clearInterval(timerRef.current);
-        setProgress(100);
-        setTimeout(() => {
-          setVideoUrl("https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4");
-          setPhase("done"); addLog("✅ Video listo · Descarga o comparte");
-        }, 400);
-        return;
+      p += Math.random() * 2 + 0.5;
+      if (p < 85) setProgress(Math.min(p, 85));
+    }, 400);
+
+    try {
+      const res = await fetch("/api/video", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ingredients, goal, model, resolution, duration }),
+      });
+      clearInterval(timerRef.current);
+
+      if (!res.ok) throw new Error(`Error ${res.status}`);
+      const data = await res.json();
+
+      setProgress(100);
+      setPrompt(data.script || prompt);
+
+      if (data.videoUrl) {
+        setVideoUrl(data.videoUrl);
+        setPhase("done");
+        addLog("✅ Video generado con fal.ai · Descarga o comparte");
+      } else {
+        // Script generado pero sin video (FAL_KEY no configurado)
+        setPhase("done");
+        addLog("✅ Script cinematográfico listo · Configura FAL_KEY en Vercel para video real");
       }
-      setProgress(p);
-    }, 280);
+    } catch (err) {
+      clearInterval(timerRef.current);
+      setPhase("prompt-ready");
+      addLog(`⚠️ Error: ${err.message}`);
+    }
   };
 
   const reset = () => {
