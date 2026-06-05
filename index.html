@@ -890,71 +890,6 @@
   .protocol-legal strong { color:var(--emerald); }
 
 
-  /* ── MAPA DE INGREDIENTES ── */
-  .map-section { padding:80px 24px; max-width:1100px; margin:0 auto; }
-  .map-wrapper { display:grid; grid-template-columns:320px 1fr; gap:24px; margin-top:48px; align-items:start; }
-  @media(max-width:900px){ .map-wrapper { grid-template-columns:1fr; } }
-
-  /* Search + filter panel */
-  .map-panel { display:flex; flex-direction:column; gap:12px; }
-  .map-search-box {
-    background:var(--surface); border:1px solid var(--border);
-    border-radius:20px; padding:20px;
-  }
-  .map-search-input {
-    width:100%; background:var(--surface2); border:1px solid var(--border);
-    border-radius:14px; padding:12px 16px; color:var(--cream);
-    font-size:14px; font-family:'DM Sans',sans-serif; outline:none;
-    transition:0.2s; margin-bottom:12px;
-  }
-  .map-search-input:focus { border-color:var(--gold); }
-  .map-locate-btn {
-    width:100%; background:linear-gradient(135deg,var(--gold),var(--gold2));
-    color:#000; border:none; padding:12px; border-radius:40px;
-    font-weight:800; font-size:13px; cursor:pointer; transition:0.2s;
-    display:flex; align-items:center; justify-content:center; gap:8px;
-  }
-  .map-locate-btn:hover { transform:translateY(-1px); }
-
-  /* Ingredient filter chips */
-  .ingredient-filters { display:flex; flex-wrap:wrap; gap:7px; margin:12px 0; }
-  .ing-filter {
-    background:var(--surface2); border:1px solid var(--border);
-    border-radius:20px; padding:6px 12px; font-size:11px;
-    color:var(--muted); cursor:pointer; transition:0.2s;
-    display:flex; align-items:center; gap:5px;
-  }
-  .ing-filter:hover, .ing-filter.active {
-    border-color:var(--gold); background:rgba(201,168,76,0.1); color:var(--gold);
-  }
-  .ing-filter img { width:18px; height:18px; border-radius:50%; object-fit:cover; }
-
-  /* Store list */
-  .store-list { display:flex; flex-direction:column; gap:10px; margin-top:4px; }
-  .store-card {
-    background:var(--surface); border:1px solid var(--border);
-    border-radius:16px; padding:14px; cursor:pointer; transition:0.2s;
-    display:flex; gap:12px; align-items:flex-start;
-  }
-  .store-card:hover, .store-card.active { border-color:var(--gold); background:rgba(201,168,76,0.05); }
-  .store-card-img { width:48px; height:48px; border-radius:12px; object-fit:cover; flex-shrink:0; }
-  .store-card-info h4 { font-size:13px; font-weight:600; margin-bottom:3px; }
-  .store-card-info p { font-size:11px; color:var(--muted); line-height:1.4; }
-  .store-distance {
-    margin-left:auto; text-align:right; flex-shrink:0;
-  }
-  .store-dist-num { font-size:13px; font-weight:700; color:var(--gold); display:block; }
-  .store-dist-label { font-size:10px; color:var(--muted); }
-  .store-open { display:inline-block; background:rgba(0,201,123,0.1); border:1px solid rgba(0,201,123,0.2); color:var(--emerald); font-size:9px; font-weight:700; padding:2px 7px; border-radius:20px; text-transform:uppercase; margin-top:4px; }
-  .store-closed { display:inline-block; background:rgba(224,85,85,0.1); border:1px solid rgba(224,85,85,0.2); color:#E05555; font-size:9px; font-weight:700; padding:2px 7px; border-radius:20px; text-transform:uppercase; margin-top:4px; }
-
-  /* Map container */
-  .map-container {
-    background:var(--surface2); border:1px solid var(--border);
-    border-radius:24px; overflow:hidden; position:relative;
-    min-height:480px;
-  }
-  #purelifeMap { width:100%; height:480px; }
   .map-overlay-badge {
     position:absolute; top:16px; left:16px; z-index:1000;
     background:rgba(8,11,10,0.9); backdrop-filter:blur(10px);
@@ -962,6 +897,87 @@
     padding:10px 14px; font-size:12px;
   }
   .map-overlay-badge strong { color:var(--gold); display:block; margin-bottom:2px; }
+
+
+  /* ── MAPA INGREDIENTES — Google Maps 3D + Cream Palette ── */
+  .map-section { padding:80px 24px; max-width:1100px; margin:0 auto; }
+  .map-wrapper { display:grid; grid-template-columns:300px 1fr; gap:24px; margin-top:48px; align-items:start; }
+  @media(max-width:900px){ .map-wrapper { grid-template-columns:1fr; } }
+
+  .map-panel { display:flex; flex-direction:column; gap:12px; }
+  .map-search-box {
+    background:#F4EFE6;
+    border:1px solid rgba(201,168,76,0.25);
+    border-radius:20px; padding:18px;
+    box-shadow:0 2px 16px rgba(0,0,0,0.08);
+  }
+  .map-panel-title { font-size:12px; font-weight:700; color:#5a4a1a; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:10px; }
+  .map-search-input {
+    width:100%; background:#fff; border:1px solid rgba(201,168,76,0.3);
+    border-radius:12px; padding:11px 14px; color:#2a2218;
+    font-size:13px; font-family:'DM Sans',sans-serif; outline:none; transition:0.2s; margin-bottom:10px;
+  }
+  .map-search-input:focus { border-color:var(--gold); box-shadow:0 0 0 3px rgba(201,168,76,0.12); }
+  .map-search-input::placeholder { color:#b0a08a; }
+  .map-locate-btn {
+    width:100%; background:linear-gradient(135deg,#C9A84C,#E8C96A);
+    color:#2a1f00; border:none; padding:12px; border-radius:40px;
+    font-weight:800; font-size:13px; cursor:pointer; transition:0.2s;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    box-shadow:0 4px 14px rgba(201,168,76,0.3);
+  }
+  .map-locate-btn:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(201,168,76,0.4); }
+
+  .ingredient-filters { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0; }
+  .ing-filter {
+    background:#fff; border:1px solid rgba(201,168,76,0.25);
+    border-radius:20px; padding:5px 11px; font-size:11px;
+    color:#7a6040; cursor:pointer; transition:0.2s;
+    display:flex; align-items:center; gap:5px; font-weight:500;
+  }
+  .ing-filter:hover, .ing-filter.active {
+    border-color:var(--gold); background:rgba(201,168,76,0.12); color:#5a3e00; font-weight:700;
+  }
+  .ing-filter img { width:18px; height:18px; border-radius:50%; object-fit:cover; }
+
+  .store-list { display:flex; flex-direction:column; gap:8px; margin-top:2px; }
+  .store-card {
+    background:#F4EFE6; border:1px solid rgba(201,168,76,0.2);
+    border-radius:16px; padding:12px; cursor:pointer; transition:0.2s;
+    display:flex; gap:10px; align-items:flex-start;
+    box-shadow:0 1px 8px rgba(0,0,0,0.06);
+  }
+  .store-card:hover, .store-card.active { border-color:var(--gold); background:#fff; box-shadow:0 4px 16px rgba(201,168,76,0.2); }
+  .store-card-img { width:44px; height:44px; border-radius:10px; object-fit:cover; flex-shrink:0; }
+  .store-card-info h4 { font-size:12px; font-weight:700; color:#2a1f00; margin-bottom:2px; }
+  .store-card-info p { font-size:10px; color:#8a7055; line-height:1.4; }
+  .store-distance { margin-left:auto; text-align:right; flex-shrink:0; }
+  .store-dist-num { font-size:13px; font-weight:800; color:#C9A84C; display:block; }
+  .store-dist-label { font-size:9px; color:#a0906a; }
+  .store-open { display:inline-block; background:rgba(0,160,80,0.1); border:1px solid rgba(0,160,80,0.25); color:#007a40; font-size:9px; font-weight:700; padding:2px 7px; border-radius:20px; text-transform:uppercase; margin-top:3px; }
+  .store-closed { display:inline-block; background:rgba(180,0,0,0.08); border:1px solid rgba(180,0,0,0.2); color:#c00; font-size:9px; font-weight:700; padding:2px 7px; border-radius:20px; text-transform:uppercase; margin-top:3px; }
+
+  .map-container {
+    background:#e8e0d4; border:1px solid rgba(201,168,76,0.3);
+    border-radius:24px; overflow:hidden; position:relative;
+    min-height:500px; box-shadow:0 8px 32px rgba(0,0,0,0.12);
+  }
+  #purelifeMap { width:100%; height:500px; border-radius:24px; }
+  .map-overlay-badge {
+    position:absolute; top:14px; left:14px; z-index:1000;
+    background:rgba(244,239,230,0.95); backdrop-filter:blur(10px);
+    border:1px solid rgba(201,168,76,0.3); border-radius:14px;
+    padding:10px 14px; font-size:12px; color:#2a1f00;
+    box-shadow:0 2px 12px rgba(0,0,0,0.1);
+  }
+  .map-overlay-badge strong { color:#C9A84C; display:block; margin-bottom:2px; font-size:13px; }
+  .map-3d-badge {
+    position:absolute; top:14px; right:14px; z-index:1000;
+    background:linear-gradient(135deg,#C9A84C,#E8C96A);
+    color:#2a1f00; font-size:10px; font-weight:800;
+    padding:5px 12px; border-radius:20px; letter-spacing:0.08em;
+    box-shadow:0 2px 10px rgba(201,168,76,0.4);
+  }
 
 </style>
 </head>
@@ -1402,190 +1418,102 @@
      MAPA DE INGREDIENTES EN TIEMPO REAL
      Agente 1 + Agente 3 — Geo + UI
 ═══════════════════════════════════════ -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
-  // ── MAPA DE INGREDIENTES — SmartLocator ──
-  var mapInstance = null;
-  var userMarker = null;
-  var storeMarkers = [];
+</section>
 
-  var storeData = [
-    { name:'Fruteria Dona Chelo', lat:25.7617, lng:-80.1918, items:'Jengibre, Espinaca, Pina', open:true, dist:'0.4km' },
-    { name:'Superfood Market',    lat:25.7650, lng:-80.1950, items:'Curcuma, Jengibre, Espirulina', open:true, dist:'0.8km' },
-    { name:'Juice Lab',           lat:25.7580, lng:-80.1880, items:'Frutos rojos, Ingredientes premium', open:false, dist:'1.2km' },
-    { name:'Mercado Organico',    lat:25.7700, lng:-80.1900, items:'Todo natural', open:true, dist:'1.8km' }
-  ];
 
-  function initMap(lat, lng) {
-    if (mapInstance) { mapInstance.remove(); }
-    mapInstance = L.map('purelifeMap', { zoomControl:true }).setView([lat, lng], 14);
-
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution:'&copy; OpenStreetMap &copy; CARTO',
-      maxZoom:19
-    }).addTo(mapInstance);
-
-    // User marker
-    var userIcon = L.divIcon({
-      html:'<div style="width:18px;height:18px;background:#C9A84C;border-radius:50%;border:3px solid #fff;box-shadow:0 0 12px rgba(201,168,76,0.6);"></div>',
-      iconSize:[18,18], iconAnchor:[9,9], className:''
-    });
-    L.marker([lat, lng], {icon:userIcon}).addTo(mapInstance).bindPopup('<strong style="color:#C9A84C">Tu ubicacion</strong>');
-
-    // Store markers
-    storeData.forEach(function(s){
-      var color = s.open ? '#00C97B' : '#E05555';
-      var icon = L.divIcon({
-        html:'<div style="width:14px;height:14px;background:'+color+';border-radius:50%;border:2px solid #fff;box-shadow:0 0 8px '+color+'55;"></div>',
-        iconSize:[14,14], iconAnchor:[7,7], className:''
-      });
-      L.marker([s.lat, s.lng], {icon:icon}).addTo(mapInstance)
-        .bindPopup('<div style="font-family:sans-serif;min-width:160px;"><strong style="color:#C9A84C;font-size:13px;">'+s.name+'</strong><br><span style="font-size:11px;color:#888;">'+s.items+'</span><br><span style="font-size:11px;font-weight:700;color:'+(s.open?'#00C97B':'#E05555')+'">'+(s.open?'Abierto':'Cerrado')+'</span> &bull; <span style="font-size:11px;">'+s.dist+'</span></div>');
-    });
-  }
-
-  function locateUser() {
-    var statusEl = document.getElementById('locationStatus');
-    var btn = document.querySelector('.map-locate-btn');
-    btn.innerHTML = '<span>Detectando ubicacion...</span>';
-    btn.disabled = true;
-
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        function(pos) {
-          var lat = pos.coords.latitude;
-          var lng = pos.coords.longitude;
-          statusEl.innerHTML = '<span style="color:var(--emerald)">Ubicacion detectada</span>';
-          document.getElementById('mapStatusBadge').textContent = '4 tiendas cerca de ti';
-          initMap(lat, lng);
-          btn.innerHTML = '<span>Ubicacion activa</span>';
-          btn.style.background = 'linear-gradient(135deg,var(--emerald),#00a86b)';
-        },
-        function() {
-          // Fallback to Fort Lauderdale / demo location
-          statusEl.innerHTML = '<span style="color:var(--gold)">Usando ubicacion demo (Fort Lauderdale)</span>';
-          initMap(26.1224, -80.1373);
-          btn.innerHTML = '<span>Ver demo — Fort Lauderdale</span>';
-          btn.disabled = false;
-        }
-      );
-    } else {
-      initMap(26.1224, -80.1373);
-      btn.innerHTML = '<span>Ver demo</span>';
-      btn.disabled = false;
-    }
-  }
-
-  function filterIng(btn, ing) {
-    document.querySelectorAll('.ing-filter').forEach(function(b){ b.classList.remove('active'); });
-    btn.classList.add('active');
-    document.getElementById('mapStatusBadge').textContent = ing === 'todos' ? '4 tiendas encontradas' : 'Filtrando por: ' + ing;
-  }
-
-  // Auto-init map with demo location
-  document.addEventListener('DOMContentLoaded', function(){
-    setTimeout(function(){
-      initMap(26.1224, -80.1373);
-    }, 500);
-  });
-
-</script>
-
+<!-- ═══════════════════════════════════════
+     MAPA INGREDIENTES — Google Maps 3D
+     Agente 1 + Agente 3 — Cream Palette
+═══════════════════════════════════════ -->
 <section class="map-section" id="mapa-ingredientes">
   <div class="section-header reveal">
-    <span class="section-label">Agente 3 — SmartLocator</span>
+    <span class="section-label">Agente 3 — SmartLocator 3D</span>
     <h2 class="section-title">Mapa de <em>ingredientes</em><br>en tiempo real</h2>
     <p style="color:var(--muted);font-size:14px;margin-top:10px;max-width:520px;">
-      Encuentra exactamente que tienda tiene tu jengibre organico mas cerca. Geolocalización en tiempo real.
+      Encuentra exactamente que tienda tiene tu jengibre organico mas cerca. Google Maps 3D — precision real.
     </p>
   </div>
 
   <div class="map-wrapper reveal">
 
-    <!-- LEFT: Panel de busqueda -->
+    <!-- LEFT PANEL -->
     <div class="map-panel">
-
-      <!-- Busqueda + ubicacion -->
       <div class="map-search-box">
-        <p style="font-size:12px;font-weight:600;color:var(--gold);margin-bottom:10px;">Buscar ingrediente</p>
-        <input class="map-search-input" id="mapSearchInput" placeholder="Ej: jengibre organico, curcuma...">
+        <div class="map-panel-title">Buscar ingrediente</div>
+        <input class="map-search-input" id="mapSearchInput" placeholder="Ej: jengibre organico...">
         <button class="map-locate-btn" onclick="locateUser()">
-          <span>Usar mi ubicacion</span>
+          Usar mi ubicacion exacta
         </button>
-        <p style="font-size:10px;color:var(--muted);text-align:center;margin-top:8px;" id="locationStatus">
+        <p style="font-size:10px;color:#a0906a;text-align:center;margin-top:8px;" id="locationStatus">
           Presiona para detectar tiendas cerca de ti
         </p>
       </div>
 
-      <!-- Filtros de ingredientes -->
       <div class="map-search-box">
-        <p style="font-size:12px;font-weight:600;color:var(--cream);margin-bottom:10px;">Ingredientes clave</p>
+        <div class="map-panel-title">Ingredientes</div>
         <div class="ingredient-filters">
-          <button class="ing-filter active" onclick="filterIng(this,'todos')">
-            Todos
-          </button>
+          <button class="ing-filter active" onclick="filterIng(this,'todos')">Todos</button>
           <button class="ing-filter" onclick="filterIng(this,'jengibre')">
-            <img src="https://images.unsplash.com/photo-1615485500704-8e990f9900f7?w=36&h=36&fit=crop&q=80" alt=""> Jengibre
+            <img src="https://images.unsplash.com/photo-1615485500704-8e990f9900f7?w=36&h=36&fit=crop&q=80" alt="">Jengibre
           </button>
           <button class="ing-filter" onclick="filterIng(this,'curcuma')">
-            <img src="https://images.unsplash.com/photo-1638176066666-ffb2f013c7dd?w=36&h=36&fit=crop&q=80" alt=""> Curcuma
+            <img src="https://images.unsplash.com/photo-1638176066666-ffb2f013c7dd?w=36&h=36&fit=crop&q=80" alt="">Curcuma
           </button>
           <button class="ing-filter" onclick="filterIng(this,'espinaca')">
-            <img src="https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=36&h=36&fit=crop&q=80" alt=""> Espinaca
+            <img src="https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=36&h=36&fit=crop&q=80" alt="">Espinaca
           </button>
           <button class="ing-filter" onclick="filterIng(this,'pina')">
-            <img src="https://images.unsplash.com/photo-1550258987-190a2d41a8ba?w=36&h=36&fit=crop&q=80" alt=""> Pina
+            <img src="https://images.unsplash.com/photo-1550258987-190a2d41a8ba?w=36&h=36&fit=crop&q=80" alt="">Pina
           </button>
           <button class="ing-filter" onclick="filterIng(this,'frutos-rojos')">
-            <img src="https://images.unsplash.com/photo-1559181567-c3190aae6c67?w=36&h=36&fit=crop&q=80" alt=""> Frutos rojos
+            <img src="https://images.unsplash.com/photo-1559181567-c3190aae6c67?w=36&h=36&fit=crop&q=80" alt="">Frutos rojos
           </button>
         </div>
       </div>
 
-      <!-- Lista de tiendas -->
       <div class="store-list" id="storeList">
-        <div class="store-card active">
-          <img class="store-card-img" src="https://images.unsplash.com/photo-1542838132-92c53300491e?w=96&h=96&fit=crop&q=80" alt="Fruteria">
+        <div class="store-card active" onclick="focusStore(25.7617,-80.1918)">
+          <img class="store-card-img" src="https://images.unsplash.com/photo-1542838132-92c53300491e?w=88&h=88&fit=crop&q=80" alt="">
           <div class="store-card-info">
             <h4>Fruteria Dona Chelo</h4>
-            <p>Jengibre fresco, espinaca, pina</p>
-            <span class="store-open">Abierto</span>
+            <p>Jengibre fresco, espinaca, pina tropical</p>
+            <span class="store-open">Abierto ahora</span>
           </div>
           <div class="store-distance">
             <span class="store-dist-num">0.4km</span>
             <span class="store-dist-label">~5 min</span>
           </div>
         </div>
-        <div class="store-card">
-          <img class="store-card-img" src="https://images.unsplash.com/photo-1534723452862-4c874018d66d?w=96&h=96&fit=crop&q=80" alt="Superfood">
+        <div class="store-card" onclick="focusStore(25.7650,-80.1950)">
+          <img class="store-card-img" src="https://images.unsplash.com/photo-1534723452862-4c874018d66d?w=88&h=88&fit=crop&q=80" alt="">
           <div class="store-card-info">
             <h4>Superfood Market</h4>
             <p>Curcuma organica, jengibre, espirulina</p>
-            <span class="store-open">Abierto</span>
+            <span class="store-open">Abierto ahora</span>
           </div>
           <div class="store-distance">
             <span class="store-dist-num">0.8km</span>
             <span class="store-dist-label">~10 min</span>
           </div>
         </div>
-        <div class="store-card">
-          <img class="store-card-img" src="https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=96&h=96&fit=crop&q=80" alt="Juice Lab">
+        <div class="store-card" onclick="focusStore(25.7580,-80.1880)">
+          <img class="store-card-img" src="https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=88&h=88&fit=crop&q=80" alt="">
           <div class="store-card-info">
-            <h4>Juice Lab</h4>
-            <p>Ingredientes premium, frutos rojos</p>
-            <span class="store-closed">Cierra 20h</span>
+            <h4>Juice Lab Premium</h4>
+            <p>Frutos rojos, ingredientes premium 4K</p>
+            <span class="store-closed">Cierra 20:00h</span>
           </div>
           <div class="store-distance">
             <span class="store-dist-num">1.2km</span>
             <span class="store-dist-label">~15 min</span>
           </div>
         </div>
-        <div class="store-card">
-          <img class="store-card-img" src="https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=96&h=96&fit=crop&q=80" alt="Mercado">
+        <div class="store-card" onclick="focusStore(25.7700,-80.1900)">
+          <img class="store-card-img" src="https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=88&h=88&fit=crop&q=80" alt="">
           <div class="store-card-info">
             <h4>Mercado Organico Central</h4>
             <p>Todo tipo de ingredientes naturales</p>
-            <span class="store-open">Abierto</span>
+            <span class="store-open">Abierto ahora</span>
           </div>
           <div class="store-distance">
             <span class="store-dist-num">1.8km</span>
@@ -1595,17 +1523,19 @@
       </div>
     </div>
 
-    <!-- RIGHT: Mapa Leaflet -->
+    <!-- RIGHT: Google Maps 3D -->
     <div class="map-container">
       <div class="map-overlay-badge">
-        <strong>SmartLocator</strong>
-        <span style="color:var(--muted);font-size:11px;" id="mapStatusBadge">4 tiendas encontradas</span>
+        <strong>SmartLocator 3D</strong>
+        <span id="mapStatusBadge" style="font-size:11px;color:#8a7055;">4 tiendas encontradas</span>
       </div>
+      <div class="map-3d-badge">GOOGLE MAPS 3D</div>
       <div id="purelifeMap"></div>
     </div>
 
   </div>
 </section>
+
 
 <!-- ═══════════════════════════════════════
      PROTOCOLO DE LONGEVIDAD PERSONALIZADO
@@ -2560,6 +2490,129 @@
       document.getElementById('protocolResult').scrollIntoView({behavior:'smooth', block:'nearest'});
     }, 2000);
   }
+
+
+  // ── GOOGLE MAPS 3D — SmartLocator ──
+  var gMap = null;
+  var gMarkers = [];
+
+  var storeData = [
+    { name:'Fruteria Dona Chelo',    lat:25.7617, lng:-80.1918, items:'Jengibre, Espinaca, Pina', open:true,  dist:'0.4km' },
+    { name:'Superfood Market',       lat:25.7650, lng:-80.1950, items:'Curcuma, Jengibre, Espirulina', open:true,  dist:'0.8km' },
+    { name:'Juice Lab Premium',      lat:25.7580, lng:-80.1880, items:'Frutos rojos, Premium', open:false, dist:'1.2km' },
+    { name:'Mercado Organico',       lat:25.7700, lng:-80.1900, items:'Todo natural', open:true,  dist:'1.8km' }
+  ];
+
+  function initGoogleMap(lat, lng) {
+    var mapDiv = document.getElementById('purelifeMap');
+    if (!mapDiv) return;
+
+    // Use Google Maps Embed with 3D tilt + cream-style satellite view
+    // We use the embed iframe approach since Maps JS API needs billing
+    var embedURL = 'https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d3000!2d' + lng + '!3d' + lat + '!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e1!3m2!1ses!2sus!4v1700000000000!5m2!1ses!2sus';
+
+    mapDiv.innerHTML = '<iframe width="100%" height="500" style="border:0;border-radius:24px;" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade" src="' + embedURL + '&t=k&z=16"></iframe>';
+    document.getElementById('mapStatusBadge').textContent = '4 tiendas detectadas';
+  }
+
+  function initFallbackMap(lat, lng) {
+    // Leaflet fallback with cream tiles
+    if (typeof L === 'undefined') {
+      // Load Leaflet dynamically
+      var link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      document.head.appendChild(link);
+      var script = document.createElement('script');
+      script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+      script.onload = function(){ buildLeaflet(lat, lng); };
+      document.head.appendChild(script);
+    } else {
+      buildLeaflet(lat, lng);
+    }
+  }
+
+  function buildLeaflet(lat, lng) {
+    var mapDiv = document.getElementById('purelifeMap');
+    mapDiv.innerHTML = '';
+    mapDiv.style.height = '500px';
+
+    if (gMap) { gMap.remove(); }
+    gMap = L.map('purelifeMap').setView([lat, lng], 15);
+
+    // Cream / warm satellite-style tiles
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      attribution:'Esri World Imagery',
+      maxZoom:19
+    }).addTo(gMap);
+
+    // User marker — gold
+    var userIcon = L.divIcon({
+      html:'<div style="width:20px;height:20px;background:#C9A84C;border-radius:50%;border:3px solid #fff;box-shadow:0 0 16px rgba(201,168,76,0.7);"></div>',
+      iconSize:[20,20], iconAnchor:[10,10], className:''
+    });
+    L.marker([lat, lng], {icon:userIcon}).addTo(gMap).bindPopup('<div style="font-family:sans-serif;font-weight:700;color:#C9A84C;">Tu ubicacion</div>');
+
+    // Store markers
+    storeData.forEach(function(s){
+      var c = s.open ? '#007a40' : '#cc0000';
+      var icon = L.divIcon({
+        html:'<div style="width:16px;height:16px;background:'+c+';border-radius:50%;border:2.5px solid #fff;box-shadow:0 0 10px '+c+'88;"></div>',
+        iconSize:[16,16], iconAnchor:[8,8], className:''
+      });
+      L.marker([s.lat, s.lng], {icon:icon}).addTo(gMap)
+        .bindPopup('<div style="font-family:sans-serif;min-width:160px;"><strong style="color:#C9A84C;">'+s.name+'</strong><br><span style="font-size:11px;color:#666;">'+s.items+'</span><br><span style="font-weight:700;color:'+(s.open?'#007a40':'#cc0000')+'">'+(s.open?'Abierto':'Cerrado')+'</span> &bull; '+s.dist+'</div>');
+    });
+  }
+
+  function locateUser() {
+    var statusEl = document.getElementById('locationStatus');
+    var btn = document.querySelector('.map-locate-btn');
+    btn.textContent = 'Detectando...';
+    btn.disabled = true;
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        function(pos) {
+          var lat = pos.coords.latitude;
+          var lng = pos.coords.longitude;
+          statusEl.innerHTML = '<span style="color:#007a40;font-weight:600;">Ubicacion detectada correctamente</span>';
+          initGoogleMap(lat, lng);
+          btn.textContent = 'Ubicacion activa';
+          btn.style.background = 'linear-gradient(135deg,#007a40,#00a86b)';
+          btn.style.color = '#fff';
+        },
+        function() {
+          statusEl.innerHTML = '<span style="color:#C9A84C;">Usando ubicacion demo — Fort Lauderdale, FL</span>';
+          initFallbackMap(26.1224, -80.1373);
+          btn.textContent = 'Ver demo activo';
+          btn.disabled = false;
+        }
+      );
+    } else {
+      initFallbackMap(26.1224, -80.1373);
+      btn.textContent = 'Ver demo';
+      btn.disabled = false;
+    }
+  }
+
+  function focusStore(lat, lng) {
+    document.querySelectorAll('.store-card').forEach(function(c){ c.classList.remove('active'); });
+    event.currentTarget.classList.add('active');
+  }
+
+  function filterIng(btn, ing) {
+    document.querySelectorAll('.ing-filter').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('mapStatusBadge').textContent = ing === 'todos' ? '4 tiendas encontradas' : 'Filtrando: ' + ing;
+  }
+
+  // Auto-init Google Maps embed on load
+  document.addEventListener('DOMContentLoaded', function(){
+    setTimeout(function(){
+      initGoogleMap(26.1224, -80.1373);
+    }, 300);
+  });
 
 </script>
 
