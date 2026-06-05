@@ -2284,37 +2284,44 @@
   ];
   let replyIdx = 0;
 
-  function sendMsg() {
-    const val = chatInput.value.trim();
-    if (!val) return;
-
-    // Remove typing indicator
-    const typing = chatBody.querySelector('.msg-typing');
-    if (typing) typing.remove();
+  var chatHistory = [];
+  async function sendMsg() {
+    var input = document.getElementById('chatInput');
+    var body = document.getElementById('chatBody');
+    var text = input.value.trim();
+    if (!text) return;
 
     // Add user message
-    const userMsg = document.createElement('div');
-    userMsg.className = 'msg msg-user';
-    userMsg.textContent = val;
-    chatBody.appendChild(userMsg);
-    chatInput.value = '';
+    var userDiv = document.createElement('div');
+    userDiv.className = 'msg msg-user';
+    userDiv.textContent = text;
+    body.appendChild(userDiv);
+    input.value = '';
 
-    // Add typing
-    const typingDiv = document.createElement('div');
-    typingDiv.className = 'msg msg-typing';
-    typingDiv.innerHTML = '<div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
-    chatBody.appendChild(typingDiv);
-    chatBody.scrollTop = chatBody.scrollHeight;
+    // Typing indicator
+    var typing = document.createElement('div');
+    typing.className = 'msg msg-ai';
+    typing.innerHTML = '<span style="opacity:0.5">Dr. Smoothie AI escribiendo...</span>';
+    body.appendChild(typing);
+    body.scrollTop = body.scrollHeight;
 
-    setTimeout(() => {
-      typingDiv.remove();
-      const aiMsg = document.createElement('div');
-      aiMsg.className = 'msg msg-ai';
-      aiMsg.textContent = aiReplies[replyIdx % aiReplies.length];
-      replyIdx++;
-      chatBody.appendChild(aiMsg);
-      chatBody.scrollTop = chatBody.scrollHeight;
-    }, 1800);
+    chatHistory.push({ role: 'user', content: text });
+
+    try {
+      var res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text, history: chatHistory.slice(-8) })
+      });
+      var data = await res.json();
+      var reply = data.reply || 'No pude conectar con Dr. Smoothie AI.';
+      chatHistory.push({ role: 'assistant', content: reply });
+      typing.innerHTML = reply.replace(/
+/g, '<br>');
+    } catch(e) {
+      typing.innerHTML = '<span style="color:#E05555">Error conectando. Verifica tu conexion.</span>';
+    }
+    body.scrollTop = body.scrollHeight;
   }
 
   chatInput.addEventListener('keydown', e => { if (e.key === 'Enter') sendMsg(); });
