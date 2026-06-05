@@ -799,6 +799,23 @@
   .reel-card:hover .reel-play-btn { opacity:1; }
   .reel-views { position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.5); backdrop-filter:blur(4px); border-radius:20px; padding:3px 8px; font-size:9px; color:#fff; }
 
+
+  .video-gen-module { margin-top:20px; background:linear-gradient(135deg,rgba(201,168,76,0.06),rgba(0,201,123,0.04)); border:1px solid rgba(201,168,76,0.2); border-radius:20px; overflow:hidden; }
+  .video-gen-tabs { display:flex; border-bottom:1px solid rgba(255,255,255,0.06); }
+  .video-gen-tab { flex:1; padding:11px 8px; font-size:11px; font-weight:600; text-align:center; cursor:pointer; color:var(--muted); transition:0.2s; border:none; background:none; }
+  .video-gen-tab.active { color:var(--gold); border-bottom:2px solid var(--gold); background:rgba(201,168,76,0.05); }
+  .video-gen-body { padding:16px; }
+  .video-topic-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-bottom:14px; }
+  .video-topic-btn { background:var(--surface2); border:1px solid var(--border); border-radius:12px; padding:10px; font-size:11px; color:var(--cream); cursor:pointer; text-align:left; transition:0.2s; display:flex; align-items:center; gap:8px; line-height:1.3; }
+  .video-topic-btn:hover, .video-topic-btn.selected { border-color:var(--gold); background:rgba(201,168,76,0.08); color:var(--gold); }
+  .video-topic-img { width:32px; height:32px; border-radius:8px; object-fit:cover; flex-shrink:0; }
+  .video-gen-btn { width:100%; background:linear-gradient(135deg,var(--gold),var(--gold2)); color:#000; border:none; padding:13px; border-radius:40px; font-weight:800; font-size:13px; cursor:pointer; margin-top:4px; }
+  .video-preview-box { background:var(--surface2); border-radius:14px; padding:14px; margin-top:12px; display:none; }
+  .video-preview-box.show { display:block; }
+  .video-script-text { font-size:12px; color:var(--cream); line-height:1.7; margin-bottom:12px; white-space:pre-line; }
+  .legal-disclaimer { background:rgba(0,201,123,0.06); border:1px solid rgba(0,201,123,0.18); border-radius:12px; padding:12px 14px; font-size:10.5px; color:var(--muted); line-height:1.6; margin-top:10px; }
+  .legal-disclaimer strong { color:var(--emerald); }
+
 </style>
 </head>
 <body>
@@ -1279,6 +1296,61 @@
       <input class="chat-input" placeholder="Escribe tu consulta nutricional..." id="chatInput">
       <button class="chat-send" onclick="sendMsg()">➤</button>
     </div>
+
+    <!-- VIDEO GENERATOR MODULE -->
+    <div class="video-gen-module" id="videoGenModule">
+      <div class="video-gen-tabs">
+        <button class="video-gen-tab active" onclick="switchVTab(this,'preparacion')">&#127909; Preparacion</button>
+        <button class="video-gen-tab" onclick="switchVTab(this,'beneficios')">&#127807; Beneficios</button>
+        <button class="video-gen-tab" onclick="switchVTab(this,'estudios')">&#128302; Estudios</button>
+        <button class="video-gen-tab" onclick="switchVTab(this,'protocolo')">&#128203; Protocolo</button>
+      </div>
+      <div class="video-gen-body">
+        <p style="font-size:11px;color:var(--muted);margin-bottom:12px;">Genera un <strong style="color:var(--gold)">video explicativo</strong> sobre tu consulta. Elige el tema:</p>
+        <div id="vtab-preparacion">
+          <div class="video-topic-grid">
+            <button class="video-topic-btn selected" onclick="selectTopic(this,'Smoothie Verde Energizante')"><img class="video-topic-img" src="https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=64&h=64&fit=crop&q=80" alt="">Smoothie Verde paso a paso</button>
+            <button class="video-topic-btn" onclick="selectTopic(this,'Leche Dorada Anti-inflamatoria')"><img class="video-topic-img" src="https://images.unsplash.com/photo-1543352634-a1c51d9f1fa7?w=64&h=64&fit=crop&q=80" alt="">Leche Dorada receta</button>
+            <button class="video-topic-btn" onclick="selectTopic(this,'Jugo Detox de Apio')"><img class="video-topic-img" src="https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=64&h=64&fit=crop&q=80" alt="">Jugo Detox de Apio</button>
+            <button class="video-topic-btn" onclick="selectTopic(this,'Protocolo Antioxidante')"><img class="video-topic-img" src="https://images.unsplash.com/photo-1559181567-c3190aae6c67?w=64&h=64&fit=crop&q=80" alt="">Protocolo Antioxidante</button>
+          </div>
+        </div>
+        <div id="vtab-beneficios" style="display:none">
+          <div class="video-topic-grid">
+            <button class="video-topic-btn selected" onclick="selectTopic(this,'Beneficios del Jengibre')"><img class="video-topic-img" src="https://images.unsplash.com/photo-1615485500704-8e990f9900f7?w=64&h=64&fit=crop&q=80" alt="">Jengibre energia y circulacion</button>
+            <button class="video-topic-btn" onclick="selectTopic(this,'Curcuma anti-inflamatoria')"><img class="video-topic-img" src="https://images.unsplash.com/photo-1638176066666-ffb2f013c7dd?w=64&h=64&fit=crop&q=80" alt="">Curcuma anti-inflamatoria</button>
+            <button class="video-topic-btn" onclick="selectTopic(this,'Espinaca hierro y vitaminas')"><img class="video-topic-img" src="https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=64&h=64&fit=crop&q=80" alt="">Espinaca hierro y vitaminas</button>
+            <button class="video-topic-btn" onclick="selectTopic(this,'Pina bromelina y vitamina C')"><img class="video-topic-img" src="https://images.unsplash.com/photo-1550258987-190a2d41a8ba?w=64&h=64&fit=crop&q=80" alt="">Pina digestion y vitamina C</button>
+          </div>
+        </div>
+        <div id="vtab-estudios" style="display:none">
+          <div class="video-topic-grid">
+            <button class="video-topic-btn selected" onclick="selectTopic(this,'Evidencia cientifica Curcuma 2024')"><img class="video-topic-img" src="https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=64&h=64&fit=crop&q=80" alt="">Curcuma evidencia 2024</button>
+            <button class="video-topic-btn" onclick="selectTopic(this,'Ayuno intermitente y smoothies')"><img class="video-topic-img" src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=64&h=64&fit=crop&q=80" alt="">Ayuno mas smoothies verdes</button>
+            <button class="video-topic-btn" onclick="selectTopic(this,'Microbioma y plant-based')"><img class="video-topic-img" src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=64&h=64&fit=crop&q=80" alt="">Microbioma y plant-based</button>
+            <button class="video-topic-btn" onclick="selectTopic(this,'Longevidad y nutricion funcional')"><img class="video-topic-img" src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=64&h=64&fit=crop&q=80" alt="">Longevidad y nutricion</button>
+          </div>
+        </div>
+        <div id="vtab-protocolo" style="display:none">
+          <div class="video-topic-grid">
+            <button class="video-topic-btn selected" onclick="selectTopic(this,'7 dias para mas energia')"><img class="video-topic-img" src="https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=64&h=64&fit=crop&q=80" alt="">7 dias para mas energia</button>
+            <button class="video-topic-btn" onclick="selectTopic(this,'Detox 3 dias reset digestivo')"><img class="video-topic-img" src="https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?w=64&h=64&fit=crop&q=80" alt="">Detox 3 dias reset</button>
+            <button class="video-topic-btn" onclick="selectTopic(this,'Anti-inflamatorio 30 dias')"><img class="video-topic-img" src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=64&h=64&fit=crop&q=80" alt="">Anti-inflamatorio 30 dias</button>
+            <button class="video-topic-btn" onclick="selectTopic(this,'Protocolo longevidad PureLife')"><img class="video-topic-img" src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=64&h=64&fit=crop&q=80" alt="">Longevidad rutina diaria</button>
+          </div>
+        </div>
+        <button class="video-gen-btn" id="genBtn" onclick="generateVideo()">Generar video explicativo</button>
+        <div class="video-preview-box" id="videoPreview">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <span style="font-size:11px;font-weight:700;color:var(--gold);">Guion generado</span>
+            <span style="font-size:10px;color:var(--muted);">60 seg PureLife TV</span>
+          </div>
+          <div class="video-script-text" id="videoScript"></div>
+          <button onclick="document.getElementById('checkout').scrollIntoView({behavior:'smooth'})" style="width:100%;background:var(--surface3);border:1px solid var(--gold);color:var(--gold);border-radius:30px;padding:10px;font-size:12px;font-weight:700;cursor:pointer;margin-top:8px;">Activar produccion de video &mdash; Unete a PureLife</button>
+          <div class="legal-disclaimer"><strong>Aviso importante:</strong> PureLife Wellness Club es una <strong>plataforma de motivacion nutricional</strong> e informacion sobre ingredientes naturales. El contenido tiene proposito <strong>informativo y educativo unicamente</strong>. No constituye diagnostico, prescripcion ni consejo medico profesional. Los datos se basan en referencias bibliograficas publicas y experiencias de la comunidad. <strong>Consulta siempre a un profesional de salud certificado</strong> antes de modificar tu alimentacion. PureLife no se responsabiliza del uso indebido de esta informacion.</div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -1701,6 +1773,39 @@
   }
   // Wire existing tier buttons to scroll to checkout
 
+
+
+  var selectedTopic = 'Smoothie Verde Energizante paso a paso';
+  function switchVTab(btn, tab) {
+    document.querySelectorAll('.video-gen-tab').forEach(function(t){ t.classList.remove('active'); });
+    btn.classList.add('active');
+    ['preparacion','beneficios','estudios','protocolo'].forEach(function(t){
+      var el = document.getElementById('vtab-' + t);
+      if(el) el.style.display = (t === tab) ? 'block' : 'none';
+    });
+    var first = document.querySelector('#vtab-' + tab + ' .video-topic-btn');
+    if(first) selectTopic(first, first.innerText.trim());
+  }
+  function selectTopic(btn, topic) {
+    var parent = btn.closest('[id^="vtab-"]');
+    if(parent) parent.querySelectorAll('.video-topic-btn').forEach(function(b){ b.classList.remove('selected'); });
+    btn.classList.add('selected');
+    selectedTopic = topic;
+  }
+  function generateVideo() {
+    var btn = document.getElementById('genBtn');
+    var preview = document.getElementById('videoPreview');
+    var scriptEl = document.getElementById('videoScript');
+    btn.textContent = 'Generando guion...';
+    btn.disabled = true;
+    setTimeout(function(){
+      scriptEl.textContent = 'GUION: "' + selectedTopic + '"\n\nINTRO (0-5s):\n"En PureLife te ensenamos a usar la naturaleza a tu favor."\n\nDESARROLLO (5-45s):\nHoy exploramos ' + selectedTopic + '.\n\nLos ingredientes naturales contienen compuestos bioactivos que, segun estudios de nutricion funcional, pueden contribuir positivamente al bienestar general cuando se integran en una rutina saludable.\n\nAprenderas:\n- Como prepararlo correctamente\n- Que dice la evidencia disponible\n- Como integrarlo en tu protocolo diario\n\nCIERRE (45-60s):\n"Recuerda: la naturaleza es perfecta. Demosle el uso correcto para nuestra salud."\n\nPureLife Wellness Club - purelifewellnessclub.org';
+      preview.classList.add('show');
+      btn.textContent = 'Generar video explicativo';
+      btn.disabled = false;
+      preview.scrollIntoView({behavior:'smooth', block:'nearest'});
+    }, 1500);
+  }
 
 </script>
 
