@@ -980,6 +980,7 @@
   }
 
 </style>
+<script src="https://js.stripe.com/v3/"></script>
 </head>
 <body>
 
@@ -2342,16 +2343,32 @@
     document.getElementById('coCycle').textContent = 'Renovacion ' + cycle + ' - cancela cuando quieras';
     document.querySelectorAll('.co-plan-pill').forEach(b => b.classList.remove('active'));
   }
-  function doCheckout() {
-    const n = document.getElementById('coName').value.trim();
-    const e = document.getElementById('coEmail').value.trim();
+  async function doCheckout() {
+    var n = document.getElementById('coName').value.trim();
+    var e = document.getElementById('coEmail').value.trim();
     if (!n) { document.getElementById('coName').style.borderColor='#E05555'; document.getElementById('coName').focus(); return; }
     if (!e) { document.getElementById('coEmail').style.borderColor='#E05555'; document.getElementById('coEmail').focus(); return; }
     document.getElementById('coName').style.borderColor='';
     document.getElementById('coEmail').style.borderColor='';
-    document.getElementById('coModalPlan').textContent = document.getElementById('coPlanName').textContent;
-    const m = document.getElementById('coModal');
-    m.style.display = 'flex';
+    var btn = document.querySelector('.co-btn');
+    btn.textContent = 'Conectando con Stripe...';
+    btn.disabled = true;
+    try {
+      var res = await fetch('/api/stripe-checkout', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({name:n, email:e})
+      });
+      var data = await res.json();
+      if (data.url) { window.location.href = data.url; return; }
+      throw new Error(data.error || 'Error Stripe');
+    } catch(err) {
+      console.error(err);
+      document.getElementById('coModalPlan').textContent = 'Anual $182';
+      document.getElementById('coModal').style.display = 'flex';
+      btn.textContent = 'Suscribirme por $182/ano';
+      btn.disabled = false;
+    }
   }
   // Wire existing tier buttons to scroll to checkout
 
@@ -2642,6 +2659,25 @@
     const m = document.getElementById('floatMsg');
     if(m){ m.style.transition='opacity 0.6s'; m.style.opacity='0'; setTimeout(()=>m.style.display='none',600); }
   }, 5000);
+
+  // STRIPE LIVE
+  var _stripe;
+  try { _stripe = Stripe('pk_live_51T2OZO2d05WpkcPegSH76EBAt41TcISvMcEpN8KTbVpwpc1GLABFQxS9JPfpUm4O0ZXdp5fGVX70jDl6o4StgHfg00Qr9PECbL'); } catch(e) { console.warn('Stripe load error', e); }
+  // Handle post-payment redirect
+  (function() {
+    var p = new URLSearchParams(window.location.search);
+    if (p.get('success') === 'true') {
+      var m = document.getElementById('coModal');
+      var mp = document.getElementById('coModalPlan');
+      if (mp) mp.textContent = 'Anual $182';
+      if (m) m.style.display = 'flex';
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+    if (p.get('canceled') === 'true') {
+      setTimeout(function(){ var el = document.getElementById('checkout'); if(el) el.scrollIntoView({behavior:'smooth'}); }, 400);
+    }
+  })();
+
 </script>
 
 
