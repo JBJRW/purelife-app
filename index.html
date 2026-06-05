@@ -705,42 +705,7 @@
 </head>
 <body>
 
-<!-- ═══════════════════ VIDEO INTRO — Agente 4 ═══════════════════ -->
-<section id="video-intro" style="position:relative;width:100%;background:#000;overflow:hidden;">
-  <div style="position:relative;width:100%;overflow:hidden;max-height:90vh;">
-    <video id="introVideo" autoplay muted playsinline loop
-      style="width:100%;max-height:90vh;object-fit:cover;display:block;">
-      <source src="https://purelife-app-umber.vercel.app/nature-intro.mp4" type="video/mp4">
-    </video>
-    <div style="position:absolute;top:0;left:0;right:0;height:140px;background:linear-gradient(to bottom,rgba(8,11,10,0.95),transparent);pointer-events:none;z-index:2;"></div>
-    <div style="position:absolute;bottom:0;left:0;right:0;height:200px;background:linear-gradient(to top,rgba(8,11,10,1),transparent);pointer-events:none;z-index:2;"></div>
-    <div style="position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px 24px;">
-      <img src="https://raw.githubusercontent.com/JBJRW/purelife-app/main/public/purelife-logo.png" alt="PureLife" style="width:80px;height:80px;object-fit:contain;border-radius:50%;margin-bottom:24px;box-shadow:0 0 40px rgba(201,168,76,0.5);">
-      <h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,6vw,4.5rem);font-weight:300;color:#F4EFE6;line-height:1.2;text-shadow:0 2px 30px rgba(0,0,0,0.9);margin-bottom:16px;">
-        La naturaleza es <em style="color:#C9A84C;font-style:italic;">perfecta.</em><br>Démosle el uso correcto<br>para <em style="color:#C9A84C;font-style:italic;">nuestra salud.</em>
-      </h2>
-      <p style="color:rgba(244,239,230,0.8);font-size:clamp(13px,2vw,17px);max-width:500px;line-height:1.8;text-shadow:0 1px 12px rgba(0,0,0,0.9);margin-bottom:32px;">
-        Cada planta, cada fruto, cada raíz — diseñados con una precisión que ningún laboratorio puede igualar.<br>
-        Nosotros te ayudamos a descifrarlos y usarlos a tu favor.
-      </p>
-      <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
-        <button onclick="document.getElementById('checkout').scrollIntoView({behavior:'smooth'})"
-          style="background:linear-gradient(135deg,#C9A84C,#E8C96A);color:#000;border:none;padding:15px 30px;border-radius:60px;font-weight:800;font-size:15px;cursor:pointer;box-shadow:0 4px 24px rgba(201,168,76,0.45);">
-          Comenzar mi transformación →
-        </button>
-        <button id="soundBtn" onclick="var v=document.getElementById('introVideo');v.muted=!v.muted;this.textContent=v.muted?'🔇 Sin sonido':'🔊 Con sonido';"
-          style="background:rgba(0,0,0,0.5);backdrop-filter:blur(10px);color:#fff;border:1px solid rgba(255,255,255,0.25);padding:15px 24px;border-radius:60px;font-size:14px;cursor:pointer;">
-          🔇 Sin sonido
-        </button>
-      </div>
-    </div>
-  </div>
-  <div style="text-align:center;padding:14px;background:#080B0A;">
-    <span style="font-size:11px;color:#6B7E74;letter-spacing:0.15em;text-transform:uppercase;">Descubrir</span>
-    <div style="color:#C9A84C;font-size:18px;animation:vidBounce 1.5s infinite;">↓</div>
-  </div>
-</section>
-<style>@keyframes vidBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(7px)}}</style>
+
 
 
 <!-- ─────────── PREVIEW HEADER ─────────── -->
