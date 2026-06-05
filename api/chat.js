@@ -1,12 +1,10 @@
-// api/chat.js — PureLife Dr. Smoothie AI Proxy
-// Modelo: claude-sonnet-4-6 | Prompt Caching activo
-// JRMB Food Network LLC — purelifewellnessclub.org
+// api/chat.js — PureLife Dr. Smoothie AI
+// Modelo: claude-sonnet-4-6 | JRMB Food Network LLC
 
 const ALLOWED_ORIGINS = [
   "https://purelifewellnessclub.org",
   "https://www.purelifewellnessclub.org",
   "https://drsmoothieai.com",
-  "https://www.drsmoothieai.com",
   "https://purelife-app-umber.vercel.app",
   "http://localhost:3000",
   "http://localhost:5173",
@@ -15,7 +13,7 @@ const ALLOWED_ORIGINS = [
 const MODEL = process.env.ANTHROPIC_MODEL || "claude-sonnet-4-6";
 const API_KEY = process.env.ANTHROPIC_API_KEY;
 
-const SYSTEM_PROMPT = ;
+const SYSTEM_PROMPT = "Eres Dr. Smoothie AI, el asesor de bienestar nutricional de PureLife Wellness Club. Tu mision es motivar, educar e inspirar a las personas a mejorar su salud usando ingredientes naturales. IMPORTANTE: No das diagnosticos medicos ni recetas medicas. Eres una plataforma de motivacion nutricional, no un servicio medico. Siempre recomiendas consultar a un medico para condiciones de salud. Hablas en el idioma del usuario. Eres calido, motivador y basas tus recomendaciones en propiedades nutricionales de ingredientes naturales. Cuando das protocolos siempre incluyes: Recuerda: estas recomendaciones son educativas y motivacionales. Consulta a tu medico antes de cambios importantes en tu alimentacion.";
 
 export default async function handler(req, res) {
   const origin = req.headers.origin || "";
@@ -44,13 +42,12 @@ export default async function handler(req, res) {
       headers: {
         "Content-Type": "application/json",
         "x-api-key": API_KEY,
-        "anthropic-version": "2023-06-01",
-        "anthropic-beta": "prompt-caching-2024-07-31"
+        "anthropic-version": "2023-06-01"
       },
       body: JSON.stringify({
         model: MODEL,
         max_tokens: 1024,
-        system: [{ type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }],
+        system: SYSTEM_PROMPT,
         messages
       })
     });
@@ -62,12 +59,7 @@ export default async function handler(req, res) {
 
     const data = await response.json();
     const reply = data.content?.[0]?.text || "No pude generar una respuesta.";
-
-    return res.status(200).json({
-      reply,
-      model: MODEL,
-      usage: data.usage
-    });
+    return res.status(200).json({ reply, model: MODEL });
 
   } catch (err) {
     console.error("Chat error:", err);
