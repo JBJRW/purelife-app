@@ -1,10 +1,6 @@
-// api/chat.js — PureLife Anthropic Proxy
-// TurboQuant Fase 1: Prompt Caching activo
-// CORS seguro + rate limiting básico
-//
-// FIX 2026-06: claude-sonnet-4-20250514 fue retirado por Anthropic.
-// Modelo migrado a claude-sonnet-4-6 y ahora es configurable por env var
-// para que el próximo rename de modelo NO requiera tocar código ni redeploy.
+// api/chat.js — PureLife Dr. Smoothie AI Proxy
+// Modelo: claude-sonnet-4-6 | Prompt Caching activo
+// JRMB Food Network LLC — purelifewellnessclub.org
 
 const ALLOWED_ORIGINS = [
   "https://purelifewellnessclub.org",
@@ -13,76 +9,68 @@ const ALLOWED_ORIGINS = [
   "https://www.drsmoothieai.com",
   "https://purelife-app-umber.vercel.app",
   "http://localhost:3000",
-  "http://localhost:3001",
   "http://localhost:5173",
 ];
 
+const MODEL = process.env.ANTHROPIC_MODEL || "claude-sonnet-4-6";
+const API_KEY = process.env.ANTHROPIC_API_KEY;
+
+const SYSTEM_PROMPT = ;
+
 export default async function handler(req, res) {
   const origin = req.headers.origin || "";
+  const corsOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
 
-  if (ALLOWED_ORIGINS.includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-  }
+  res.setHeader("Access-Control-Allow-Origin", corsOrigin);
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   res.setHeader("Vary", "Origin");
-  res.setHeader("X-Content-Type-Options", "nosniff");
 
   if (req.method === "OPTIONS") return res.status(200).end();
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
-
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    console.error("[PureLife] ANTHROPIC_API_KEY not set");
-    return res.status(500).json({ error: "API key not configured" });
-  }
+  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+  if (!API_KEY) return res.status(500).json({ error: "API key not configured" });
 
   try {
-    const { system, messages } = req.body;
+    const { message, history = [] } = req.body;
+    if (!message) return res.status(400).json({ error: "Message required" });
 
-    if (!messages || !Array.isArray(messages)) {
-      return res.status(400).json({ error: "Invalid request: messages required" });
-    }
+    const messages = [
+      ...history.slice(-10),
+      { role: "user", content: message }
+    ];
 
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": apiKey,
+        "x-api-key": API_KEY,
         "anthropic-version": "2023-06-01",
-        // TurboQuant Fase 1 — Prompt Caching
-        "anthropic-beta": "prompt-caching-2024-07-31",
+        "anthropic-beta": "prompt-caching-2024-07-31"
       },
       body: JSON.stringify({
-        // Modelo activo. Configurable vía Vercel env var ANTHROPIC_MODEL.
-        // Fallback al modelo recomendado actual si la env var no existe.
-        model: process.env.ANTHROPIC_MODEL || "claude-sonnet-4-6",
-        max_tokens: 2048,
-        system: system || [],
-        messages: messages,
-      }),
+        model: MODEL,
+        max_tokens: 1024,
+        system: [{ type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }],
+        messages
+      })
     });
 
-    const data = await response.json();
-
     if (!response.ok) {
-      console.error("[PureLife API] Anthropic error:", data);
-      return res.status(response.status).json({ error: data.error });
+      const err = await response.json();
+      return res.status(response.status).json({ error: err.error?.message || "Anthropic error" });
     }
 
-    // Log cache metrics
-    if (data.usage) {
-      const hit = data.usage.cache_read_input_tokens ?? 0;
-      const write = data.usage.cache_creation_input_tokens ?? 0;
-      console.log(`[TurboQuant] Cache HIT: ${hit} | WRITE: ${write} | IN: ${data.usage.input_tokens} | OUT: ${data.usage.output_tokens}`);
-    }
+    const data = await response.json();
+    const reply = data.content?.[0]?.text || "No pude generar una respuesta.";
 
-    return res.status(200).json(data);
+    return res.status(200).json({
+      reply,
+      model: MODEL,
+      usage: data.usage
+    });
 
   } catch (err) {
-    console.error("[PureLife API] Error:", err.message);
+    console.error("Chat error:", err);
     return res.status(500).json({ error: "Internal server error" });
   }
 }
