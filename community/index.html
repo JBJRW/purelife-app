@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PureLife Community Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root {
+  --gold:#C9A84C; --gold2:#E8C96A; --obsidian:#080B0A;
+  --surface:#0F0F0F; --surface2:#161616; --surface3:#1E1E1E;
+  --cream:#F4EFE6; --muted:#6B7E74; --emerald:#00C97B;
+  --border:rgba(255,255,255,0.07);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--obsidian); color:var(--cream); font-family:'DM Sans',sans-serif; min-height:100vh; }
+
+/* NAV */
+nav { position:sticky; top:0; z-index:100; background:rgba(8,11,10,0.92); backdrop-filter:blur(20px); border-bottom:1px solid var(--border); padding:0 24px; height:60px; display:flex; align-items:center; justify-content:space-between; }
+.nav-logo { font-family:'Cormorant Garamond',serif; font-size:1.3rem; font-weight:700; background:linear-gradient(135deg,var(--gold),var(--gold2)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.nav-back { color:var(--muted); font-size:13px; text-decoration:none; display:flex; align-items:center; gap:6px; }
+.nav-back:hover { color:var(--gold); }
+
+/* HERO */
+.hero { padding:60px 24px 40px; text-align:center; max-width:700px; margin:0 auto; }
+.hero h1 { font-family:'Cormorant Garamond',serif; font-size:clamp(2.2rem,6vw,3.8rem); font-weight:300; margin-bottom:14px; }
+.hero h1 em { color:var(--gold); font-style:italic; }
+.hero p { color:var(--muted); font-size:15px; line-height:1.7; }
+
+/* TABS */
+.tabs-row { display:flex; gap:8px; padding:0 24px; max-width:900px; margin:0 auto 32px; overflow-x:auto; scrollbar-width:none; }
+.tabs-row::-webkit-scrollbar { display:none; }
+.tab-btn { flex-shrink:0; background:var(--surface2); border:1px solid var(--border); border-radius:40px; padding:9px 18px; font-size:12px; font-weight:600; color:var(--muted); cursor:pointer; transition:0.2s; white-space:nowrap; }
+.tab-btn.active { background:var(--gold); border-color:var(--gold); color:#000; }
+
+/* CONTENT */
+.content { max-width:900px; margin:0 auto; padding:0 24px 80px; }
+.tab-panel { display:none; }
+.tab-panel.active { display:block; }
+
+/* GROUPS GRID */
+.groups-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px; }
+.group-card { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:20px; cursor:pointer; transition:0.2s; }
+.group-card:hover { border-color:var(--gold); transform:translateY(-2px); }
+.group-img { width:100%; height:120px; border-radius:12px; object-fit:cover; margin-bottom:14px; }
+.group-name { font-family:'Cormorant Garamond',serif; font-size:1.2rem; font-weight:600; margin-bottom:6px; }
+.group-desc { font-size:12px; color:var(--muted); line-height:1.6; margin-bottom:12px; }
+.group-meta { display:flex; justify-content:space-between; align-items:center; font-size:11px; }
+.group-members { color:var(--gold); font-weight:700; }
+.group-join { background:linear-gradient(135deg,var(--gold),var(--gold2)); color:#000; border:none; padding:7px 16px; border-radius:20px; font-size:11px; font-weight:800; cursor:pointer; }
+
+/* CHAT */
+.chat-wrapper { display:grid; grid-template-columns:240px 1fr; gap:16px; height:500px; }
+@media(max-width:700px){ .chat-wrapper { grid-template-columns:1fr; } }
+.chat-rooms { background:var(--surface); border:1px solid var(--border); border-radius:16px; overflow:hidden; }
+.chat-room-item { padding:12px 16px; cursor:pointer; transition:0.2s; border-bottom:1px solid var(--border); font-size:13px; }
+.chat-room-item:hover, .chat-room-item.active { background:rgba(201,168,76,0.08); color:var(--gold); }
+.chat-room-title { font-weight:600; margin-bottom:2px; }
+.chat-room-sub { font-size:10px; color:var(--muted); }
+.chat-main { background:var(--surface); border:1px solid var(--border); border-radius:16px; display:flex; flex-direction:column; }
+.chat-header { padding:14px 16px; border-bottom:1px solid var(--border); font-size:13px; font-weight:600; }
+.chat-messages { flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:10px; }
+.chat-msg { max-width:80%; padding:10px 14px; border-radius:16px; font-size:13px; line-height:1.5; }
+.chat-msg.ai { background:linear-gradient(135deg,rgba(201,168,76,0.1),rgba(201,168,76,0.05)); border:1px solid rgba(201,168,76,0.2); align-self:flex-start; border-radius:16px 16px 16px 4px; }
+.chat-msg.user { background:var(--surface3); align-self:flex-end; border-radius:16px 16px 4px 16px; }
+.chat-msg-name { font-size:10px; color:var(--gold); font-weight:700; margin-bottom:3px; }
+.chat-input-row { padding:12px; display:flex; gap:8px; border-top:1px solid var(--border); }
+.chat-input-row input { flex:1; background:var(--surface2); border:1px solid var(--border); border-radius:12px; padding:10px 14px; color:var(--cream); font-size:13px; outline:none; font-family:'DM Sans',sans-serif; }
+.chat-input-row input:focus { border-color:var(--gold); }
+.chat-send { width:36px; height:36px; background:var(--gold); border:none; border-radius:50%; cursor:pointer; font-size:13px; color:#000; flex-shrink:0; }
+
+/* PODCAST */
+.podcast-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; }
+.podcast-card { background:var(--surface); border:1px solid var(--border); border-radius:20px; overflow:hidden; cursor:pointer; transition:0.2s; }
+.podcast-card:hover { border-color:var(--gold); }
+.podcast-thumb { width:100%; height:150px; object-fit:cover; }
+.podcast-body { padding:16px; }
+.podcast-title { font-weight:600; font-size:14px; margin-bottom:6px; }
+.podcast-meta { font-size:11px; color:var(--muted); margin-bottom:12px; }
+.podcast-play { background:linear-gradient(135deg,var(--gold),var(--gold2)); color:#000; border:none; padding:9px 20px; border-radius:20px; font-size:12px; font-weight:800; cursor:pointer; }
+
+/* SECTION LABEL */
+.section-label { display:inline-block; background:rgba(201,168,76,0.1); border:1px solid rgba(201,168,76,0.2); color:var(--gold); font-size:11px; font-weight:600; padding:4px 12px; border-radius:20px; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:20px; }
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+.tab-panel.active { animation:fadeUp 0.3s ease; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">PureLife Community</div>
+  <a href="/" class="nav-back"><i class="fas fa-arrow-left"></i> Volver</a>
+</nav>
+
+<div class="hero">
+  <div class="section-label">50K+ Miembros Globales</div>
+  <h1>Tu comunidad de <em>bienestar</em></h1>
+  <p>Conecta con personas que comparten tu camino hacia una vida más pura, larga y plena. Grupos, chat en vivo y podcasts exclusivos.</p>
+</div>
+
+<div class="tabs-row">
+  <button class="tab-btn active" onclick="switchTab(this,'grupos')"><i class="fas fa-users"></i> Grupos</button>
+  <button class="tab-btn" onclick="switchTab(this,'chat')"><i class="fas fa-comments"></i> Chat en vivo</button>
+  <button class="tab-btn" onclick="switchTab(this,'podcast')"><i class="fas fa-podcast"></i> Podcasts</button>
+  <button class="tab-btn" onclick="switchTab(this,'retos')"><i class="fas fa-trophy"></i> Retos</button>
+</div>
+
+<div class="content">
+
+  <!-- GRUPOS -->
+  <div class="tab-panel active" id="tab-grupos">
+    <div class="groups-grid" id="groupsGrid">
+      <!-- Loaded dynamically -->
+    </div>
+  </div>
+
+  <!-- CHAT -->
+  <div class="tab-panel" id="tab-chat">
+    <div class="chat-wrapper">
+      <div class="chat-rooms">
+        <div style="padding:12px 16px;font-size:11px;color:var(--gold);font-weight:700;text-transform:uppercase;letter-spacing:0.1em;border-bottom:1px solid var(--border);">Salas</div>
+        <div class="chat-room-item active" onclick="switchRoom(this,'General')"><div class="chat-room-title">General</div><div class="chat-room-sub">Todos los miembros</div></div>
+        <div class="chat-room-item" onclick="switchRoom(this,'Recetas')"><div class="chat-room-title">Recetas</div><div class="chat-room-sub">Smoothies y jugos</div></div>
+        <div class="chat-room-item" onclick="switchRoom(this,'Resultados')"><div class="chat-room-title">Resultados</div><div class="chat-room-sub">Comparte tu progreso</div></div>
+        <div class="chat-room-item" onclick="switchRoom(this,'Dr. Smoothie AI')"><div class="chat-room-title">Dr. Smoothie AI</div><div class="chat-room-sub">Consultas con IA</div></div>
+      </div>
+      <div class="chat-main">
+        <div class="chat-header" id="chatRoomTitle"><i class="fas fa-circle" style="color:var(--emerald);font-size:8px;margin-right:6px;"></i> General — 1,247 en linea</div>
+        <div class="chat-messages" id="chatMessages">
+          <div class="chat-msg ai"><div class="chat-msg-name">Maria L. — Miami</div>Dia 30 completado! -8kg y con mas energia que nunca. El protocolo dorado cambio mi vida.</div>
+          <div class="chat-msg ai"><div class="chat-msg-name">Carlos R. — CDMX</div>Que jengibre recomiendan para el smoothie matutino? Organico o convencional?</div>
+          <div class="chat-msg ai"><div class="chat-msg-name">Dr. Smoothie AI</div>El jengibre organico tiene mayor concentracion de gingeroles — el compuesto activo. Busca raiz fresca, no en polvo para mejor biodisponibilidad.</div>
+          <div class="chat-msg ai"><div class="chat-msg-name">Sofia G. — Madrid</div>Alguien ha probado el protocolo anti-inflamatorio de 30 dias? Empiezo manana!</div>
+        </div>
+        <div class="chat-input-row">
+          <input id="communityChat" placeholder="Escribe un mensaje..." onkeydown="if(event.key==='Enter') sendCommunityMsg()">
+          <button class="chat-send" onclick="sendCommunityMsg()"><i class="fas fa-paper-plane"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PODCAST -->
+  <div class="tab-panel" id="tab-podcast">
+    <div class="podcast-grid">
+      <div class="podcast-card">
+        <img class="podcast-thumb" src="https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=600&h=300&fit=crop&q=80" alt="">
+        <div class="podcast-body">
+          <div class="podcast-title">Ep. 47 — Curcuma: la reina anti-inflamatoria</div>
+          <div class="podcast-meta">32 min · Dr. Smoothie AI · 4.2K escuchas</div>
+          <button class="podcast-play"><i class="fas fa-play"></i> Escuchar</button>
+        </div>
+      </div>
+      <div class="podcast-card">
+        <img class="podcast-thumb" src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&h=300&fit=crop&q=80" alt="">
+        <div class="podcast-body">
+          <div class="podcast-title">Ep. 46 — Ayuno intermitente y smoothies verdes</div>
+          <div class="podcast-meta">28 min · Dr. Smoothie AI · 3.8K escuchas</div>
+          <button class="podcast-play"><i class="fas fa-play"></i> Escuchar</button>
+        </div>
+      </div>
+      <div class="podcast-card">
+        <img class="podcast-thumb" src="https://images.unsplash.com/photo-1543352634-a1c51d9f1fa7?w=600&h=300&fit=crop&q=80" alt="">
+        <div class="podcast-body">
+          <div class="podcast-title">Ep. 45 — Longevidad: lo que dice la ciencia en 2026</div>
+          <div class="podcast-meta">41 min · Dr. Smoothie AI · 5.1K escuchas</div>
+          <button class="podcast-play"><i class="fas fa-play"></i> Escuchar</button>
+        </div>
+      </div>
+      <div class="podcast-card">
+        <img class="podcast-thumb" src="https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?w=600&h=300&fit=crop&q=80" alt="">
+        <div class="podcast-body">
+          <div class="podcast-title">Ep. 44 — Microbioma: tu segundo cerebro</div>
+          <div class="podcast-meta">35 min · Dr. Smoothie AI · 4.7K escuchas</div>
+          <button class="podcast-play"><i class="fas fa-play"></i> Escuchar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RETOS -->
+  <div class="tab-panel" id="tab-retos">
+    <div class="groups-grid">
+      <div class="group-card">
+        <img class="group-img" src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=200&fit=crop&q=80" alt="">
+        <div class="group-name">Reto 30 dias Verde</div>
+        <div class="group-desc">Un smoothie verde cada manana durante 30 dias. 12,847 participantes activos.</div>
+        <div class="group-meta"><span class="group-members">12,847 participando</span><button class="group-join">Unirme</button></div>
+      </div>
+      <div class="group-card">
+        <img class="group-img" src="https://images.unsplash.com/photo-1638176066666-ffb2f013c7dd?w=400&h=200&fit=crop&q=80" alt="">
+        <div class="group-name">Protocolo Dorado 21 dias</div>
+        <div class="group-desc">Curcuma + jengibre + pina cada dia. Reduce inflamacion en 3 semanas.</div>
+        <div class="group-meta"><span class="group-members">8,432 participando</span><button class="group-join">Unirme</button></div>
+      </div>
+      <div class="group-card">
+        <img class="group-img" src="https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=400&h=200&fit=crop&q=80" alt="">
+        <div class="group-name">Detox Digital 7 dias</div>
+        <div class="group-desc">Sin azucar procesada + 2L agua + smoothie diario. Reset total.</div>
+        <div class="group-meta"><span class="group-members">5,219 participando</span><button class="group-join">Unirme</button></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// Static groups data
+var groups = [
+  { name:'Smoothies Verdes', desc:'La comunidad mas activa. Recetas, tips y resultados diarios.', members:15420, img:'https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=400&h=200&fit=crop&q=80' },
+  { name:'Anti-Inflamacion', desc:'Protocolos naturales para reducir inflamacion cronica.', members:9830, img:'https://images.unsplash.com/photo-1638176066666-ffb2f013c7dd?w=400&h=200&fit=crop&q=80' },
+  { name:'Longevidad 100+', desc:'Ciencia y habitos para vivir mas de 100 anos con calidad.', members:7215, img:'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=400&h=200&fit=crop&q=80' },
+  { name:'Madres Saludables', desc:'Nutricion natural para madres y bebes. Comunidad de apoyo.', members:6108, img:'https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?w=400&h=200&fit=crop&q=80' },
+  { name:'Deportistas Naturales', desc:'Performance atletica con nutricion 100% natural.', members:5430, img:'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=200&fit=crop&q=80' },
+  { name:'Detox y Reset', desc:'Protocolos de limpieza y reinicio del sistema digestivo.', members:4872, img:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=200&fit=crop&q=80' }
+];
+
+function loadGroups() {
+  var grid = document.getElementById('groupsGrid');
+  grid.innerHTML = groups.map(function(g) {
+    return '<div class="group-card"><img class="group-img" src="'+g.img+'" alt=""><div class="group-name">'+g.name+'</div><div class="group-desc">'+g.desc+'</div><div class="group-meta"><span class="group-members">'+g.members.toLocaleString()+' miembros</span><button class="group-join">Unirse</button></div></div>';
+  }).join('');
+}
+
+function switchTab(btn, tab) {
+  document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
+  document.getElementById('tab-'+tab).classList.add('active');
+}
+
+function switchRoom(el, name) {
+  document.querySelectorAll('.chat-room-item').forEach(function(i){ i.classList.remove('active'); });
+  el.classList.add('active');
+  document.getElementById('chatRoomTitle').innerHTML = '<i class="fas fa-circle" style="color:var(--emerald);font-size:8px;margin-right:6px;"></i> ' + name + ' — en linea';
+}
+
+function sendCommunityMsg() {
+  var input = document.getElementById('communityChat');
+  var msgs = document.getElementById('chatMessages');
+  var text = input.value.trim();
+  if (!text) return;
+  var div = document.createElement('div');
+  div.className = 'chat-msg user';
+  div.textContent = text;
+  msgs.appendChild(div);
+  input.value = '';
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+loadGroups();
+</script>
+</body>
+</html>
