@@ -1,6 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import LandingScreen from './LandingScreen';
+import VideoAgent from './pages/VideoAgent';
 // ── PALETA OFICIAL PURELIFE ─────────────────────────────────
 const C = {
   dark:    '#0F1F17',
@@ -744,7 +745,7 @@ function BottomNav({ active, onNavigate }) {
     { id: 'chat', emoji: '🤖', label: 'Dr. AI' },
     { id: 'plans', emoji: '💎', label: 'Planes' },
     { id: 'dashboard', emoji: '📊', label: 'Stats' },
-    { id: 'video', emoji: '🎥', label: 'Video' },
+    { id: 'video', emoji: '🎬', label: 'Videos' },
   ];
 
   return (
@@ -827,7 +828,7 @@ export default function App() {
     chat: <ChatScreen />,
     plans: <PlansScreen />,
     dashboard: <DashboardScreen />,
-    video: <VideoScreen />,
+    video: <VideoAgent userTier='seed' />,
   };
 
   return (
