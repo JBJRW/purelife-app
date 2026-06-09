@@ -2,6 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import LandingScreen from './LandingScreen';
 import VideoAgent from './pages/VideoAgent';
+import { useHermes } from './hooks/useHermes';
 // ── PALETA OFICIAL PURELIFE ─────────────────────────────────
 const C = {
   dark:    '#0F1F17',
@@ -663,7 +664,7 @@ function AuthScreen({ onAuth }) {
       const body = mode === 'login' ? { email, password } : { email, password, data: { name } };
       const res = await sbFetch(endpoint, { method: 'POST', body: JSON.stringify(body) });
       if (res.error) { setError(res.error.message || 'Error de autenticación'); }
-      else { onAuth({ email, name: name || email.split('@')[0], token: res.access_token }); }
+      else { onAuth({ email, name: name || email.split('@')[0], token: res.access_token, id: res.user?.id || res.session?.user?.id }); }
     } catch {
       setError('Error de conexión. Verifica tu configuración de Supabase.');
     }
@@ -788,6 +789,7 @@ export default function App() {
   const [tab, setTab] = useState('home');
   const [user, setUser] = useState(null);
   const [goals, setGoals] = useState([]);
+  const { hermes, loading: hermesLoading } = useHermes(user);
 
   const handleSplash = (selectedGoals) => {
     setGoals(selectedGoals);
@@ -824,11 +826,11 @@ export default function App() {
 
   // App principal
   const screens = {
-    home: <HomeScreen user={user} goals={goals} onNavigate={setTab} />,
+    home: <HomeScreen user={user} goals={goals} onNavigate={setTab} hermes={hermes} />,
     chat: <ChatScreen />,
     plans: <PlansScreen />,
     dashboard: <DashboardScreen />,
-    video: <VideoAgent userTier='seed' />,
+    video: <VideoAgent userTier={hermes?.tier || 'free'} />,
   };
 
   return (
@@ -844,3 +846,4 @@ export default function App() {
     </div>
   );
 }
+
