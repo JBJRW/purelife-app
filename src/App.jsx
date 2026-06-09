@@ -713,7 +713,7 @@ function AuthScreen({ onAuth }) {
     }}>
       <div style={{ width: '100%', maxWidth: 380 }}>
         <div style={{ textAlign: 'center', marginBottom: 36 }}>
-          <div style={{ fontSize: 50, marginBottom: 10 }}>🌿</div>
+          <img src="/purelife-logo.png" alt="PureLife" style={{ width: 80, height: 80, borderRadius: '50%', objectFit: 'cover', marginBottom: 10, boxShadow: '0 0 32px rgba(201,168,76,0.3)' }} />
           <h2 style={{ fontFamily: FONT_HEAD, color: C.cream, fontSize: 28, margin: '0 0 6px' }}>
             {mode === 'login' ? 'Bienvenido de vuelta' : 'Crear cuenta'}
           </h2>
