@@ -211,7 +211,7 @@ function HomeScreen({ user, goals, onNavigate, hermes }) {
   const greeting = hour < 12 ? 'Buenos días' : hour < 18 ? 'Buenas tardes' : 'Buenas noches';
 
   const quickActions = [
-    { label: hermes?.suggestedAction?.message || 'Consultar Dr. Smoothie', emoji: '🤖', tab: hermes?.suggestedAction?.tab || 'chat', color: C.mint },
+    { label: hermes?.suggestedAction?.message || 'Consultar Dr. Smoothie', emoji: '🤖', isAvatar: true, tab: hermes?.suggestedAction?.tab || 'chat', color: C.mint },
     { label: 'Ver mi plan', emoji: '💎', tab: 'plans', color: C.gold },
     { label: 'Mi progreso', emoji: '📊', tab: 'dashboard', color: C.light },
     { label: 'Video AI', emoji: '🎥', tab: 'video', color: '#8B5CF6' },
@@ -245,11 +245,15 @@ function HomeScreen({ user, goals, onNavigate, hermes }) {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 24 }}>
         {[
           { label: 'Días activo', value: String(hermes?.stats?.daysActive || 0), emoji: '🔥' },
-          { label: 'Consultas', value: String(hermes?.stats?.chatCount || 0), emoji: '🤖' },
+          { label: 'Consultas', value: String(hermes?.stats?.chatCount || 0), emoji: '🤖', isAvatar: true },
           { label: 'Plan', value: hermes?.tierLabel || '🌿', emoji: '💎' },
         ].map(s => (
           <Card key={s.label} style={{ padding: '14px 12px', textAlign: 'center' }}>
-            <div style={{ fontSize: 22 }}>{s.emoji}</div>
+            <div style={{ fontSize: 22 }}>
+              {s.isAvatar
+                ? <img src="/dr-smoothie-avatar.jpg" style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', border: `1.5px solid ${C.mint}` }} />
+                : s.emoji}
+            </div>
             <div style={{ color: C.cream, fontWeight: 800, fontSize: 22, fontFamily: FONT_HEAD }}>{s.value}</div>
             <div style={{ color: C.muted, fontSize: 11 }}>{s.label}</div>
           </Card>
@@ -267,7 +271,11 @@ function HomeScreen({ user, goals, onNavigate, hermes }) {
             color: C.cream, fontFamily: FONT_BODY, fontSize: 13, fontWeight: 600,
             textAlign: 'left', transition: 'all 0.2s',
           }}>
-            <div style={{ fontSize: 28, marginBottom: 8 }}>{a.emoji}</div>
+            <div style={{ fontSize: 28, marginBottom: 8 }}>
+              {a.isAvatar
+                ? <img src="/dr-smoothie-avatar.jpg" style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', border: `2px solid ${C.mint}` }} />
+                : a.emoji}
+            </div>
             {a.label}
           </button>
         ))}
@@ -524,7 +532,7 @@ function PlansScreen() {
 // ── SCREEN: DASHBOARD ────────────────────────────────────────
 function DashboardScreen() {
   const stats = [
-    { label: 'Consultas esta semana', value: 12, max: 50, color: C.mint, emoji: '🤖' },
+    { label: 'Consultas esta semana', value: 12, max: 50, color: C.mint, emoji: '🤖', isAvatar: true },
     { label: 'Recetas guardadas', value: 5, max: 20, color: C.gold, emoji: '📌' },
     { label: 'Días de racha', value: 7, max: 30, color: C.light, emoji: '🔥' },
     { label: 'Objetivos completados', value: 3, max: 8, color: '#8B5CF6', emoji: '🎯' },
@@ -552,7 +560,11 @@ function DashboardScreen() {
           <Card key={s.label} style={{ padding: '16px 18px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: 20 }}>{s.emoji}</span>
+                <span style={{ fontSize: 20 }}>
+                  {s.isAvatar
+                    ? <img src="/dr-smoothie-avatar.jpg" style={{ width: 26, height: 26, borderRadius: '50%', objectFit: 'cover', border: `1.5px solid ${C.mint}` }} />
+                    : s.emoji}
+                </span>
                 <span style={{ color: C.cream, fontSize: 14, fontWeight: 600 }}>{s.label}</span>
               </div>
               <span style={{ color: s.color, fontWeight: 800, fontSize: 16 }}>
@@ -776,7 +788,7 @@ const inputStyle = {
 function BottomNav({ active, onNavigate }) {
   const items = [
     { id: 'home', emoji: '🏠', label: 'Inicio' },
-    { id: 'chat', emoji: '🤖', label: 'Dr. AI' },
+    { id: 'chat', emoji: '🤖', isAvatar: true, label: 'Dr. AI' },
     { id: 'plans', emoji: '💎', label: 'Planes' },
     { id: 'dashboard', emoji: '📊', label: 'Stats' },
     { id: 'video', emoji: '🎬', label: 'Videos' },
@@ -802,7 +814,9 @@ function BottomNav({ active, onNavigate }) {
             filter: active === item.id ? 'none' : 'grayscale(60%)',
             transform: active === item.id ? 'scale(1.15)' : 'scale(1)',
             transition: 'all 0.2s',
-          }}>{item.emoji}</div>
+          }}>{item.isAvatar
+            ? <img src="/dr-smoothie-avatar.jpg" style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover', border: `1.5px solid ${active === item.id ? C.mint : 'transparent'}` }} />
+            : item.emoji}</div>
           <span style={{
             fontSize: 10, fontFamily: FONT_BODY, fontWeight: 600,
             color: active === item.id ? C.light : C.muted,
