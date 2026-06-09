@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import ComingSoonPage + reemplaza LandingScreen
+import ComingSoonPage + reemplaza LandingScreen.jsx',
 import VideoAgent from './pages/VideoAgent';
 import { useHermes } from './hooks/useHermes';
 // ── PALETA OFICIAL PURELIFE ─────────────────────────────────
