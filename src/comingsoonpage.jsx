@@ -1,9 +1,23 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
-export default function ComingSoonPage() {
+export default function ComingSoonPage({ onEnterApp }) {
   const [email, setEmail] = useState('')
   const [sent, setSent] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [logoY, setLogoY] = useState(0)
+
+  // Logo flotante suave
+  useEffect(() => {
+    let frame
+    let t = 0
+    const animate = () => {
+      t += 0.012
+      setLogoY(Math.sin(t) * 10)
+      frame = requestAnimationFrame(animate)
+    }
+    frame = requestAnimationFrame(animate)
+    return () => cancelAnimationFrame(frame)
+  }, [])
 
   const handleSubmit = async () => {
     if (!email || !email.includes('@')) return
@@ -16,7 +30,7 @@ export default function ComingSoonPage() {
   return (
     <div style={{
       minHeight: '100vh',
-      background: '#060606',
+      background: '#060D08',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
@@ -28,179 +42,269 @@ export default function ComingSoonPage() {
     }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,300&family=DM+Sans:wght@300;400&display=swap');
-        @keyframes breathe {
-          0%,100% { transform: translate(-50%,-50%) scale(1); opacity: .5; }
-          50% { transform: translate(-50%,-50%) scale(1.2); opacity: 1; }
-        }
-        @keyframes spin {
+
+        @keyframes spin-slow {
           from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
+          to   { transform: rotate(360deg); }
         }
-        .cs-ring { animation: spin 12s linear infinite; }
-        .cs-glow {
-          position: absolute; width: 500px; height: 500px;
-          border-radius: 50%;
-          background: radial-gradient(circle, rgba(34,197,94,0.08) 0%, transparent 70%);
+        @keyframes spin-rev {
+          from { transform: rotate(0deg); }
+          to   { transform: rotate(-360deg); }
+        }
+        @keyframes pulse-glow {
+          0%,100% { opacity: .4; transform: translate(-50%,-50%) scale(1); }
+          50%     { opacity: .8; transform: translate(-50%,-50%) scale(1.15); }
+        }
+        @keyframes fade-in-up {
+          from { opacity: 0; transform: translateY(18px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .cs-ring1 { animation: spin-slow 18s linear infinite; }
+        .cs-ring2 { animation: spin-rev  12s linear infinite; }
+
+        .cs-glow1 {
+          position: absolute; width: 520px; height: 520px; border-radius: 50%;
+          background: radial-gradient(circle, rgba(26,92,58,0.18) 0%, transparent 70%);
           top: 50%; left: 50%;
-          animation: breathe 5s ease-in-out infinite;
+          animation: pulse-glow 6s ease-in-out infinite;
           pointer-events: none;
         }
         .cs-glow2 {
-          position: absolute; width: 700px; height: 700px;
-          border-radius: 50%;
-          background: radial-gradient(circle, rgba(212,175,55,0.04) 0%, transparent 65%);
+          position: absolute; width: 750px; height: 750px; border-radius: 50%;
+          background: radial-gradient(circle, rgba(201,151,58,0.07) 0%, transparent 65%);
           top: 50%; left: 50%;
-          animation: breathe 7s ease-in-out infinite reverse;
+          animation: pulse-glow 9s ease-in-out infinite reverse;
           pointer-events: none;
         }
-        .cs-btn:hover { opacity: 0.85; transform: translateY(-1px); }
-        .cs-input:focus { border-color: rgba(34,197,94,0.5) !important; outline: none; }
+        .cs-particles {
+          position: absolute; inset: 0; pointer-events: none;
+          background-image:
+            radial-gradient(1px 1px at 15% 20%, rgba(255,255,255,0.08) 0%, transparent 100%),
+            radial-gradient(1px 1px at 80% 15%, rgba(255,255,255,0.06) 0%, transparent 100%),
+            radial-gradient(1px 1px at 60% 80%, rgba(255,255,255,0.05) 0%, transparent 100%),
+            radial-gradient(1px 1px at 30% 70%, rgba(255,255,255,0.07) 0%, transparent 100%),
+            radial-gradient(1px 1px at 90% 60%, rgba(255,255,255,0.04) 0%, transparent 100%);
+        }
+        .cs-btn-primary {
+          background: linear-gradient(135deg, #1A5C3A, #2D8653);
+          color: #fff; border: none;
+          padding: 0.85rem 1.2rem; border-radius: 8px;
+          font-family: 'DM Sans'; font-size: 0.78rem;
+          letter-spacing: 0.12em; text-transform: uppercase;
+          cursor: pointer; transition: all 0.25s;
+          box-shadow: 0 4px 20px rgba(26,92,58,0.35);
+        }
+        .cs-btn-primary:hover:not(:disabled) {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 28px rgba(26,92,58,0.5);
+        }
+        .cs-btn-secondary {
+          background: transparent;
+          color: rgba(255,255,255,0.35);
+          border: 1px solid rgba(255,255,255,0.1);
+          padding: 0.7rem 1.4rem; border-radius: 8px;
+          font-family: 'DM Sans'; font-size: 0.72rem;
+          letter-spacing: 0.1em; text-transform: uppercase;
+          cursor: pointer; transition: all 0.2s; margin-top: 0.5rem;
+        }
+        .cs-btn-secondary:hover {
+          border-color: rgba(255,255,255,0.25);
+          color: rgba(255,255,255,0.6);
+        }
+        .cs-input:focus { border-color: rgba(26,92,58,0.6) !important; outline: none; }
+        .cs-anim { animation: fade-in-up 0.7s ease both; }
       `}</style>
 
-      <div className="cs-glow" />
+      {/* Fondo partículas */}
+      <div className="cs-particles" />
+      <div className="cs-glow1" />
       <div className="cs-glow2" />
 
-      {/* Logo circular */}
-      <div style={{ position: 'relative', width: 90, height: 90, marginBottom: '2rem' }}>
-        <div className="cs-ring" style={{
-          position: 'absolute', inset: -10, borderRadius: '50%',
-          border: '1px solid rgba(34,197,94,0.3)'
+      {/* ── LOGO FLOTANTE ─────────────────────────── */}
+      <div style={{
+        position: 'relative',
+        width: 110, height: 110,
+        marginBottom: '2rem',
+        transform: `translateY(${logoY}px)`,
+        transition: 'transform 0.05s linear',
+      }}>
+        {/* Anillo exterior */}
+        <div className="cs-ring1" style={{
+          position: 'absolute', inset: -14, borderRadius: '50%',
+          border: '1px solid rgba(26,92,58,0.35)',
         }}>
+          {/* Punto verde en el anillo */}
           <div style={{
-            position: 'absolute', top: -3, left: '50%',
+            position: 'absolute', top: -4, left: '50%',
             transform: 'translateX(-50%)',
-            width: 6, height: 6,
-            background: '#22c55e', borderRadius: '50%'
+            width: 7, height: 7,
+            background: '#2D8653', borderRadius: '50%',
+            boxShadow: '0 0 8px #2D8653',
           }}/>
         </div>
+        {/* Anillo interior */}
+        <div className="cs-ring2" style={{
+          position: 'absolute', inset: -6, borderRadius: '50%',
+          border: '1px dashed rgba(201,151,58,0.2)',
+        }}>
+          <div style={{
+            position: 'absolute', bottom: -3, left: '50%',
+            transform: 'translateX(-50%)',
+            width: 5, height: 5,
+            background: '#C9973A', borderRadius: '50%',
+            boxShadow: '0 0 6px #C9973A',
+          }}/>
+        </div>
+        {/* Logo */}
         <img
           src="/purelife-logo.png"
           alt="PureLife"
           style={{
-            width: 90, height: 90, borderRadius: '50%',
+            width: 110, height: 110,
+            borderRadius: '50%',
             objectFit: 'cover',
-            border: '2px solid rgba(34,197,94,0.25)'
+            border: '2px solid rgba(26,92,58,0.4)',
+            boxShadow: '0 0 30px rgba(26,92,58,0.25)',
+            display: 'block',
           }}
-          onError={e => { e.target.style.display = 'none' }}
+          onError={e => {
+            e.target.style.display = 'none'
+          }}
         />
       </div>
 
-      {/* Brand name */}
-      <p style={{
-        fontFamily: 'DM Sans', fontSize: '0.7rem',
-        letterSpacing: '0.45em', color: 'rgba(255,255,255,0.3)',
-        textTransform: 'uppercase', marginBottom: '0.75rem', margin: '0 0 0.75rem'
+      {/* Brand */}
+      <p className="cs-anim" style={{
+        fontFamily: 'DM Sans', fontSize: '0.65rem',
+        letterSpacing: '0.5em', color: 'rgba(255,255,255,0.25)',
+        textTransform: 'uppercase', margin: '0 0 0.8rem',
+        animationDelay: '0.1s',
       }}>
         PureLife Wellness Club
       </p>
 
       {/* Headline */}
-      <h1 style={{
+      <h1 className="cs-anim" style={{
         fontFamily: "'Fraunces', serif",
-        fontSize: 'clamp(3rem, 10vw, 6.5rem)',
+        fontSize: 'clamp(3.2rem, 11vw, 7rem)',
         fontWeight: 300, color: '#fff',
-        lineHeight: 0.9, letterSpacing: '-0.02em',
-        textAlign: 'center', margin: '0 0 0.2em'
+        lineHeight: 0.88, letterSpacing: '-0.02em',
+        textAlign: 'center', margin: '0 0 0.15em',
+        animationDelay: '0.2s',
       }}>
         Coming<br/>Soon
       </h1>
 
-      {/* Year */}
-      <p style={{
+      {/* Year gold */}
+      <p className="cs-anim" style={{
         fontFamily: "'Fraunces', serif",
         fontStyle: 'italic',
-        fontSize: 'clamp(1.4rem, 4vw, 2.5rem)',
-        fontWeight: 300, color: '#D4AF37',
-        letterSpacing: '0.2em',
-        margin: '0 0 2.5rem', textAlign: 'center'
+        fontSize: 'clamp(1.5rem, 4.5vw, 2.8rem)',
+        fontWeight: 300, color: '#C9973A',
+        letterSpacing: '0.22em',
+        margin: '0 0 2rem', textAlign: 'center',
+        animationDelay: '0.3s',
       }}>
         — 2026 —
       </p>
 
       {/* Divider */}
-      <div style={{
-        width: 36, height: 1,
-        background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.4), transparent)',
-        marginBottom: '2rem'
+      <div className="cs-anim" style={{
+        width: 40, height: 1,
+        background: 'linear-gradient(90deg, transparent, rgba(201,151,58,0.5), transparent)',
+        marginBottom: '1.6rem',
+        animationDelay: '0.35s',
       }}/>
 
       {/* Tagline */}
-      <p style={{
-        fontSize: '0.85rem', fontWeight: 300,
-        color: 'rgba(255,255,255,0.35)',
-        textAlign: 'center', maxWidth: 280,
-        lineHeight: 1.8, marginBottom: '2.5rem'
+      <p className="cs-anim" style={{
+        fontSize: '0.82rem', fontWeight: 300,
+        color: 'rgba(255,255,255,0.3)',
+        textAlign: 'center', maxWidth: 270,
+        lineHeight: 1.9, marginBottom: '2.2rem',
+        animationDelay: '0.4s',
       }}>
         A new era of wellness.<br/>Powered by Dr. Smoothie AI.
       </p>
 
-      {/* Email early access */}
-      {!sent ? (
-        <div style={{
-          display: 'flex', flexDirection: 'column',
-          gap: '0.65rem', width: '100%', maxWidth: 320
-        }}>
-          <input
-            className="cs-input"
-            type="email"
-            placeholder="your@email.com"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleSubmit()}
-            style={{
-              width: '100%',
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              color: '#fff', padding: '0.8rem 1.2rem',
-              borderRadius: 6, fontFamily: 'DM Sans',
-              fontSize: '0.875rem', boxSizing: 'border-box'
-            }}
-          />
-          <button
-            className="cs-btn"
-            onClick={handleSubmit}
-            disabled={loading}
-            style={{
-              background: 'linear-gradient(135deg, #22c55e, #16a34a)',
-              color: '#fff', border: 'none',
-              padding: '0.8rem', borderRadius: 6,
-              fontFamily: 'DM Sans', fontSize: '0.8rem',
-              letterSpacing: '0.1em', textTransform: 'uppercase',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              opacity: loading ? 0.5 : 1,
-              transition: 'all 0.2s'
-            }}>
-            {loading ? 'Reserving...' : 'Get Early Access'}
-          </button>
-        </div>
-      ) : (
-        <p style={{ color: '#22c55e', fontSize: '0.875rem', letterSpacing: '0.05em' }}>
-          ✦ You're on the list. See you in 2026.
-        </p>
+      {/* Email form */}
+      <div className="cs-anim" style={{
+        width: '100%', maxWidth: 320,
+        animationDelay: '0.5s',
+      }}>
+        {!sent ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+            <input
+              className="cs-input"
+              type="email"
+              placeholder="your@email.com"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleSubmit()}
+              style={{
+                width: '100%',
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                color: '#fff', padding: '0.85rem 1.2rem',
+                borderRadius: 8, fontFamily: 'DM Sans',
+                fontSize: '0.875rem', boxSizing: 'border-box',
+                transition: 'border-color 0.2s',
+              }}
+            />
+            <button
+              className="cs-btn-primary"
+              onClick={handleSubmit}
+              disabled={loading}
+              style={{ opacity: loading ? 0.5 : 1 }}
+            >
+              {loading ? 'Reserving...' : 'Get Early Access'}
+            </button>
+          </div>
+        ) : (
+          <p style={{
+            color: '#2D8653', fontSize: '0.875rem',
+            letterSpacing: '0.05em', textAlign: 'center',
+          }}>
+            ✦ You're on the list. See you in 2026.
+          </p>
+        )}
+      </div>
+
+      {/* Botón entrar a la app */}
+      {onEnterApp && (
+        <button
+          className="cs-btn-secondary cs-anim"
+          onClick={onEnterApp}
+          style={{ animationDelay: '0.6s' }}
+        >
+          Already a member? Enter →
+        </button>
       )}
 
       {/* Pills */}
-      <div style={{
-        display: 'flex', gap: '0.6rem',
-        marginTop: '2.5rem', flexWrap: 'wrap',
-        justifyContent: 'center'
+      <div className="cs-anim" style={{
+        display: 'flex', gap: '0.5rem',
+        marginTop: '2.2rem', flexWrap: 'wrap',
+        justifyContent: 'center',
+        animationDelay: '0.65s',
       }}>
         {['AI Wellness', 'Smoothie Science', 'Longevity', 'Community'].map(p => (
           <span key={p} style={{
-            fontSize: '0.6rem', letterSpacing: '0.12em',
+            fontSize: '0.58rem', letterSpacing: '0.14em',
             textTransform: 'uppercase',
-            color: 'rgba(255,255,255,0.2)',
+            color: 'rgba(255,255,255,0.18)',
             border: '1px solid rgba(255,255,255,0.07)',
-            padding: '0.25rem 0.7rem', borderRadius: 20
+            padding: '0.25rem 0.75rem', borderRadius: 20,
           }}>{p}</span>
         ))}
       </div>
 
       {/* Footer */}
       <p style={{
-        position: 'absolute', bottom: '1.5rem',
-        fontSize: '0.65rem', color: 'rgba(255,255,255,0.12)',
-        letterSpacing: '0.15em', textTransform: 'uppercase'
+        position: 'absolute', bottom: '1.4rem',
+        fontSize: '0.6rem', color: 'rgba(255,255,255,0.1)',
+        letterSpacing: '0.18em', textTransform: 'uppercase',
       }}>
         © 2026 JRMB Food Network LLC
       </p>
