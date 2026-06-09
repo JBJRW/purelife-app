@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { LANGUAGES, loadLang, saveLang, t } from '../i18n'
+import { LANGUAGES, loadLang, saveLang, t } from './i18n'
 import LanguageSelector from './components/LanguageSelector'
 
 export default function ComingSoonPage({ onEnterApp }) {
