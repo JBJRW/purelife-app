@@ -181,7 +181,7 @@ export default function LandingScreen({ onStart }) {
               <circle fill="none" stroke="url(#ringGrad)" strokeWidth="6" strokeLinecap="round" strokeDasharray="440" strokeDashoffset="112" cx="80" cy="80" r="70" />
             </svg>
             <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-              <div style={{ fontSize: "3rem", animation: "spin 20s linear infinite" }}>🥤</div>
+              <img src="/purelife-logo.png" alt="PureLife" style={{ width: "80px", height: "80px", borderRadius: "50%", objectFit: "cover", animation: "spin 20s linear infinite" }} />
               <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.4rem", color: "var(--gold2)", marginTop: 4 }}>74%</div>
               <div style={{ fontSize: "0.6rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--muted)" }}>Vitalidad</div>
             </div>
@@ -284,7 +284,7 @@ export default function LandingScreen({ onStart }) {
                 {/* AI Float */}
                 <div style={{ position: "absolute", bottom: 90, right: 12, zIndex: 10 }}>
                   <div style={{ background: "linear-gradient(135deg,var(--gold),var(--gold2))", color: "var(--obsidian)", padding: "8px 12px", borderRadius: "16px 16px 4px 16px", fontSize: "0.6rem", fontWeight: 600, maxWidth: 140, marginBottom: 6, boxShadow: "0 4px 16px rgba(201,168,76,0.3)", lineHeight: 1.4 }}>¡Tu energía subió 12% esta semana! 🌟</div>
-                  <div style={{ width: 36, height: 36, borderRadius: "50%", background: "linear-gradient(135deg,var(--gold),var(--sage2))", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1rem", marginLeft: "auto", animation: "glow 3s ease-in-out infinite", cursor: "pointer" }}>🥤</div>
+                  <div style={{ width: 36, height: 36, borderRadius: "50%", background: "transparent", display: "flex", alignItems: "center", justifyContent: "center", marginLeft: "auto", animation: "glow 3s ease-in-out infinite", cursor: "pointer", overflow: "hidden", padding: 2 }}><img src="/purelife-logo.png" alt="PureLife" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} /></div>
                 </div>
                 {/* Bottom nav */}
                 <div style={{ display: "flex", justifyContent: "space-around", padding: "12px 8px 16px", background: "rgba(17,24,21,0.95)", backdropFilter: "blur(20px)", borderTop: "1px solid var(--border2)", position: "absolute", bottom: 16, left: 16, right: 16, borderRadius: "0 0 36px 36px" }}>
