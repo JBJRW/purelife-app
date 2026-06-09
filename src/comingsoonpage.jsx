@@ -1,10 +1,15 @@
 import { useState, useEffect } from 'react'
+import { LANGUAGES, loadLang, saveLang, t } from '../i18n'
+import LanguageSelector from './components/LanguageSelector'
 
 export default function ComingSoonPage({ onEnterApp }) {
+  const [lang, setLang] = useState(() => loadLang())
   const [email, setEmail] = useState('')
   const [sent, setSent] = useState(false)
   const [loading, setLoading] = useState(false)
   const [logoY, setLogoY] = useState(0)
+
+  const handleLangChange = (code) => { saveLang(code); setLang(code); }
 
   // Logo flotante suave
   useEffect(() => {
@@ -116,6 +121,11 @@ export default function ComingSoonPage({ onEnterApp }) {
         .cs-anim { animation: fade-in-up 0.7s ease both; }
       `}</style>
 
+      {/* Selector de idioma — top right */}
+      <div style={{ position: 'absolute', top: '1.2rem', right: '1.2rem', zIndex: 10 }}>
+        <LanguageSelector lang={lang} onChange={handleLangChange} />
+      </div>
+
       {/* Fondo partículas */}
       <div className="cs-particles" />
       <div className="cs-glow1" />
@@ -181,7 +191,7 @@ export default function ComingSoonPage({ onEnterApp }) {
         textTransform: 'uppercase', margin: '0 0 0.8rem',
         animationDelay: '0.1s',
       }}>
-        PureLife Wellness Club
+        {t(lang, 'brand')}
       </p>
 
       {/* Headline */}
@@ -193,7 +203,7 @@ export default function ComingSoonPage({ onEnterApp }) {
         textAlign: 'center', margin: '0 0 0.15em',
         animationDelay: '0.2s',
       }}>
-        Coming<br/>Soon
+        {t(lang, 'comingSoon').split('\\n').map((line,i)=><span key={i}>{line}{i===0&&<br/>}</span>)}
       </h1>
 
       {/* Year gold */}
@@ -206,7 +216,7 @@ export default function ComingSoonPage({ onEnterApp }) {
         margin: '0 0 2rem', textAlign: 'center',
         animationDelay: '0.3s',
       }}>
-        — 2026 —
+        {t(lang, 'year')}
       </p>
 
       {/* Divider */}
@@ -225,7 +235,7 @@ export default function ComingSoonPage({ onEnterApp }) {
         lineHeight: 1.9, marginBottom: '2.2rem',
         animationDelay: '0.4s',
       }}>
-        A new era of wellness.<br/>Powered by Dr. Smoothie AI.
+        {t(lang, 'tagline')}<br/>{t(lang, 'powered')}
       </p>
 
       {/* Email form */}
@@ -238,7 +248,7 @@ export default function ComingSoonPage({ onEnterApp }) {
             <input
               className="cs-input"
               type="email"
-              placeholder="your@email.com"
+              placeholder={t(lang, 'emailPlaceholder')}
               value={email}
               onChange={e => setEmail(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleSubmit()}
@@ -258,7 +268,7 @@ export default function ComingSoonPage({ onEnterApp }) {
               disabled={loading}
               style={{ opacity: loading ? 0.5 : 1 }}
             >
-              {loading ? 'Reserving...' : 'Get Early Access'}
+              {loading ? t(lang, 'reserving') : t(lang, 'earlyAccess')}
             </button>
           </div>
         ) : (
@@ -266,7 +276,7 @@ export default function ComingSoonPage({ onEnterApp }) {
             color: '#2D8653', fontSize: '0.875rem',
             letterSpacing: '0.05em', textAlign: 'center',
           }}>
-            ✦ You're on the list. See you in 2026.
+            {t(lang, 'onList')}
           </p>
         )}
       </div>
@@ -278,7 +288,7 @@ export default function ComingSoonPage({ onEnterApp }) {
           onClick={onEnterApp}
           style={{ animationDelay: '0.6s' }}
         >
-          Already a member? Enter →
+          {t(lang, 'alreadyMember')}
         </button>
       )}
 
@@ -289,7 +299,7 @@ export default function ComingSoonPage({ onEnterApp }) {
         justifyContent: 'center',
         animationDelay: '0.65s',
       }}>
-        {['AI Wellness', 'Smoothie Science', 'Longevity', 'Community'].map(p => (
+        {t(lang, 'pills').map(p => (
           <span key={p} style={{
             fontSize: '0.58rem', letterSpacing: '0.14em',
             textTransform: 'uppercase',
