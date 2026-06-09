@@ -4,7 +4,7 @@
 // ═══════════════════════════════════════════════════════════════
 
 const SUPABASE_URL = 'https://efatctcxlcotsgxhmgjg.supabase.co';
-const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY || '';
 
 const TIER_CONFIG = {
   free:   { label: 'Free 🌿',    chatLimit: 3,   videoAccess: false, communityCreate: false },
@@ -39,7 +39,7 @@ function buildUpsell(tier, chatCount, triedVideo) {
 }
 
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  const origin = req.headers.origin || ''; const allowed = ['https://purelifewellnessclub.org','https://www.purelifewellnessclub.org','http://localhost:5173','http://localhost:3000']; const corsOrigin = allowed.includes(origin) ? origin : allowed[0]; res.setHeader('Access-Control-Allow-Origin', corsOrigin); res.setHeader('Vary', 'Origin');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if (req.method === 'OPTIONS') return res.status(200).end();
