@@ -211,7 +211,7 @@ function HomeScreen({ user, goals, onNavigate, hermes }) {
   const greeting = hour < 12 ? 'Buenos días' : hour < 18 ? 'Buenas tardes' : 'Buenas noches';
 
   const quickActions = [
-    { label: 'Consultar Dr. Smoothie', emoji: '🤖', tab: 'chat', color: C.mint },
+    { label: hermes?.suggestedAction?.message || 'Consultar Dr. Smoothie', emoji: '🤖', tab: hermes?.suggestedAction?.tab || 'chat', color: C.mint },
     { label: 'Ver mi plan', emoji: '💎', tab: 'plans', color: C.gold },
     { label: 'Mi progreso', emoji: '📊', tab: 'dashboard', color: C.light },
     { label: 'Video AI', emoji: '🎥', tab: 'video', color: '#8B5CF6' },
@@ -223,11 +223,16 @@ function HomeScreen({ user, goals, onNavigate, hermes }) {
     { emoji: '🫐', title: 'Súper alimento', desc: 'Los arándanos reducen el estrés oxidativo — añádelos a tu rutina', tag: 'Nutrición' },
   ];
 
+  const showUpsell = hermes && hermes.upsell && hermes.upsell.show;
+  const upsellMsg = showUpsell ? hermes.upsell.message : '';
+
   return (
     <div style={{ padding: '24px 20px', maxWidth: 480, margin: '0 auto' }}>
       {/* Header */}
       <div style={{ marginBottom: 28 }}>
-        <p style={{ color: C.muted, fontSize: 13, margin: '0 0 4px' }}>{hermes?.welcomeMessage || (greeting + ' 👋')}</p>
+        <p style={{ color: C.muted, fontSize: 13, margin: '0 0 4px' }}>
+          {hermes?.welcomeMessage || (greeting + ' 👋')}
+        </p>
         <h1 style={{ fontFamily: FONT_HEAD, color: C.cream, fontSize: 30, margin: 0 }}>
           {hermes?.name || user?.name || 'Bienvenido'}
         </h1>
@@ -268,8 +273,8 @@ function HomeScreen({ user, goals, onNavigate, hermes }) {
         ))}
       </div>
 
-      {/* HERMES Upsell Banner */}
-      {hermes?.upsell?.show && (
+      {/* Upsell Banner HERMES */}
+      {showUpsell && (
         <div style={{
           background: 'rgba(201,151,58,0.12)',
           border: '1px solid rgba(201,151,58,0.35)',
@@ -279,13 +284,18 @@ function HomeScreen({ user, goals, onNavigate, hermes }) {
           <div style={{ fontSize: 26 }}>⚡</div>
           <div style={{ flex: 1 }}>
             <p style={{ color: '#E8B84B', fontSize: 13, fontWeight: 700, margin: '0 0 6px' }}>
-              {hermes.upsell.message}
+              {upsellMsg}
             </p>
-            <button onClick={() => onNavigate('plans')} style={{
-              background: 'linear-gradient(135deg,#E8B84B,#C9973A)',
-              border: 'none', borderRadius: 8, padding: '6px 14px',
-              color: '#0F1F17', fontSize: 12, fontWeight: 800, cursor: 'pointer',
-            }}>Ver planes →</button>
+            <button
+              onClick={() => onNavigate('plans')}
+              style={{
+                background: 'linear-gradient(135deg,#E8B84B,#C9973A)',
+                border: 'none', borderRadius: 8, padding: '6px 14px',
+                color: '#0F1F17', fontSize: 12, fontWeight: 800, cursor: 'pointer',
+              }}
+            >
+              Ver planes →
+            </button>
           </div>
         </div>
       )}
