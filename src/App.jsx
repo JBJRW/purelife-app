@@ -42,11 +42,13 @@ async function sbFetch(path, opts = {}) {
 // ── CLAUDE API — via proxy seguro /api/chat ──────────────────
 // El modelo y la API key viven en el servidor (api/chat.js).
 // El frontend nunca toca Anthropic directamente.
-async function askDrSmoothie(messages) {
+async function askDrSmoothie(messages, userId, accessToken) {
   const res = await fetch('/api/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
+      userId,
+      accessToken,
       system: `Eres Dr. Smoothie AI — el asistente de bienestar de PureLife Wellness Club, 
 creado por JRMB Food Network LLC. Eres cálido, experto en nutrición, smoothies y jugos saludables.
 Siempre personalizas tus recomendaciones. Respondes en el idioma del usuario.
@@ -204,7 +206,7 @@ function SplashScreen({ onContinue }) {
 }
 
 // ── SCREEN: HOME ─────────────────────────────────────────────
-function HomeScreen({ user, goals, onNavigate }) {
+function HomeScreen({ user, goals, onNavigate, hermes }) {
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Buenos días' : hour < 18 ? 'Buenas tardes' : 'Buenas noches';
 
@@ -225,9 +227,9 @@ function HomeScreen({ user, goals, onNavigate }) {
     <div style={{ padding: '24px 20px', maxWidth: 480, margin: '0 auto' }}>
       {/* Header */}
       <div style={{ marginBottom: 28 }}>
-        <p style={{ color: C.muted, fontSize: 13, margin: '0 0 4px' }}>{greeting} 👋</p>
+        <p style={{ color: C.muted, fontSize: 13, margin: '0 0 4px' }}>{hermes?.welcomeMessage || (greeting + ' 👋')}</p>
         <h1 style={{ fontFamily: FONT_HEAD, color: C.cream, fontSize: 30, margin: 0 }}>
-          {user?.name || 'Bienvenido'}
+          {hermes?.name || user?.name || 'Bienvenido'}
         </h1>
         <p style={{ color: C.light, fontSize: 13, marginTop: 4 }}>
           🌿 Tu journey de bienestar continúa
@@ -237,9 +239,9 @@ function HomeScreen({ user, goals, onNavigate }) {
       {/* Quick Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 24 }}>
         {[
-          { label: 'Días activo', value: '7', emoji: '🔥' },
-          { label: 'Consultas', value: '12', emoji: '🤖' },
-          { label: 'Recetas', value: '5', emoji: '📌' },
+          { label: 'Días activo', value: String(hermes?.stats?.daysActive || 0), emoji: '🔥' },
+          { label: 'Consultas', value: String(hermes?.stats?.chatCount || 0), emoji: '🤖' },
+          { label: 'Plan', value: hermes?.tierLabel || '🌿', emoji: '💎' },
         ].map(s => (
           <Card key={s.label} style={{ padding: '14px 12px', textAlign: 'center' }}>
             <div style={{ fontSize: 22 }}>{s.emoji}</div>
@@ -265,6 +267,28 @@ function HomeScreen({ user, goals, onNavigate }) {
           </button>
         ))}
       </div>
+
+      {/* HERMES Upsell Banner */}
+      {hermes?.upsell?.show && (
+        <div style={{
+          background: 'rgba(201,151,58,0.12)',
+          border: '1px solid rgba(201,151,58,0.35)',
+          borderRadius: 16, padding: '14px 18px',
+          marginBottom: 20, display: 'flex', alignItems: 'center', gap: 12,
+        }}>
+          <div style={{ fontSize: 26 }}>⚡</div>
+          <div style={{ flex: 1 }}>
+            <p style={{ color: '#E8B84B', fontSize: 13, fontWeight: 700, margin: '0 0 6px' }}>
+              {hermes.upsell.message}
+            </p>
+            <button onClick={() => onNavigate('plans')} style={{
+              background: 'linear-gradient(135deg,#E8B84B,#C9973A)',
+              border: 'none', borderRadius: 8, padding: '6px 14px',
+              color: '#0F1F17', fontSize: 12, fontWeight: 800, cursor: 'pointer',
+            }}>Ver planes →</button>
+          </div>
+        </div>
+      )}
 
       {/* Tips del día */}
       <h3 style={{ color: C.cream, fontSize: 16, fontWeight: 700, marginBottom: 12 }}>
@@ -292,7 +316,7 @@ function HomeScreen({ user, goals, onNavigate }) {
 }
 
 // ── SCREEN: CHAT DR. SMOOTHIE AI ─────────────────────────────
-function ChatScreen() {
+function ChatScreen({ user }) {
   const [messages, setMessages] = useState([
     { role: 'ai', text: '¡Hola! Soy Dr. Smoothie AI 🌿 Tu guía personal de bienestar. ¿En qué te puedo ayudar hoy? Puedo recomendarte smoothies, crear planes nutricionales, o responder tus preguntas de salud.' }
   ]);
@@ -314,7 +338,7 @@ function ChatScreen() {
       const history = messages.filter(m => m.role !== 'ai' || messages.indexOf(m) > 0)
         .map(m => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: m.text }));
       history.push({ role: 'user', content: userMsg });
-      const reply = await askDrSmoothie(history);
+      const reply = await askDrSmoothie(history, user?.id, user?.token);
       setMessages(m => [...m, { role: 'ai', text: reply }]);
     } catch {
       setMessages(m => [...m, { role: 'ai', text: '⚠️ Error de conexión. Verifica tu API key de Anthropic.' }]);
@@ -827,7 +851,7 @@ export default function App() {
   // App principal
   const screens = {
     home: <HomeScreen user={user} goals={goals} onNavigate={setTab} hermes={hermes} />,
-    chat: <ChatScreen />,
+    chat: <ChatScreen user={user} />,
     plans: <PlansScreen />,
     dashboard: <DashboardScreen />,
     video: <VideoAgent userTier={hermes?.tier || 'free'} />,
