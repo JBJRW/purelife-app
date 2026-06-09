@@ -43,9 +43,14 @@ export default async function handler(req, res) {
     );
 
     const rows = await countRes.json();
-    const count = Array.isArray(rows) ? rows.length : 0;
 
-    return res.status(200).json({ success: true, count, rows: rows || [] });
+    // FIX: si rows es un error de Supabase (JWT inválido, etc.) retornar count 0 sin exponer error interno
+    if (!Array.isArray(rows)) {
+      return res.status(200).json({ success: true, count: 0, rows: [] });
+    }
+
+    const count = rows.length;
+    return res.status(200).json({ success: true, count, rows });
   } catch (err) {
     console.error('[video-usage]', err.message);
     return res.status(500).json({ error: 'Could not fetch usage', count: 0 });
