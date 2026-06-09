@@ -334,7 +334,7 @@ function HomeScreen({ user, goals, onNavigate, hermes }) {
 }
 
 // ── SCREEN: CHAT DR. SMOOTHIE AI ─────────────────────────────
-function ChatScreen({ user }) {
+function ChatScreen({ user, hermes }) {
   const [messages, setMessages] = useState([
     { role: 'ai', text: '¡Hola! Soy Dr. Smoothie AI 🌿 Tu guía personal de bienestar. ¿En qué te puedo ayudar hoy? Puedo recomendarte smoothies, crear planes nutricionales, o responder tus preguntas de salud.' }
   ]);
@@ -380,10 +380,19 @@ function ChatScreen({ user }) {
             width: 44, height: 44, borderRadius: '50%', objectFit: 'cover',
             border: `2px solid ${C.green}`, boxShadow: '0 0 12px rgba(0,201,123,0.3)',
           }} />
-          <div>
+          <div style={{ flex: 1 }}>
             <div style={{ color: C.cream, fontWeight: 800, fontSize: 16 }}>Dr. Smoothie AI</div>
             <div style={{ color: C.light, fontSize: 12 }}>● Online · Powered by Claude</div>
           </div>
+          {hermes?.permissions && (
+            <div style={{
+              fontSize: 11, color: hermes.permissions.chatRemaining > 0 ? C.mint : C.gold,
+              background: 'rgba(255,255,255,0.06)', padding: '4px 10px',
+              borderRadius: 20, border: '1px solid rgba(255,255,255,0.1)', whiteSpace: 'nowrap',
+            }}>
+              {hermes.permissions.chatRemaining > 50 ? '∞' : hermes.permissions.chatRemaining} restantes
+            </div>
+          )}
         </div>
       </div>
 
@@ -456,7 +465,8 @@ function ChatScreen({ user }) {
 }
 
 // ── SCREEN: PLANES ───────────────────────────────────────────
-function PlansScreen() {
+function PlansScreen({ hermes }) {
+  const activeTier = hermes?.tier || 'free';
   const [selected, setSelected] = useState('bloom');
 
   return (
@@ -530,19 +540,25 @@ function PlansScreen() {
 }
 
 // ── SCREEN: DASHBOARD ────────────────────────────────────────
-function DashboardScreen() {
+function DashboardScreen({ user, hermes }) {
+  const tier      = hermes?.tier || 'free';
+  const tierLabel = hermes?.tierLabel || 'Free 🌿';
+  const chatUsed  = hermes?.permissions?.chatUsed || 0;
+  const chatLimit = hermes?.permissions?.chatLimit || 3;
+  const daysActive = hermes?.stats?.daysActive || 0;
+  const chatCount  = hermes?.stats?.chatCount || 0;
+
   const stats = [
-    { label: 'Consultas esta semana', value: 12, max: 50, color: C.mint, emoji: '🤖', isAvatar: true },
-    { label: 'Recetas guardadas', value: 5, max: 20, color: C.gold, emoji: '📌' },
-    { label: 'Días de racha', value: 7, max: 30, color: C.light, emoji: '🔥' },
-    { label: 'Objetivos completados', value: 3, max: 8, color: '#8B5CF6', emoji: '🎯' },
+    { label: 'Consultas este mes', value: chatUsed, max: chatLimit, color: C.mint, emoji: '🤖', isAvatar: true },
+    { label: 'Días activo',        value: daysActive, max: 30,      color: C.gold,  emoji: '🔥' },
+    { label: 'Total consultas',    value: chatCount,  max: 999,     color: C.light, emoji: '💬' },
+    { label: 'Objetivos activos',  value: 1,          max: 5,       color: '#8B5CF6', emoji: '🎯' },
   ];
 
   const recentActivity = [
-    { action: 'Consultaste smoothie detox', time: 'Hace 2 horas', emoji: '🥤' },
-    { action: 'Guardaste receta de energía', time: 'Ayer', emoji: '📌' },
-    { action: 'Completaste meta semanal', time: 'Hace 2 días', emoji: '🏆' },
-    { action: 'Actualizaste objetivos', time: 'Hace 3 días', emoji: '🎯' },
+    { action: 'Consultaste Dr. Smoothie AI', time: 'Reciente', emoji: '🥤' },
+    { action: 'Accediste al Video Agent',    time: 'Hoy',      emoji: '🎬' },
+    { action: 'Actualizaste tu perfil',      time: 'Reciente', emoji: '🌿' },
   ];
 
   return (
@@ -551,7 +567,7 @@ function DashboardScreen() {
         <h2 style={{ fontFamily: FONT_HEAD, color: C.cream, fontSize: 26, margin: '0 0 4px' }}>
           📊 Mi Dashboard
         </h2>
-        <p style={{ color: C.muted, fontSize: 13 }}>Plan Bloom 🌸 · Ciclo actual</p>
+        <p style={{ color: C.muted, fontSize: 13 }}>{tierLabel} · Ciclo actual</p>
       </div>
 
       {/* Progress Stats */}
@@ -878,9 +894,9 @@ export default function App() {
   // App principal
   const screens = {
     home: <HomeScreen user={user} goals={goals} onNavigate={setTab} hermes={hermes} />,
-    chat: <ChatScreen user={user} />,
-    plans: <PlansScreen />,
-    dashboard: <DashboardScreen />,
+    chat: <ChatScreen user={user} hermes={hermes} />,
+    plans: <PlansScreen hermes={hermes} />,
+    dashboard: <DashboardScreen user={user} hermes={hermes} />,
     video: <VideoAgent user={user} hermes={hermes} />,
   };
 
