@@ -1,5 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
+import { loadLang, saveLang } from './i18n';
+import LanguageSelector from './components/LanguageSelector';
 import ComingSoonPage from './comingsoonpage';
 import VideoAgent from './pages/VideoAgent';
 import { useHermes } from './hooks/useHermes';
@@ -49,11 +51,7 @@ async function askDrSmoothie(messages, userId, accessToken) {
     body: JSON.stringify({
       userId,
       accessToken,
-      system: `Eres Dr. Smoothie AI — el asistente de bienestar de PureLife Wellness Club, 
-creado por JRMB Food Network LLC. Eres cálido, experto en nutrición, smoothies y jugos saludables.
-Siempre personalizas tus recomendaciones. Respondes en el idioma del usuario.
-Nunca das consejos médicos — eres un guía de bienestar. 
-Formato: respuestas concisas, usa emojis con moderación, sugiere recetas cuando sea relevante.`,
+      system: `You are Dr. Smoothie AI — the wellness assistant of PureLife Wellness Club, created by JRMB Food Network LLC. You are warm, expert in nutrition, smoothies and healthy juices. You always personalize your recommendations. IMPORTANT: Respond ONLY in the language with code "${lang}". Never switch languages. Never give medical advice — you are a wellness guide. Format: concise responses, use emojis in moderation, suggest recipes when relevant.`,
       messages,
     }),
   });
@@ -334,7 +332,7 @@ function HomeScreen({ user, goals, onNavigate, hermes }) {
 }
 
 // ── SCREEN: CHAT DR. SMOOTHIE AI ─────────────────────────────
-function ChatScreen({ user, hermes }) {
+function ChatScreen({ user, hermes, lang = 'en' }) {
   const [messages, setMessages] = useState([
     { role: 'ai', text: '¡Hola! Soy Dr. Smoothie AI 🌿 Tu guía personal de bienestar. ¿En qué te puedo ayudar hoy? Puedo recomendarte smoothies, crear planes nutricionales, o responder tus preguntas de salud.' }
   ]);
@@ -848,7 +846,10 @@ function BottomNav({ active, onNavigate }) {
 
 // ── APP PRINCIPAL ────────────────────────────────────────────
 export default function App() {
-  const [screen, setScreen] = useState('comingsoon'); // comingsoon | splash | auth | app
+  const [lang, setLang] = useState(() => loadLang());
+  const [screen, setScreen] = useState('comingsoon');
+
+  const handleLangChange = (code) => { saveLang(code); setLang(code); }; // comingsoon | splash | auth | app
   const [tab, setTab] = useState('home');
   const [user, setUser] = useState(null);
   const [goals, setGoals] = useState([]);
@@ -894,7 +895,7 @@ export default function App() {
   // App principal
   const screens = {
     home: <HomeScreen user={user} goals={goals} onNavigate={setTab} hermes={hermes} />,
-    chat: <ChatScreen user={user} hermes={hermes} />,
+    chat: <ChatScreen user={user} hermes={hermes} lang={lang} />,
     plans: <PlansScreen hermes={hermes} />,
     dashboard: <DashboardScreen user={user} hermes={hermes} />,
     video: <VideoAgent user={user} hermes={hermes} />,
@@ -910,6 +911,9 @@ export default function App() {
     }}>
       {screens[tab] || screens.home}
       <BottomNav active={tab} onNavigate={setTab} />
+      <div style={{ position: 'fixed', top: 12, right: 12, zIndex: 100 }}>
+        <LanguageSelector lang={lang} onChange={handleLangChange} />
+      </div>
     </div>
   );
 }
