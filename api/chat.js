@@ -1,4 +1,5 @@
-// api/chat.js — PureLife Dr. Smoothie AI
+// api/chat.js — PureLife Dr. Smoothie AI v2
+// Con registro de uso en Supabase para HERMES
 // Modelo: claude-sonnet-4-6 | JRMB Food Network LLC
 
 const ALLOWED_ORIGINS = [
@@ -12,8 +13,33 @@ const ALLOWED_ORIGINS = [
 
 const MODEL = process.env.ANTHROPIC_MODEL || "claude-sonnet-4-6";
 const API_KEY = process.env.ANTHROPIC_API_KEY;
+const SUPABASE_URL = 'https://efatctcxlcotsgxhmgjg.supabase.co';
+const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 const SYSTEM_PROMPT = "Eres Dr. Smoothie AI, el asesor de bienestar nutricional de PureLife Wellness Club. Tu mision es motivar, educar e inspirar a las personas a mejorar su salud usando ingredientes naturales. IMPORTANTE: No das diagnosticos medicos ni recetas medicas. Eres una plataforma de motivacion nutricional, no un servicio medico. Siempre recomiendas consultar a un medico para condiciones de salud. Hablas en el idioma del usuario. Eres calido, motivador y basas tus recomendaciones en propiedades nutricionales de ingredientes naturales. Cuando das protocolos siempre incluyes: Recuerda: estas recomendaciones son educativas y motivacionales. Consulta a tu medico antes de cambios importantes en tu alimentacion.";
+
+// Registrar uso en Supabase (fire-and-forget, no bloquea la respuesta)
+async function logUsage(userId, accessToken, metadata = {}) {
+  if (!userId || !accessToken) return;
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/usage_logs`, {
+      method: 'POST',
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+        Prefer: 'return=minimal',
+      },
+      body: JSON.stringify({
+        user_id: userId,
+        action: 'chat',
+        metadata,
+      }),
+    });
+  } catch (_) {
+    // No interrumpir el flujo si falla el log
+  }
+}
 
 export default async function handler(req, res) {
   const origin = req.headers.origin || "";
@@ -29,7 +55,7 @@ export default async function handler(req, res) {
   if (!API_KEY) return res.status(500).json({ error: "API key not configured" });
 
   try {
-    const { message, history = [] } = req.body;
+    const { message, history = [], userId, accessToken } = req.body;
     if (!message) return res.status(400).json({ error: "Message required" });
 
     const messages = [
@@ -59,6 +85,10 @@ export default async function handler(req, res) {
 
     const data = await response.json();
     const reply = data.content?.[0]?.text || "No pude generar una respuesta.";
+
+    // Registrar uso para HERMES (async, no bloquea)
+    logUsage(userId, accessToken, { messageLength: message.length });
+
     return res.status(200).json({ reply, model: MODEL });
 
   } catch (err) {
