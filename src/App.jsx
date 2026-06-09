@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-// ComingSoonPage disponible en src/comingsoonpage.jsx
+import ComingSoonPage from './comingsoonpage';
 import VideoAgent from './pages/VideoAgent';
 import { useHermes } from './hooks/useHermes';
 // ── PALETA OFICIAL PURELIFE ─────────────────────────────────
@@ -832,7 +832,7 @@ function BottomNav({ active, onNavigate }) {
 
 // ── APP PRINCIPAL ────────────────────────────────────────────
 export default function App() {
-  const [screen, setScreen] = useState('landing'); // landing | splash | auth | app
+  const [screen, setScreen] = useState('comingsoon'); // comingsoon | splash | auth | app
   const [tab, setTab] = useState('home');
   const [user, setUser] = useState(null);
   const [goals, setGoals] = useState([]);
@@ -848,9 +848,13 @@ export default function App() {
     setScreen('app');
   };
 
-  // Landing cinematográfica
-  if (screen === 'landing') {
-    return <LandingScreen onStart={() => setScreen('splash')} />;
+  // Coming Soon — pantalla principal pública
+  if (screen === 'comingsoon') {
+    return (
+      <ComingSoonPage
+        onEnterApp={() => setScreen('splash')}
+      />
+    );
   }
 
   // Splash / Onboarding
