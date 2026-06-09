@@ -881,7 +881,7 @@ export default function App() {
     chat: <ChatScreen user={user} />,
     plans: <PlansScreen />,
     dashboard: <DashboardScreen />,
-    video: <VideoAgent userTier={hermes?.tier || 'free'} />,
+    video: <VideoAgent user={user} hermes={hermes} />,
   };
 
   return (
