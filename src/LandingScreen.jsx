@@ -330,7 +330,7 @@ export default function LandingScreen({ onStart }) {
         </div>
         <div ref={addReveal} style={{ maxWidth: 500, margin: "0 auto", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 32, overflow: "hidden" }}>
           <div style={{ padding: "20px 24px", background: "var(--surface2)", borderBottom: "1px solid var(--border2)", display: "flex", alignItems: "center", gap: 12 }}>
-            <div style={{ width: 40, height: 40, borderRadius: "50%", background: "url('https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=200&q=80&fit=crop&crop=face') center/cover", overflow: "hidden", flexShrink: 0 }} />
+            <div style={{ width: 40, height: 40, borderRadius: "50%", background: "url('/dr-smoothie-avatar.jpg') center/cover", overflow: "hidden", flexShrink: 0, border: "2px solid var(--emerald)", boxShadow: "0 0 12px rgba(0,201,123,0.3)" }} />
             <div>
               <div style={{ fontWeight: 600, fontSize: "0.9rem" }}>Dr. Smoothie AI</div>
               <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
