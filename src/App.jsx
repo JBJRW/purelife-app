@@ -368,11 +368,10 @@ function ChatScreen({ user }) {
       {/* Header */}
       <div style={{ padding: '20px 20px 12px', borderBottom: `1px solid ${C.glassBorder}` }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{
-            width: 44, height: 44, borderRadius: 12,
-            background: `linear-gradient(135deg, ${C.mint}, ${C.green})`,
-            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22,
-          }}>🌿</div>
+          <img src="/dr-smoothie-avatar.jpg" alt="Dr. Smoothie AI" style={{
+            width: 44, height: 44, borderRadius: '50%', objectFit: 'cover',
+            border: `2px solid ${C.green}`, boxShadow: '0 0 12px rgba(0,201,123,0.3)',
+          }} />
           <div>
             <div style={{ color: C.cream, fontWeight: 800, fontSize: 16 }}>Dr. Smoothie AI</div>
             <div style={{ color: C.light, fontSize: 12 }}>● Online · Powered by Claude</div>
