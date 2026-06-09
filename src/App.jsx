@@ -146,7 +146,7 @@ function SplashScreen({ onContinue }) {
                    ${C.dark}`,
       textAlign: 'center',
     }}>
-      <div style={{ fontSize: 80, marginBottom: 20 }}>🌿</div>
+      <img src="/purelife-logo.png" alt="PureLife" style={{ width: 120, height: 120, borderRadius: '50%', objectFit: 'cover', marginBottom: 20, boxShadow: '0 0 40px rgba(201,168,76,0.3)' }} />
       <h1 style={{
         fontFamily: FONT_HEAD, fontSize: 42, color: C.cream,
         margin: '0 0 8px', letterSpacing: '-1px',
