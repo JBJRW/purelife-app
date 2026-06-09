@@ -1,9 +1,9 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import DrSmoothieApp from './components/DrSmoothieAI.jsx'
+import App from './App.jsx'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <DrSmoothieApp />
+    <App />
   </React.StrictMode>
 )
