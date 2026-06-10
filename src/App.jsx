@@ -4,6 +4,7 @@ import { loadLang, saveLang, tui } from './i18n';
 import LanguageSelector from './components/LanguageSelector';
 import ComingSoonPage from './comingsoonpage';
 import VideoAgent from './pages/VideoAgent';
+import OnboardingChat from './components/OnboardingChat';
 import { useHermes } from './hooks/useHermes';
 // ── PALETA OFICIAL PURELIFE ─────────────────────────────────
 const C = {
@@ -855,9 +856,22 @@ export default function App() {
     setScreen('auth');
   };
 
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
   const handleAuth = (userData) => {
     setUser(userData);
+    // Si es primera vez (no tiene goals configurados aún), mostrar onboarding
+    const isFirstTime = !userData?.has_completed_onboarding;
+    if (isFirstTime) {
+      setShowOnboarding(true);
+    }
     setScreen('app');
+  };
+
+  const handleOnboardingComplete = (onboardingData) => {
+    setShowOnboarding(false);
+    // Actualizar user con datos del onboarding
+    if (onboardingData?.goals) setGoals(onboardingData.goals);
   };
 
   // Coming Soon — pantalla principal pública
@@ -906,6 +920,14 @@ export default function App() {
     }}>
       {screens[tab] || screens.home}
       <BottomNav active={tab} onNavigate={setTab} lang={lang} />
+      {showOnboarding && (
+        <OnboardingChat
+          user={user}
+          lang={lang}
+          onComplete={handleOnboardingComplete}
+          onSkip={() => setShowOnboarding(false)}
+        />
+      )}
       <div style={{ position: 'fixed', top: 12, right: 12, zIndex: 100 }}>
         <LanguageSelector lang={lang} onChange={handleLangChange} />
       </div>
