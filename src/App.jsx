@@ -5,6 +5,8 @@ import LanguageSelector from './components/LanguageSelector';
 import ComingSoonPage from './comingsoonpage';
 import VideoAgent from './pages/VideoAgent';
 import OnboardingChat from './components/OnboardingChat';
+import ReminderSystem from './components/ReminderSystem';
+import ProgressExam from './components/ProgressExam';
 import { useHermes } from './hooks/useHermes';
 // ── PALETA OFICIAL PURELIFE ─────────────────────────────────
 const C = {
@@ -868,6 +870,9 @@ export default function App() {
     setScreen('app');
   };
 
+  const [showReminderSetup, setShowReminderSetup] = useState(false);
+  const [showProgressExam, setShowProgressExam] = useState(false);
+
   const handleOnboardingComplete = (onboardingData) => {
     setShowOnboarding(false);
     // Actualizar user con datos del onboarding
@@ -906,7 +911,7 @@ export default function App() {
     home: <HomeScreen user={user} goals={goals} onNavigate={setTab} hermes={hermes} lang={lang} />,
     chat: <ChatScreen user={user} hermes={hermes} lang={lang} />,
     plans: <PlansScreen hermes={hermes} lang={lang} />,
-    dashboard: <DashboardScreen user={user} hermes={hermes} lang={lang} />,
+    dashboard: <DashboardScreen user={user} hermes={hermes} lang={lang} onOpenReminders={() => setShowReminderSetup(true)} onOpenProgress={() => setShowProgressExam(true)} />,
     video: <VideoAgent user={user} hermes={hermes} lang={lang} />,
   };
 
@@ -920,6 +925,20 @@ export default function App() {
     }}>
       {screens[tab] || screens.home}
       <BottomNav active={tab} onNavigate={setTab} lang={lang} />
+      {showReminderSetup && (
+        <ReminderSystem
+          user={user}
+          lang={lang}
+          onClose={() => setShowReminderSetup(false)}
+        />
+      )}
+      {showProgressExam && (
+        <ProgressExam
+          user={user}
+          lang={lang}
+          onClose={() => setShowProgressExam(false)}
+        />
+      )}
       {showOnboarding && (
         <OnboardingChat
           user={user}
