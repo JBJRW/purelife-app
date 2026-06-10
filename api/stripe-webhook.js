@@ -1,202 +1,188 @@
 // api/stripe-webhook.js
-// PureLife Wellness Club — Stripe Webhook Handler
-// Activa membresías en Supabase cuando Stripe confirma un pago
+// PureLife Wellness Club — Stripe Webhook Handler (HTTP nativo, sin SDK)
+// Activa/renueva/cancela membresías en Supabase cuando Stripe confirma pagos
 
-import Stripe from 'stripe';
-import { createClient } from '@supabase/supabase-js';
+import crypto from 'crypto';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-const supabase = createClient(
-  process.env.VITE_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+const SB_URL  = process.env.VITE_SUPABASE_URL  || 'https://efatctcxlcotsgxhmgjg.supabase.co';
+const SB_KEY  = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-// Mapa de price IDs → tiers de PureLife
-// IMPORTANTE: reemplazar con los Price IDs reales de tu Stripe dashboard
+const ALLOWED_ORIGINS = [
+  'https://purelifewellnessclub.org',
+  'https://www.purelifewellnessclub.org',
+];
+
+// Mapa Price IDs → tiers de PureLife
 const PRICE_TO_TIER = {
-  // Seed $29/mes
-  [process.env.STRIPE_PRICE_SEED_MONTHLY]:   { tier: 'seed',   label: 'Seed 🌱',   chatLimit: 5  },
-  // Bloom $49/mes
-  [process.env.STRIPE_PRICE_BLOOM_MONTHLY]:  { tier: 'bloom',  label: 'Bloom 🌸',  chatLimit: 50 },
-  // Canopy $79/mes
-  [process.env.STRIPE_PRICE_CANOPY_MONTHLY]: { tier: 'canopy', label: 'Canopy 🌿', chatLimit: 999 },
-  // Annual $182/año
-  [process.env.STRIPE_PRICE_ANNUAL]:         { tier: 'canopy', label: 'Canopy Annual 🏆', chatLimit: 999 },
+  [process.env.STRIPE_PRICE_SEED_MONTHLY]:   { tier: 'seed',   chatLimit: 5,   label: 'Seed 🌱'   },
+  [process.env.STRIPE_PRICE_BLOOM_MONTHLY]:  { tier: 'bloom',  chatLimit: 50,  label: 'Bloom 🌸'  },
+  [process.env.STRIPE_PRICE_CANOPY_MONTHLY]: { tier: 'canopy', chatLimit: 999, label: 'Canopy 🌿' },
+  [process.env.STRIPE_PRICE_ANNUAL]:         { tier: 'canopy', chatLimit: 999, label: 'Annual 🏆' },
 };
 
-export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+// ── Supabase helper ──────────────────────────────────────────────────────────
+async function sbUpsert(table, row, conflict = 'user_id') {
+  const res = await fetch(`${SB_URL}/rest/v1/${table}?on_conflict=${conflict}`, {
+    method: 'POST',
+    headers: {
+      apikey: SB_KEY,
+      Authorization: `Bearer ${SB_KEY}`,
+      'Content-Type': 'application/json',
+      Prefer: 'resolution=merge-duplicates',
+    },
+    body: JSON.stringify(row),
+  });
+  return res.ok;
+}
 
-  const sig = req.headers['stripe-signature'];
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+async function sbUpdate(table, filter, row) {
+  const res = await fetch(`${SB_URL}/rest/v1/${table}?${filter}`, {
+    method: 'PATCH',
+    headers: {
+      apikey: SB_KEY,
+      Authorization: `Bearer ${SB_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(row),
+  });
+  return res.ok;
+}
 
-  if (!webhookSecret) {
-    console.error('[stripe-webhook] STRIPE_WEBHOOK_SECRET no configurado');
-    return res.status(500).json({ error: 'Webhook secret not configured' });
-  }
+// ── Stripe API helper ────────────────────────────────────────────────────────
+async function getSubscription(subId) {
+  const res = await fetch(`https://api.stripe.com/v1/subscriptions/${subId}`, {
+    headers: { Authorization: `Bearer ${process.env.STRIPE_SECRET_KEY}` },
+  });
+  return res.ok ? res.json() : null;
+}
 
-  let event;
+// ── Verificar firma Stripe (HMAC-SHA256) ─────────────────────────────────────
+function verifyStripeSignature(rawBody, signature, secret) {
   try {
-    // Verificar firma de Stripe con el body raw
-    const rawBody = await getRawBody(req);
-    event = stripe.webhooks.constructEvent(rawBody, sig, webhookSecret);
-  } catch (err) {
-    console.error('[stripe-webhook] Firma inválida:', err.message);
-    return res.status(400).json({ error: `Webhook signature invalid: ${err.message}` });
-  }
-
-  console.log(`[stripe-webhook] Evento recibido: ${event.type}`);
-
-  try {
-    switch (event.type) {
-
-      // ── Suscripción nueva o reactivada ────────────────────────────
-      case 'checkout.session.completed': {
-        const session = event.data.object;
-        const customerId = session.customer;
-        const subscriptionId = session.subscription;
-        const userId = session.metadata?.userId || session.client_reference_id;
-
-        if (!userId) {
-          console.warn('[stripe-webhook] checkout.session.completed sin userId en metadata');
-          break;
-        }
-
-        // Obtener detalles de la suscripción para saber el price
-        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-        const priceId = subscription.items.data[0]?.price?.id;
-        const tierInfo = PRICE_TO_TIER[priceId] || { tier: 'seed', label: 'Seed 🌱', chatLimit: 5 };
-
-        // Activar membresía en Supabase
-        const { error } = await supabase
-          .from('memberships')
-          .upsert({
-            user_id: userId,
-            tier: tierInfo.tier,
-            tier_label: tierInfo.label,
-            chat_limit: tierInfo.chatLimit,
-            stripe_customer_id: customerId,
-            stripe_subscription_id: subscriptionId,
-            stripe_price_id: priceId,
-            status: 'active',
-            activated_at: new Date().toISOString(),
-            expires_at: new Date(subscription.current_period_end * 1000).toISOString(),
-          }, { onConflict: 'user_id' });
-
-        if (error) {
-          console.error('[stripe-webhook] Error activando membresía:', error);
-          return res.status(500).json({ error: 'DB error activating membership' });
-        }
-
-        // Actualizar perfil del usuario con tier
-        await supabase
-          .from('profiles')
-          .update({ tier: tierInfo.tier, updated_at: new Date().toISOString() })
-          .eq('id', userId);
-
-        console.log(`[stripe-webhook] ✅ Membresía activada: user=${userId} tier=${tierInfo.tier}`);
-        break;
-      }
-
-      // ── Pago recurrente exitoso ───────────────────────────────────
-      case 'invoice.payment_succeeded': {
-        const invoice = event.data.object;
-        const subscriptionId = invoice.subscription;
-        const customerId = invoice.customer;
-
-        if (!subscriptionId) break;
-
-        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-        const priceId = subscription.items.data[0]?.price?.id;
-        const tierInfo = PRICE_TO_TIER[priceId];
-
-        if (!tierInfo) break;
-
-        // Renovar membresía — extender fecha de expiración
-        const { error } = await supabase
-          .from('memberships')
-          .update({
-            status: 'active',
-            expires_at: new Date(subscription.current_period_end * 1000).toISOString(),
-            updated_at: new Date().toISOString(),
-          })
-          .eq('stripe_subscription_id', subscriptionId);
-
-        if (error) console.error('[stripe-webhook] Error renovando membresía:', error);
-        else console.log(`[stripe-webhook] ✅ Membresía renovada: sub=${subscriptionId}`);
-        break;
-      }
-
-      // ── Suscripción cancelada o expirada ─────────────────────────
-      case 'customer.subscription.deleted':
-      case 'invoice.payment_failed': {
-        const obj = event.data.object;
-        const subscriptionId = obj.subscription || obj.id;
-
-        if (!subscriptionId) break;
-
-        // Degradar a free
-        const { error } = await supabase
-          .from('memberships')
-          .update({
-            tier: 'free',
-            tier_label: 'Free 🌿',
-            chat_limit: 3,
-            status: event.type === 'invoice.payment_failed' ? 'past_due' : 'cancelled',
-            updated_at: new Date().toISOString(),
-          })
-          .eq('stripe_subscription_id', subscriptionId);
-
-        if (error) console.error('[stripe-webhook] Error cancelando membresía:', error);
-        else console.log(`[stripe-webhook] ⚠️ Membresía degradada: sub=${subscriptionId} (${event.type})`);
-        break;
-      }
-
-      // ── Suscripción pausada ───────────────────────────────────────
-      case 'customer.subscription.updated': {
-        const subscription = event.data.object;
-        const status = subscription.status; // active | past_due | canceled | paused
-
-        if (status === 'active') {
-          const priceId = subscription.items.data[0]?.price?.id;
-          const tierInfo = PRICE_TO_TIER[priceId];
-          if (!tierInfo) break;
-
-          await supabase
-            .from('memberships')
-            .update({
-              tier: tierInfo.tier,
-              tier_label: tierInfo.label,
-              chat_limit: tierInfo.chatLimit,
-              status: 'active',
-              expires_at: new Date(subscription.current_period_end * 1000).toISOString(),
-              updated_at: new Date().toISOString(),
-            })
-            .eq('stripe_subscription_id', subscription.id);
-        }
-        break;
-      }
-
-      default:
-        console.log(`[stripe-webhook] Evento ignorado: ${event.type}`);
-    }
-
-    return res.status(200).json({ received: true, type: event.type });
-
-  } catch (err) {
-    console.error('[stripe-webhook] Error procesando evento:', err);
-    return res.status(500).json({ error: 'Internal error processing webhook' });
+    const parts = signature.split(',').reduce((acc, part) => {
+      const [k, v] = part.split('=');
+      acc[k] = v;
+      return acc;
+    }, {});
+    const payload = `${parts.t}.${rawBody}`;
+    const expected = crypto.createHmac('sha256', secret).update(payload).digest('hex');
+    return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(parts.v1 || ''));
+  } catch {
+    return false;
   }
 }
 
-// Helper: leer body raw para verificación de firma Stripe
-async function getRawBody(req) {
-  return new Promise((resolve, reject) => {
+// ── Handler principal ────────────────────────────────────────────────────────
+export default async function handler(req, res) {
+  const origin = req.headers['origin'] || '';
+  if (ALLOWED_ORIGINS.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, stripe-signature');
+
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  if (!webhookSecret || !SB_KEY) {
+    return res.status(500).json({ error: 'Missing environment variables' });
+  }
+
+  // Leer raw body
+  const rawBody = await new Promise((resolve, reject) => {
     let data = '';
     req.on('data', chunk => { data += chunk; });
     req.on('end', () => resolve(data));
     req.on('error', reject);
   });
+
+  const signature = req.headers['stripe-signature'] || '';
+  if (!verifyStripeSignature(rawBody, signature, webhookSecret)) {
+    return res.status(400).json({ error: 'Invalid signature' });
+  }
+
+  let event;
+  try { event = JSON.parse(rawBody); }
+  catch { return res.status(400).json({ error: 'Invalid JSON' }); }
+
+  console.log(`[stripe-webhook] ${event.type}`);
+
+  try {
+    switch (event.type) {
+
+      case 'checkout.session.completed': {
+        const session = event.data.object;
+        const userId  = session.metadata?.userId || session.client_reference_id;
+        if (!userId) break;
+
+        const sub     = await getSubscription(session.subscription);
+        if (!sub) break;
+
+        const priceId   = sub.items?.data?.[0]?.price?.id;
+        const tierInfo  = PRICE_TO_TIER[priceId] || { tier: 'seed', chatLimit: 5, label: 'Seed 🌱' };
+        const expiresAt = new Date(sub.current_period_end * 1000).toISOString();
+
+        await sbUpsert('memberships', {
+          user_id: userId,
+          tier: tierInfo.tier,
+          tier_label: tierInfo.label,
+          chat_limit: tierInfo.chatLimit,
+          stripe_customer_id: session.customer,
+          stripe_subscription_id: session.subscription,
+          stripe_price_id: priceId,
+          status: 'active',
+          activated_at: new Date().toISOString(),
+          expires_at: expiresAt,
+        });
+        await sbUpdate('profiles', `id=eq.${userId}`, {
+          tier: tierInfo.tier,
+          updated_at: new Date().toISOString(),
+        });
+        console.log(`[stripe-webhook] ✅ Activado: ${userId} → ${tierInfo.tier}`);
+        break;
+      }
+
+      case 'invoice.payment_succeeded': {
+        const invoice = event.data.object;
+        if (!invoice.subscription) break;
+        const sub = await getSubscription(invoice.subscription);
+        if (!sub) break;
+        const priceId = sub.items?.data?.[0]?.price?.id;
+        if (!PRICE_TO_TIER[priceId]) break;
+
+        await sbUpdate('memberships', `stripe_subscription_id=eq.${invoice.subscription}`, {
+          status: 'active',
+          expires_at: new Date(sub.current_period_end * 1000).toISOString(),
+          updated_at: new Date().toISOString(),
+        });
+        console.log(`[stripe-webhook] ✅ Renovado: ${invoice.subscription}`);
+        break;
+      }
+
+      case 'customer.subscription.deleted':
+      case 'invoice.payment_failed': {
+        const obj   = event.data.object;
+        const subId = obj.subscription || obj.id;
+        if (!subId) break;
+
+        await sbUpdate('memberships', `stripe_subscription_id=eq.${subId}`, {
+          tier: 'free', tier_label: 'Free 🌿', chat_limit: 3,
+          status: event.type === 'invoice.payment_failed' ? 'past_due' : 'cancelled',
+          updated_at: new Date().toISOString(),
+        });
+        console.log(`[stripe-webhook] ⚠️ Degradado: ${subId}`);
+        break;
+      }
+
+      default:
+        console.log(`[stripe-webhook] Ignorado: ${event.type}`);
+    }
+
+    return res.status(200).json({ received: true });
+
+  } catch (err) {
+    console.error('[stripe-webhook] Error:', err.message);
+    return res.status(500).json({ error: 'Processing error' });
+  }
 }
