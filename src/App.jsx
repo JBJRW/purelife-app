@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { loadLang, saveLang } from './i18n';
+import { loadLang, saveLang, tui } from './i18n';
 import LanguageSelector from './components/LanguageSelector';
 import ComingSoonPage from './comingsoonpage';
 import VideoAgent from './pages/VideoAgent';
@@ -64,19 +64,19 @@ const PLANS = [
   {
     id: 'seed', name: 'Seed', emoji: '🌱', price: '$4.99',
     period: '/mes', color: C.light,
-    features: ['5 consultas AI/mes', 'Recetas básicas', 'Guías de bienestar', 'Acceso comunidad'],
+    features: tui(lang,'features','seed'),
     stripe: 'https://buy.stripe.com/seed',
   },
   {
     id: 'bloom', name: 'Bloom', emoji: '🌸', price: '$12.99',
     period: '/mes', color: C.gold, popular: true,
-    features: ['50 consultas AI/mes', 'Plan nutricional personalizado', 'Video Agent Dr. Smoothie', 'Analytics personal', 'Soporte prioritario'],
+    features: tui(lang,'features','bloom'),
     stripe: 'https://buy.stripe.com/bloom',
   },
   {
     id: 'canopy', name: 'Canopy', emoji: '🌿', price: '$24.99',
     period: '/mes', color: C.mint,
-    features: ['Consultas ilimitadas', 'AI Coach personal 24/7', 'Recetas exclusivas chef', 'Dashboard analytics pro', 'Video consultations', 'API access'],
+    features: tui(lang,'features','canopy'),
     stripe: 'https://buy.stripe.com/canopy',
   },
 ];
@@ -127,7 +127,7 @@ function Card({ children, style = {} }) {
 }
 
 // ── SCREEN: SPLASH / ONBOARDING ──────────────────────────────
-function SplashScreen({ onContinue }) {
+function SplashScreen({ onContinue, lang = 'en' }) {
   const [step, setStep] = useState(0);
   const [selectedGoals, setSelectedGoals] = useState([]);
 
@@ -204,9 +204,9 @@ function SplashScreen({ onContinue }) {
 }
 
 // ── SCREEN: HOME ─────────────────────────────────────────────
-function HomeScreen({ user, goals, onNavigate, hermes }) {
+function HomeScreen({ user, goals, onNavigate, hermes, lang = 'en' }) {
   const hour = new Date().getHours();
-  const greeting = hour < 12 ? 'Buenos días' : hour < 18 ? 'Buenas tardes' : 'Buenas noches';
+  const greeting = hour < 12 ? tui(lang,'greeting_morning') : hour < 18 ? tui(lang,'greeting_afternoon') : tui(lang,'greeting_evening');
 
   const quickActions = [
     { label: hermes?.suggestedAction?.message || 'Consultar Dr. Smoothie', emoji: '🤖', isAvatar: true, tab: hermes?.suggestedAction?.tab || 'chat', color: C.mint },
@@ -216,8 +216,8 @@ function HomeScreen({ user, goals, onNavigate, hermes }) {
   ];
 
   const tips = [
-    { emoji: '🥬', title: 'Smoothie del día', desc: 'Espinaca + mango + jengibre — perfecto para energía matutina', tag: 'Energía' },
-    { emoji: '💧', title: 'Hidratación', desc: 'Recuerda beber al menos 8 vasos de agua hoy', tag: 'Bienestar' },
+    { emoji: '🥬', title: tui(lang,'smoothieOfDay'), desc: tui(lang,'smoothieDesc'), tag: tui(lang,'energyTag') },
+    { emoji: '💧', title: tui(lang,'hydration'), desc: tui(lang,'hydrationDesc'), tag: tui(lang,'wellnessTag') },
     { emoji: '🫐', title: 'Súper alimento', desc: 'Los arándanos reducen el estrés oxidativo — añádelos a tu rutina', tag: 'Nutrición' },
   ];
 
@@ -242,9 +242,9 @@ function HomeScreen({ user, goals, onNavigate, hermes }) {
       {/* Quick Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 24 }}>
         {[
-          { label: 'Días activo', value: String(hermes?.stats?.daysActive || 0), emoji: '🔥' },
-          { label: 'Consultas', value: String(hermes?.stats?.chatCount || 0), emoji: '🤖', isAvatar: true },
-          { label: 'Plan', value: hermes?.tierLabel || '🌿', emoji: '💎' },
+          { label: tui(lang,'daysActive'), value: String(hermes?.stats?.daysActive || 0), emoji: '🔥' },
+          { label: tui(lang,'consultations'), value: String(hermes?.stats?.chatCount || 0), emoji: '🤖', isAvatar: true },
+          { label: tui(lang,'plan'), value: hermes?.tierLabel || '🌿', emoji: '💎' },
         ].map(s => (
           <Card key={s.label} style={{ padding: '14px 12px', textAlign: 'center' }}>
             <div style={{ fontSize: 22 }}>
@@ -334,7 +334,7 @@ function HomeScreen({ user, goals, onNavigate, hermes }) {
 // ── SCREEN: CHAT DR. SMOOTHIE AI ─────────────────────────────
 function ChatScreen({ user, hermes, lang = 'en' }) {
   const [messages, setMessages] = useState([
-    { role: 'ai', text: '¡Hola! Soy Dr. Smoothie AI 🌿 Tu guía personal de bienestar. ¿En qué te puedo ayudar hoy? Puedo recomendarte smoothies, crear planes nutricionales, o responder tus preguntas de salud.' }
+    { role: 'ai', text: tui(lang, 'chatWelcome') }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -362,12 +362,7 @@ function ChatScreen({ user, hermes, lang = 'en' }) {
     setLoading(false);
   };
 
-  const suggestions = [
-    '🥤 Smoothie para bajar de peso',
-    '⚡ Receta energizante mañana',
-    '🩺 Jugos para diabéticos',
-    '🌙 Smoothie para dormir mejor',
-  ];
+  const suggestions = tui(lang, 'suggestions') || [];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 120px)', maxWidth: 480, margin: '0 auto' }}>
@@ -388,7 +383,7 @@ function ChatScreen({ user, hermes, lang = 'en' }) {
               background: 'rgba(255,255,255,0.06)', padding: '4px 10px',
               borderRadius: 20, border: '1px solid rgba(255,255,255,0.1)', whiteSpace: 'nowrap',
             }}>
-              {hermes.permissions.chatRemaining > 50 ? '∞' : hermes.permissions.chatRemaining} restantes
+              {hermes.permissions.chatRemaining > 50 ? '∞' : hermes.permissions.chatRemaining} {tui(lang,'chatRemaining')}
             </div>
           )}
         </div>
@@ -415,7 +410,7 @@ function ChatScreen({ user, hermes, lang = 'en' }) {
         {loading && (
           <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
             <div style={{ padding: '12px 16px', borderRadius: '18px 18px 18px 4px', background: C.glass, border: `1px solid ${C.glassBorder}`, color: C.muted, fontSize: 14 }}>
-              Dr. Smoothie está pensando... 🌿
+              {tui(lang, 'chatThinking')}
             </div>
           </div>
         )}
@@ -443,7 +438,7 @@ function ChatScreen({ user, hermes, lang = 'en' }) {
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && send()}
-          placeholder="Pregúntale a Dr. Smoothie..."
+          placeholder={tui(lang, 'chatPlaceholder')}
           style={{
             flex: 1, padding: '14px 18px', borderRadius: 14,
             border: `1.5px solid ${C.glassBorder}`, background: C.glass,
@@ -463,7 +458,7 @@ function ChatScreen({ user, hermes, lang = 'en' }) {
 }
 
 // ── SCREEN: PLANES ───────────────────────────────────────────
-function PlansScreen({ hermes }) {
+function PlansScreen({ hermes, lang = 'en' }) {
   const activeTier = hermes?.tier || 'free';
   const [selected, setSelected] = useState('bloom');
 
@@ -538,7 +533,7 @@ function PlansScreen({ hermes }) {
 }
 
 // ── SCREEN: DASHBOARD ────────────────────────────────────────
-function DashboardScreen({ user, hermes }) {
+function DashboardScreen({ user, hermes, lang = 'en' }) {
   const tier      = hermes?.tier || 'free';
   const tierLabel = hermes?.tierLabel || 'Free 🌿';
   const chatUsed  = hermes?.permissions?.chatUsed || 0;
@@ -547,25 +542,25 @@ function DashboardScreen({ user, hermes }) {
   const chatCount  = hermes?.stats?.chatCount || 0;
 
   const stats = [
-    { label: 'Consultas este mes', value: chatUsed, max: chatLimit, color: C.mint, emoji: '🤖', isAvatar: true },
-    { label: 'Días activo',        value: daysActive, max: 30,      color: C.gold,  emoji: '🔥' },
-    { label: 'Total consultas',    value: chatCount,  max: 999,     color: C.light, emoji: '💬' },
-    { label: 'Objetivos activos',  value: 1,          max: 5,       color: '#8B5CF6', emoji: '🎯' },
+    { label: tui(lang,'consultationsMonth'), value: chatUsed, max: chatLimit, color: C.mint, emoji: '🤖', isAvatar: true },
+    { label: tui(lang,'daysActiveLabel'), value: daysActive, max: 30,      color: C.gold,  emoji: '🔥' },
+    { label: tui(lang,'totalConsultations'), value: chatCount, max: 999,     color: C.light, emoji: '💬' },
+    { label: tui(lang,'activeGoals'), value: 1, max: 5,       color: '#8B5CF6', emoji: '🎯' },
   ];
 
   const recentActivity = [
-    { action: 'Consultaste Dr. Smoothie AI', time: 'Reciente', emoji: '🥤' },
-    { action: 'Accediste al Video Agent',    time: 'Hoy',      emoji: '🎬' },
-    { action: 'Actualizaste tu perfil',      time: 'Reciente', emoji: '🌿' },
+    { action: tui(lang,'activity1'), time: tui(lang,'recent'), emoji: '🥤' },
+    { action: tui(lang,'activity2'), time: tui(lang,'today'),  emoji: '🎬' },
+    { action: tui(lang,'activity3'), time: tui(lang,'recent'), emoji: '🌿' },
   ];
 
   return (
     <div style={{ padding: '24px 20px', maxWidth: 480, margin: '0 auto' }}>
       <div style={{ marginBottom: 24 }}>
         <h2 style={{ fontFamily: FONT_HEAD, color: C.cream, fontSize: 26, margin: '0 0 4px' }}>
-          📊 Mi Dashboard
+          📊 {tui(lang,'dashboardTitle')}
         </h2>
-        <p style={{ color: C.muted, fontSize: 13 }}>{tierLabel} · Ciclo actual</p>
+        <p style={{ color: C.muted, fontSize: 13 }}>{tierLabel} · {tui(lang,'currentCycle')}</p>
       </div>
 
       {/* Progress Stats */}
@@ -599,7 +594,7 @@ function DashboardScreen({ user, hermes }) {
 
       {/* Actividad reciente */}
       <h3 style={{ color: C.cream, fontSize: 16, fontWeight: 700, marginBottom: 12 }}>
-        Actividad reciente
+        {tui(lang,'recentActivity')}
       </h3>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {recentActivity.map((a, i) => (
@@ -799,13 +794,13 @@ const inputStyle = {
 };
 
 // ── BOTTOM NAV ───────────────────────────────────────────────
-function BottomNav({ active, onNavigate }) {
+function BottomNav({ active, onNavigate, lang = 'en' }) {
   const items = [
-    { id: 'home', emoji: '🏠', label: 'Inicio' },
-    { id: 'chat', emoji: '🤖', isAvatar: true, label: 'Dr. AI' },
-    { id: 'plans', emoji: '💎', label: 'Planes' },
-    { id: 'dashboard', emoji: '📊', label: 'Stats' },
-    { id: 'video', emoji: '🎬', label: 'Videos' },
+    { id: 'home', emoji: '🏠', label: tui(lang,'nav','home') },
+    { id: 'chat', emoji: '🤖', isAvatar: true, label: tui(lang,'nav','chat') },
+    { id: 'plans', emoji: '💎', label: tui(lang,'nav','plans') },
+    { id: 'dashboard', emoji: '📊', label: tui(lang,'nav','dashboard') },
+    { id: 'video', emoji: '🎬', label: tui(lang,'nav','video') },
   ];
 
   return (
@@ -878,7 +873,7 @@ export default function App() {
   if (screen === 'splash') {
     return (
       <div style={{ background: C.dark, minHeight: '100vh', fontFamily: FONT_BODY }}>
-        <SplashScreen onContinue={handleSplash} />
+        <SplashScreen onContinue={handleSplash} lang={lang} />
       </div>
     );
   }
@@ -887,18 +882,18 @@ export default function App() {
   if (screen === 'auth') {
     return (
       <div style={{ background: C.dark, minHeight: '100vh', fontFamily: FONT_BODY }}>
-        <AuthScreen onAuth={handleAuth} />
+        <AuthScreen onAuth={handleAuth} lang={lang} />
       </div>
     );
   }
 
   // App principal
   const screens = {
-    home: <HomeScreen user={user} goals={goals} onNavigate={setTab} hermes={hermes} />,
+    home: <HomeScreen user={user} goals={goals} onNavigate={setTab} hermes={hermes} lang={lang} />,
     chat: <ChatScreen user={user} hermes={hermes} lang={lang} />,
-    plans: <PlansScreen hermes={hermes} />,
-    dashboard: <DashboardScreen user={user} hermes={hermes} />,
-    video: <VideoAgent user={user} hermes={hermes} />,
+    plans: <PlansScreen hermes={hermes} lang={lang} />,
+    dashboard: <DashboardScreen user={user} hermes={hermes} lang={lang} />,
+    video: <VideoAgent user={user} hermes={hermes} lang={lang} />,
   };
 
   return (
@@ -910,7 +905,7 @@ export default function App() {
       paddingBottom: 80,
     }}>
       {screens[tab] || screens.home}
-      <BottomNav active={tab} onNavigate={setTab} />
+      <BottomNav active={tab} onNavigate={setTab} lang={lang} />
       <div style={{ position: 'fixed', top: 12, right: 12, zIndex: 100 }}>
         <LanguageSelector lang={lang} onChange={handleLangChange} />
       </div>
