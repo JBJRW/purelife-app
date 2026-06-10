@@ -3,7 +3,7 @@
   "private": true,
   "version": "2.0.0",
   "type": "module",
-  "description": "dr.smoothie.ai — AI Wellness Platform by JRMB Food Network LLC",
+  "description": "dr.smoothie.ai \u2014 AI Wellness Platform by JRMB Food Network LLC",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -14,7 +14,9 @@
     "@supabase/supabase-js": "^2.39.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.24.0"
+    "react-router-dom": "^6.24.0",
+    "stripe": "^14.0.0",
+    "leaflet": "^1.9.4"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.1",
