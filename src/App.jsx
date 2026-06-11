@@ -2,8 +2,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { loadLang, saveLang, tui } from './i18n';
 import LanguageSelector from './components/LanguageSelector';
-import ComingSoonPage from './ComingSoonPage';
+import ComingSoonPage from './comingsoonpage';
 import VideoAgent from './pages/VideoAgent';
+import ImageAgent from './pages/ImageAgent';
 import OnboardingChat from './components/OnboardingChat';
 import ReminderSystem from './components/ReminderSystem';
 import ProgressExam from './components/ProgressExam';
@@ -804,6 +805,7 @@ function BottomNav({ active, onNavigate, lang = 'en' }) {
     { id: 'plans', emoji: '💎', label: tui(lang,'nav','plans') },
     { id: 'dashboard', emoji: '📊', label: tui(lang,'nav','dashboard') },
     { id: 'video', emoji: '🎬', label: tui(lang,'nav','video') },
+    { id: 'image', emoji: '🖼️', label: 'Imágenes' },
   ];
 
   return (
@@ -913,6 +915,7 @@ export default function App() {
     plans: <PlansScreen hermes={hermes} lang={lang} />,
     dashboard: <DashboardScreen user={user} hermes={hermes} lang={lang} onOpenReminders={() => setShowReminderSetup(true)} onOpenProgress={() => setShowProgressExam(true)} />,
     video: <VideoAgent user={user} hermes={hermes} lang={lang} />,
+    image: <ImageAgent user={user} lang={lang} />,
   };
 
   return (
