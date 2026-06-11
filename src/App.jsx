@@ -47,7 +47,7 @@ async function sbFetch(path, opts = {}) {
 // ── CLAUDE API — via proxy seguro /api/chat ──────────────────
 // El modelo y la API key viven en el servidor (api/chat.js).
 // El frontend nunca toca Anthropic directamente.
-async function askDrSmoothie(messages, userId, accessToken) {
+async function askDrSmoothie(messages, userId, accessToken, lang = "en") {
   const res = await fetch('/api/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -63,7 +63,7 @@ async function askDrSmoothie(messages, userId, accessToken) {
 }
 
 // ── PLANES ──────────────────────────────────────────────────
-const PLANS = [
+const getPlans = (lang = 'en') => [
   {
     id: 'seed', name: 'Seed', emoji: '🌱', price: '$4.99',
     period: '/mes', color: C.light,
@@ -83,6 +83,7 @@ const PLANS = [
     stripe: 'https://buy.stripe.com/canopy',
   },
 ];
+const PLANS = getPlans();
 
 // ── GOALS ───────────────────────────────────────────────────
 const GOALS = [
@@ -357,7 +358,7 @@ function ChatScreen({ user, hermes, lang = 'en' }) {
       const history = messages.filter(m => m.role !== 'ai' || messages.indexOf(m) > 0)
         .map(m => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: m.text }));
       history.push({ role: 'user', content: userMsg });
-      const reply = await askDrSmoothie(history, user?.id, user?.token);
+      const reply = await askDrSmoothie(history, user?.id, user?.token, lang);
       setMessages(m => [...m, { role: 'ai', text: reply }]);
     } catch {
       setMessages(m => [...m, { role: 'ai', text: '⚠️ Error de conexión. Verifica tu API key de Anthropic.' }]);
@@ -462,6 +463,7 @@ function ChatScreen({ user, hermes, lang = 'en' }) {
 
 // ── SCREEN: PLANES ───────────────────────────────────────────
 function PlansScreen({ hermes, lang = 'en' }) {
+  const PLANS = getPlans(lang);
   const activeTier = hermes?.tier || 'free';
   const [selected, setSelected] = useState('bloom');
 
