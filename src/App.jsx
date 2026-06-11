@@ -29,8 +29,8 @@ const FONT_HEAD = "'Georgia', serif";
 const FONT_BODY = "'Helvetica Neue', Arial, sans-serif";
 
 // ── SUPABASE CONFIG ─────────────────────────────────────────
-const SB_URL = 'https://efatctcxlcotsgxhmgjg.supabase.co';
-const SB_KEY = process.env.REACT_APP_SUPABASE_ANON_KEY || '';
+const SB_URL = import.meta.env.VITE_SUPABASE_URL || 'https://efatctcxlcotsgxhmgjg.supabase.co';
+const SB_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
 async function sbFetch(path, opts = {}) {
   const res = await fetch(`${SB_URL}${path}`, {
