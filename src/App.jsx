@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { loadLang, saveLang, tui } from './i18n';
 import LanguageSelector from './components/LanguageSelector';
-import ComingSoonPage from './comingsoonpage';
+import ./ComingSoonPage
 import VideoAgent from './pages/VideoAgent';
 import OnboardingChat from './components/OnboardingChat';
 import ReminderSystem from './components/ReminderSystem';
