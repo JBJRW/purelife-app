@@ -4,7 +4,6 @@ import { loadLang, saveLang, tui } from './i18n';
 import LanguageSelector from './components/LanguageSelector';
 import ComingSoonPage from './comingsoonpage';
 import VideoAgent from './pages/VideoAgent';
-import ImageAgent from './pages/ImageAgent';
 import OnboardingChat from './components/OnboardingChat';
 import ReminderSystem from './components/ReminderSystem';
 import ProgressExam from './components/ProgressExam';
@@ -29,8 +28,8 @@ const FONT_HEAD = "'Georgia', serif";
 const FONT_BODY = "'Helvetica Neue', Arial, sans-serif";
 
 // ── SUPABASE CONFIG ─────────────────────────────────────────
-const SB_URL = import.meta.env.VITE_SUPABASE_URL || 'https://efatctcxlcotsgxhmgjg.supabase.co';
-const SB_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+const SB_URL = 'https://efatctcxlcotsgxhmgjg.supabase.co';
+const SB_KEY = process.env.REACT_APP_SUPABASE_ANON_KEY || '';
 
 async function sbFetch(path, opts = {}) {
   const res = await fetch(`${SB_URL}${path}`, {
@@ -805,7 +804,6 @@ function BottomNav({ active, onNavigate, lang = 'en' }) {
     { id: 'plans', emoji: '💎', label: tui(lang,'nav','plans') },
     { id: 'dashboard', emoji: '📊', label: tui(lang,'nav','dashboard') },
     { id: 'video', emoji: '🎬', label: tui(lang,'nav','video') },
-    { id: 'image', emoji: '🖼️', label: 'Imágenes' },
   ];
 
   return (
@@ -915,7 +913,6 @@ export default function App() {
     plans: <PlansScreen hermes={hermes} lang={lang} />,
     dashboard: <DashboardScreen user={user} hermes={hermes} lang={lang} onOpenReminders={() => setShowReminderSetup(true)} onOpenProgress={() => setShowProgressExam(true)} />,
     video: <VideoAgent user={user} hermes={hermes} lang={lang} />,
-    image: <ImageAgent user={user} lang={lang} />,
   };
 
   return (
