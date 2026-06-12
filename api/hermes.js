@@ -8,7 +8,7 @@ const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY || '';
 
 const TIER_CONFIG = {
   free:   { label: 'Free 🌿',    chatLimit: 3,   videoAccess: false, communityCreate: false },
-  seed:   { label: 'Seed 🌱',   chatLimit: 5,   videoAccess: false, communityCreate: false },
+  seed:   { label: 'Seed 🌱',   chatLimit: 30,  videoAccess: true,  communityCreate: false },
   bloom:  { label: 'Bloom 🌸',  chatLimit: 50,  videoAccess: true,  communityCreate: false },
   canopy: { label: 'Canopy 🌿', chatLimit: 999, videoAccess: true,  communityCreate: true  },
 };
@@ -18,7 +18,7 @@ function buildWelcomeMessage(name, tier) {
   const greeting = hour < 12 ? 'Buenos días' : hour < 18 ? 'Buenas tardes' : 'Buenas noches';
   const msgs = {
     free:   `${greeting}, ${name}! 🌿 Tienes 3 consultas gratuitas. ¡Comienza tu journey!`,
-    seed:   `${greeting}, ${name}! 🌱 Plan Seed activo — Dr. Smoothie está listo para ti.`,
+    seed:   `${greeting}, ${name}! 🌱 Plan Seed activo — 30 consultas y Video Agent disponibles.`,
     bloom:  `${greeting}, ${name}! 🌸 Plan Bloom activo. Video Agent y 50 consultas disponibles.`,
     canopy: `${greeting}, ${name}! 🌿 Acceso Canopy total — todo desbloqueado, sin límites.`,
   };
@@ -26,7 +26,7 @@ function buildWelcomeMessage(name, tier) {
 }
 
 function buildUpsell(tier, chatCount, triedVideo) {
-  if ((tier === 'free' || tier === 'seed') && chatCount >= 3) {
+  if ((tier === 'free') && chatCount >= 3 || (tier === 'seed' && chatCount >= 20)) {
     return { show: true, message: '🔥 Estás enganchado! Bloom te da 50 consultas/mes por $12.99.', targetPlan: 'bloom', urgency: 'high' };
   }
   if ((tier === 'free' || tier === 'seed') && triedVideo) {
@@ -86,7 +86,7 @@ export default async function handler(req, res) {
     } catch (_) {}
 
     // 3. Determinar tier y nombre
-    const tier = profile?.tier || 'free';
+    const tier = profile?.membership_tier || 'free';
     const name = profile?.full_name || profile?.name || profile?.username || 'Wellness Member';
     const config = TIER_CONFIG[tier] || TIER_CONFIG.free;
 
