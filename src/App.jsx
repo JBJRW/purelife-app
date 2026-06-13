@@ -4,6 +4,8 @@ import { loadLang, saveLang, tui } from './i18n';
 import LanguageSelector from './components/LanguageSelector';
 import ComingSoonPage from './comingsoonpage';
 import VideoAgent from './pages/VideoAgent';
+import RecipesScreen from './pages/RecipesScreen';
+import MapScreen from './pages/MapScreen';
 import OnboardingChat from './components/OnboardingChat';
 import ReminderSystem from './components/ReminderSystem';
 import ProgressExam from './components/ProgressExam';
@@ -29,7 +31,7 @@ const FONT_BODY = "'Helvetica Neue', Arial, sans-serif";
 
 // ── SUPABASE CONFIG ─────────────────────────────────────────
 const SB_URL = 'https://efatctcxlcotsgxhmgjg.supabase.co';
-const SB_KEY = process.env.REACT_APP_SUPABASE_ANON_KEY || '';
+const SB_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
 async function sbFetch(path, opts = {}) {
   const res = await fetch(`${SB_URL}${path}`, {
@@ -45,21 +47,20 @@ async function sbFetch(path, opts = {}) {
 }
 
 // ── CLAUDE API — via proxy seguro /api/chat ──────────────────
-// El modelo y la API key viven en el servidor (api/chat.js).
-// El frontend nunca toca Anthropic directamente.
-async function askDrSmoothie(messages, userId, accessToken, lang = "en") {
+async function askDrSmoothie(message, history, userId, accessToken, lang = "en") {
   const res = await fetch('/api/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       userId,
       accessToken,
-      system: `You are Dr. Smoothie AI — the wellness assistant of PureLife Wellness Club, created by JRMB Food Network LLC. You are warm, expert in nutrition, smoothies and healthy juices. You always personalize your recommendations. IMPORTANT: Respond ONLY in the language with code "${lang}". Never switch languages. Never give medical advice — you are a wellness guide. Format: concise responses, use emojis in moderation, suggest recipes when relevant.`,
-      messages,
+      message,
+      history: history.slice(-10),
+      lang,
     }),
   });
   const data = await res.json();
-  return data?.content?.[0]?.text || 'Lo siento, hubo un error. Intenta de nuevo. 🌿';
+  return data?.reply || data?.content?.[0]?.text || 'Lo siento, hubo un error. Intenta de nuevo. 🌿';
 }
 
 // ── PLANES ──────────────────────────────────────────────────
@@ -214,9 +215,9 @@ function HomeScreen({ user, goals, onNavigate, hermes, lang = 'en' }) {
 
   const quickActions = [
     { label: hermes?.suggestedAction?.message || 'Consultar Dr. Smoothie', emoji: '🤖', isAvatar: true, tab: hermes?.suggestedAction?.tab || 'chat', color: C.mint },
-    { label: 'Ver mi plan', emoji: '💎', tab: 'plans', color: C.gold },
-    { label: 'Mi progreso', emoji: '📊', tab: 'dashboard', color: C.light },
-    { label: 'Video AI', emoji: '🎥', tab: 'video', color: '#8B5CF6' },
+    { label: '🍽️ Mis Recetas', emoji: '🍽️', tab: 'recipes', color: C.gold },
+    { label: '🗺️ Tiendas cercanas', emoji: '🗺️', tab: 'map', color: C.light },
+    { label: '🎥 Video AI', emoji: '🎥', tab: 'video', color: '#8B5CF6' },
   ];
 
   const tips = [
@@ -335,33 +336,71 @@ function HomeScreen({ user, goals, onNavigate, hermes, lang = 'en' }) {
   );
 }
 
-// ── SCREEN: CHAT DR. SMOOTHIE AI ─────────────────────────────
+// ── SCREEN: CHAT DR. SMOOTHIE AI + VOZ ───────────────────────
 function ChatScreen({ user, hermes, lang = 'en' }) {
   const [messages, setMessages] = useState([
     { role: 'ai', text: tui(lang, 'chatWelcome') }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [voiceSupported, setVoiceSupported] = useState(false);
   const bottomRef = useRef(null);
+  const recognitionRef = useRef(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const send = async () => {
-    if (!input.trim() || loading) return;
-    const userMsg = input.trim();
+  // Inicializar Web Speech API
+  useEffect(() => {
+    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRec) {
+      setVoiceSupported(true);
+      const rec = new SpeechRec();
+      rec.lang = lang === 'es' ? 'es-ES' : lang === 'pt' ? 'pt-BR' : 'en-US';
+      rec.continuous = false;
+      rec.interimResults = false;
+      rec.onresult = (e) => {
+        const text = e.results[0][0].transcript;
+        setInput(text);
+        setIsListening(false);
+        // Auto-enviar después de reconocimiento de voz
+        setTimeout(() => sendMessage(text), 300);
+      };
+      rec.onerror = () => setIsListening(false);
+      rec.onend = () => setIsListening(false);
+      recognitionRef.current = rec;
+    }
+  }, [lang]);
+
+  const toggleVoice = () => {
+    if (!recognitionRef.current) return;
+    if (isListening) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    } else {
+      recognitionRef.current.start();
+      setIsListening(true);
+    }
+  };
+
+  const sendMessage = async (textOverride) => {
+    const userMsg = (textOverride || input).trim();
+    if (!userMsg || loading) return;
     setInput('');
-    setMessages(m => [...m, { role: 'user', text: userMsg }]);
+    const newMessages = [...messages, { role: 'user', text: userMsg }];
+    setMessages(newMessages);
     setLoading(true);
     try {
-      const history = messages.filter(m => m.role !== 'ai' || messages.indexOf(m) > 0)
-        .map(m => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: m.text }));
-      history.push({ role: 'user', content: userMsg });
-      const reply = await askDrSmoothie(history, user?.id, user?.token, lang);
+      const history = newMessages.slice(1, -1).map(m => ({
+        role: m.role === 'ai' ? 'assistant' : 'user',
+        content: m.text,
+      }));
+      const reply = await askDrSmoothie(userMsg, history, user?.id, user?.token, lang);
       setMessages(m => [...m, { role: 'ai', text: reply }]);
     } catch {
-      setMessages(m => [...m, { role: 'ai', text: '⚠️ Error de conexión. Verifica tu API key de Anthropic.' }]);
+      setMessages(m => [...m, { role: 'ai', text: '⚠️ Error de conexión. Verifica tu conexión a internet.' }]);
     }
     setLoading(false);
   };
@@ -379,7 +418,7 @@ function ChatScreen({ user, hermes, lang = 'en' }) {
           }} />
           <div style={{ flex: 1 }}>
             <div style={{ color: C.cream, fontWeight: 800, fontSize: 16 }}>Dr. Smoothie AI</div>
-            <div style={{ color: C.light, fontSize: 12 }}>● Online · Powered by Claude</div>
+            <div style={{ color: C.light, fontSize: 12 }}>● Online · Claude · {voiceSupported ? '🎙️ Voz activada' : ''}</div>
           </div>
           {hermes?.permissions && (
             <div style={{
@@ -399,23 +438,34 @@ function ChatScreen({ user, hermes, lang = 'en' }) {
           <div key={i} style={{
             display: 'flex', justifyContent: m.role === 'user' ? 'flex-end' : 'flex-start',
           }}>
+            {m.role === 'ai' && (
+              <img src="/dr-smoothie-avatar.jpg" style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', marginRight: 8, alignSelf: 'flex-end', flexShrink: 0 }} />
+            )}
             <div style={{
-              maxWidth: '82%', padding: '12px 16px', borderRadius: m.role === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+              maxWidth: '78%', padding: '12px 16px', borderRadius: m.role === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
               background: m.role === 'user'
                 ? `linear-gradient(135deg, ${C.mint}, ${C.green})`
                 : C.glass,
               border: m.role === 'ai' ? `1px solid ${C.glassBorder}` : 'none',
               color: C.cream, fontSize: 14, lineHeight: 1.6,
+              whiteSpace: 'pre-wrap',
             }}>
               {m.text}
             </div>
           </div>
         ))}
         {loading && (
-          <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'flex-end', gap: 8 }}>
+            <img src="/dr-smoothie-avatar.jpg" style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover' }} />
             <div style={{ padding: '12px 16px', borderRadius: '18px 18px 18px 4px', background: C.glass, border: `1px solid ${C.glassBorder}`, color: C.muted, fontSize: 14 }}>
-              {tui(lang, 'chatThinking')}
+              🌿 Pensando...
             </div>
+          </div>
+        )}
+        {/* Indicador de voz activa */}
+        {isListening && (
+          <div style={{ textAlign: 'center', padding: '12px', color: C.light, fontSize: 13, animation: 'pulse 1s infinite' }}>
+            🎙️ Escuchando... habla ahora
           </div>
         )}
         <div ref={bottomRef} />
@@ -436,13 +486,26 @@ function ChatScreen({ user, hermes, lang = 'en' }) {
         </div>
       )}
 
-      {/* Input */}
-      <div style={{ padding: '12px 20px 20px', display: 'flex', gap: 10 }}>
+      {/* Input + Voice */}
+      <div style={{ padding: '12px 20px 20px', display: 'flex', gap: 8 }}>
+        {/* Botón de voz */}
+        {voiceSupported && (
+          <button onClick={toggleVoice} style={{
+            width: 48, height: 48, borderRadius: 14, border: 'none',
+            background: isListening ? `linear-gradient(135deg, ${C.red}, #8B1A1A)` : C.glass,
+            border: `1.5px solid ${isListening ? C.red : C.glassBorder}`,
+            color: C.cream, fontSize: 18, cursor: 'pointer',
+            flexShrink: 0, transition: 'all 0.2s',
+            animation: isListening ? 'pulse 1s infinite' : 'none',
+          }}>
+            {isListening ? '⏹' : '🎙️'}
+          </button>
+        )}
         <input
           value={input}
           onChange={e => setInput(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && send()}
-          placeholder={tui(lang, 'chatPlaceholder')}
+          onKeyDown={e => e.key === 'Enter' && sendMessage()}
+          placeholder={isListening ? 'Escuchando...' : tui(lang, 'chatPlaceholder')}
           style={{
             flex: 1, padding: '14px 18px', borderRadius: 14,
             border: `1.5px solid ${C.glassBorder}`, background: C.glass,
@@ -450,7 +513,7 @@ function ChatScreen({ user, hermes, lang = 'en' }) {
             outline: 'none',
           }}
         />
-        <button onClick={send} disabled={loading || !input.trim()} style={{
+        <button onClick={() => sendMessage()} disabled={loading || !input.trim()} style={{
           width: 48, height: 48, borderRadius: 14, border: 'none',
           background: `linear-gradient(135deg, ${C.mint}, ${C.green})`,
           color: C.white, fontSize: 20, cursor: 'pointer',
@@ -589,7 +652,7 @@ function DashboardScreen({ user, hermes, lang = 'en' }) {
               <div style={{
                 height: '100%', borderRadius: 6,
                 background: `linear-gradient(90deg, ${s.color}, ${s.color}aa)`,
-                width: `${(s.value / s.max) * 100}%`,
+                width: `${Math.min((s.value / s.max) * 100, 100)}%`,
                 transition: 'width 1s ease',
               }} />
             </div>
@@ -612,96 +675,6 @@ function DashboardScreen({ user, hermes, lang = 'en' }) {
           </Card>
         ))}
       </div>
-    </div>
-  );
-}
-
-// ── SCREEN: VIDEO AGENT ──────────────────────────────────────
-function VideoScreen() {
-  const [status, setStatus] = useState('idle');
-  const [topic, setTopic] = useState('');
-  const [videoUrl, setVideoUrl] = useState('');
-
-  const topics = [
-    '🥤 Smoothie detox de lunes',
-    '⚡ Receta energizante',
-    '🩺 Jugos para salud',
-    '🌙 Rutina nocturna wellness',
-  ];
-
-  const generateVideo = async () => {
-    if (!topic) return;
-    setStatus('generating');
-    // Aquí se conecta HeyGen API v2
-    setTimeout(() => {
-      setStatus('ready');
-      setVideoUrl('https://dr-smoothie-proxy.vercel.app');
-    }, 3000);
-  };
-
-  return (
-    <div style={{ padding: '24px 20px', maxWidth: 480, margin: '0 auto' }}>
-      <div style={{ textAlign: 'center', marginBottom: 28 }}>
-        <div style={{ fontSize: 48, marginBottom: 12 }}>🎥</div>
-        <h2 style={{ fontFamily: FONT_HEAD, color: C.cream, fontSize: 26, margin: '0 0 8px' }}>
-          Video Agent
-        </h2>
-        <p style={{ color: C.muted, fontSize: 14 }}>Dr. Smoothie te explica en video · HeyGen AI</p>
-      </div>
-
-      <Card style={{ marginBottom: 20 }}>
-        <p style={{ color: C.cream, fontSize: 14, fontWeight: 600, marginBottom: 12 }}>
-          ¿Sobre qué quieres el video?
-        </p>
-        <input
-          value={topic}
-          onChange={e => setTopic(e.target.value)}
-          placeholder="Ej: Smoothie para bajar de peso..."
-          style={{
-            width: '100%', padding: '12px 16px', borderRadius: 12,
-            border: `1.5px solid ${C.glassBorder}`, background: `${C.white}08`,
-            color: C.cream, fontSize: 14, fontFamily: FONT_BODY,
-            outline: 'none', boxSizing: 'border-box',
-          }}
-        />
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 12 }}>
-          {topics.map(t => (
-            <button key={t} onClick={() => setTopic(t)} style={{
-              padding: '6px 12px', borderRadius: 20,
-              border: `1px solid ${C.glassBorder}`, background: C.glass,
-              color: C.cream, fontSize: 12, cursor: 'pointer', fontFamily: FONT_BODY,
-            }}>{t}</button>
-          ))}
-        </div>
-      </Card>
-
-      <Btn
-        onClick={generateVideo}
-        variant="gold"
-        disabled={!topic || status === 'generating'}
-        style={{ width: '100%', fontSize: 15, padding: '15px' }}
-      >
-        {status === 'generating' ? '⏳ Generando video...' : '🎬 Generar Video con Dr. Smoothie'}
-      </Btn>
-
-      {status === 'ready' && (
-        <Card style={{ marginTop: 20, textAlign: 'center' }}>
-          <div style={{ fontSize: 40, marginBottom: 12 }}>✅</div>
-          <p style={{ color: C.cream, fontWeight: 700, marginBottom: 12 }}>¡Video listo!</p>
-          <Btn onClick={() => window.open(videoUrl, '_blank')} style={{ width: '100%' }}>
-            Ver video →
-          </Btn>
-        </Card>
-      )}
-
-      <Card style={{ marginTop: 20, background: `${C.gold}11`, border: `1px solid ${C.gold}33` }}>
-        <p style={{ color: C.goldL, fontSize: 12, fontWeight: 700, margin: '0 0 4px' }}>
-          ⭐ Plan Bloom o Canopy
-        </p>
-        <p style={{ color: C.muted, fontSize: 12, margin: 0 }}>
-          El Video Agent requiere plan Bloom ($12.99/mes) o superior. Conecta HeyGen Creator para activar.
-        </p>
-      </Card>
     </div>
   );
 }
@@ -776,7 +749,7 @@ function AuthScreen({ onAuth }) {
         </p>
 
         {/* Demo bypass */}
-        <button onClick={() => onAuth({ email: 'demo@purelife.app', name: 'Usuario Demo', token: 'demo' })}
+        <button onClick={() => onAuth({ email: 'demo@purelife.app', name: 'Usuario Demo', token: 'demo', id: 'demo' })}
           style={{
             width: '100%', marginTop: 12, padding: '12px',
             background: 'transparent', border: `1px dashed ${C.glassBorder}`,
@@ -798,14 +771,14 @@ const inputStyle = {
   outline: 'none', width: '100%', boxSizing: 'border-box',
 };
 
-// ── BOTTOM NAV ───────────────────────────────────────────────
+// ── BOTTOM NAV — 7 tabs ──────────────────────────────────────
 function BottomNav({ active, onNavigate, lang = 'en' }) {
   const items = [
-    { id: 'home', emoji: '🏠', label: tui(lang,'nav','home') },
-    { id: 'chat', emoji: '🤖', isAvatar: true, label: tui(lang,'nav','chat') },
-    { id: 'plans', emoji: '💎', label: tui(lang,'nav','plans') },
-    { id: 'dashboard', emoji: '📊', label: tui(lang,'nav','dashboard') },
-    { id: 'video', emoji: '🎬', label: tui(lang,'nav','video') },
+    { id: 'home',      emoji: '🏠', label: tui(lang,'nav','home') || 'Inicio' },
+    { id: 'chat',      emoji: '🤖', isAvatar: true, label: tui(lang,'nav','chat') || 'AI' },
+    { id: 'recipes',   emoji: '🍽️', label: 'Recetas' },
+    { id: 'map',       emoji: '🗺️', label: 'Mapa' },
+    { id: 'dashboard', emoji: '📊', label: tui(lang,'nav','dashboard') || 'Stats' },
   ];
 
   return (
@@ -820,11 +793,11 @@ function BottomNav({ active, onNavigate, lang = 'en' }) {
         <button key={item.id} onClick={() => onNavigate(item.id)} style={{
           display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
           background: 'none', border: 'none', cursor: 'pointer',
-          padding: '4px 12px', borderRadius: 10,
+          padding: '4px 8px', borderRadius: 10,
           transition: 'all 0.2s',
         }}>
           <div style={{
-            fontSize: 22,
+            fontSize: 20,
             filter: active === item.id ? 'none' : 'grayscale(60%)',
             transform: active === item.id ? 'scale(1.15)' : 'scale(1)',
             transition: 'all 0.2s',
@@ -832,7 +805,7 @@ function BottomNav({ active, onNavigate, lang = 'en' }) {
             ? <img src="/dr-smoothie-avatar.jpg" style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover', border: `1.5px solid ${active === item.id ? C.mint : 'transparent'}` }} />
             : item.emoji}</div>
           <span style={{
-            fontSize: 10, fontFamily: FONT_BODY, fontWeight: 600,
+            fontSize: 9, fontFamily: FONT_BODY, fontWeight: 600,
             color: active === item.id ? C.light : C.muted,
           }}>{item.label}</span>
           {active === item.id && (
@@ -849,7 +822,7 @@ export default function App() {
   const [lang, setLang] = useState(() => loadLang());
   const [screen, setScreen] = useState('comingsoon');
 
-  const handleLangChange = (code) => { saveLang(code); setLang(code); }; // comingsoon | splash | auth | app
+  const handleLangChange = (code) => { saveLang(code); setLang(code); };
   const [tab, setTab] = useState('home');
   const [user, setUser] = useState(null);
   const [goals, setGoals] = useState([]);
@@ -864,11 +837,8 @@ export default function App() {
 
   const handleAuth = (userData) => {
     setUser(userData);
-    // Si es primera vez (no tiene goals configurados aún), mostrar onboarding
     const isFirstTime = !userData?.has_completed_onboarding;
-    if (isFirstTime) {
-      setShowOnboarding(true);
-    }
+    if (isFirstTime) setShowOnboarding(true);
     setScreen('app');
   };
 
@@ -877,20 +847,13 @@ export default function App() {
 
   const handleOnboardingComplete = (onboardingData) => {
     setShowOnboarding(false);
-    // Actualizar user con datos del onboarding
     if (onboardingData?.goals) setGoals(onboardingData.goals);
   };
 
-  // Coming Soon — pantalla principal pública
   if (screen === 'comingsoon') {
-    return (
-      <ComingSoonPage
-        onEnterApp={() => setScreen('splash')}
-      />
-    );
+    return <ComingSoonPage onEnterApp={() => setScreen('splash')} />;
   }
 
-  // Splash / Onboarding
   if (screen === 'splash') {
     return (
       <div style={{ background: C.dark, minHeight: '100vh', fontFamily: FONT_BODY }}>
@@ -899,7 +862,6 @@ export default function App() {
     );
   }
 
-  // Auth
   if (screen === 'auth') {
     return (
       <div style={{ background: C.dark, minHeight: '100vh', fontFamily: FONT_BODY }}>
@@ -908,13 +870,15 @@ export default function App() {
     );
   }
 
-  // App principal
+  // App principal — screens dict
   const screens = {
-    home: <HomeScreen user={user} goals={goals} onNavigate={setTab} hermes={hermes} lang={lang} />,
-    chat: <ChatScreen user={user} hermes={hermes} lang={lang} />,
-    plans: <PlansScreen hermes={hermes} lang={lang} />,
+    home:      <HomeScreen user={user} goals={goals} onNavigate={setTab} hermes={hermes} lang={lang} />,
+    chat:      <ChatScreen user={user} hermes={hermes} lang={lang} />,
+    recipes:   <RecipesScreen user={user} />,
+    map:       <MapScreen user={user} />,
+    plans:     <PlansScreen hermes={hermes} lang={lang} />,
     dashboard: <DashboardScreen user={user} hermes={hermes} lang={lang} onOpenReminders={() => setShowReminderSetup(true)} onOpenProgress={() => setShowProgressExam(true)} />,
-    video: <VideoAgent user={user} hermes={hermes} lang={lang} />,
+    video:     <VideoAgent user={user} hermes={hermes} lang={lang} />,
   };
 
   return (
@@ -928,23 +892,14 @@ export default function App() {
       {screens[tab] || screens.home}
       <BottomNav active={tab} onNavigate={setTab} lang={lang} />
       {showReminderSetup && (
-        <ReminderSystem
-          user={user}
-          lang={lang}
-          onClose={() => setShowReminderSetup(false)}
-        />
+        <ReminderSystem user={user} lang={lang} onClose={() => setShowReminderSetup(false)} />
       )}
       {showProgressExam && (
-        <ProgressExam
-          user={user}
-          lang={lang}
-          onClose={() => setShowProgressExam(false)}
-        />
+        <ProgressExam user={user} lang={lang} onClose={() => setShowProgressExam(false)} />
       )}
       {showOnboarding && (
         <OnboardingChat
-          user={user}
-          lang={lang}
+          user={user} lang={lang}
           onComplete={handleOnboardingComplete}
           onSkip={() => setShowOnboarding(false)}
         />
@@ -955,4 +910,3 @@ export default function App() {
     </div>
   );
 }
-
