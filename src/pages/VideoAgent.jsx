@@ -82,7 +82,7 @@ function ParallaxViewer({ src, type }) {
 
 // ── Main Component ───────────────────────────────────────────
 export default function VideoAgent({ user, hermes }) {
-  const userTier = hermes?.tier || 'free';
+  const userTier = hermes?.tier || user?.membership_tier || user?.tier || 'free';
 
   const [pipeline, setPipeline]         = useState('flux');
   const [category, setCategory]         = useState('smoothie');
