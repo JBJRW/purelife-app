@@ -26,6 +26,28 @@ const C = {
   glassBorder: 'rgba(255,255,255,0.12)',
 };
 
+
+// ── IMÁGENES 4K UNSPLASH ────────────────────────────────────
+const WARM = {
+  surface:  'rgba(245,240,232,0.04)',
+  surfaceHover: 'rgba(245,240,232,0.08)',
+  border:   'rgba(245,240,232,0.10)',
+  borderStrong: 'rgba(245,240,232,0.18)',
+  goldGlow: 'rgba(201,151,58,0.20)',
+  greenGlow: 'rgba(26,92,58,0.30)',
+};
+
+const IMGS = {
+  smoothie1: 'https://images.unsplash.com/photo-1610970881699-44a5587cabec?w=800&q=80',
+  smoothie2: 'https://images.unsplash.com/photo-1553361371-9b22f78e8b1d?w=800&q=80',
+  smoothie3: 'https://images.unsplash.com/photo-1622597467836-f3285f2131b8?w=800&q=80',
+  fruits:    'https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?w=800&q=80',
+  wellness:  'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&q=80',
+  herbs:     'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800&q=80',
+  avocado:   'https://images.unsplash.com/photo-1519162808019-7de1683fa2ad?w=800&q=80',
+  berries:   'https://images.unsplash.com/photo-1534353436294-0dbd4bdac845?w=800&q=80',
+};
+
 const FONT_HEAD = "'Georgia', serif";
 const FONT_BODY = "'Helvetica Neue', Arial, sans-serif";
 
@@ -128,13 +150,22 @@ function Btn({ children, onClick, variant = 'primary', style = {}, disabled }) {
   );
 }
 
-function Card({ children, style = {} }) {
+function Card({ children, style = {}, hover = false }) {
+  const [hovered, setHovered] = useState(false);
   return (
-    <div style={{
-      background: C.glass, border: `1px solid ${C.glassBorder}`,
-      borderRadius: 20, padding: 24, backdropFilter: 'blur(12px)',
-      ...style,
-    }}>
+    <div
+      onMouseEnter={() => hover && setHovered(true)}
+      onMouseLeave={() => hover && setHovered(false)}
+      style={{
+        background: hovered ? WARM.surfaceHover : WARM.surface,
+        border: `1px solid ${hovered ? WARM.borderStrong : WARM.border}`,
+        borderRadius: 20, padding: 20,
+        backdropFilter: 'blur(16px)',
+        transition: 'all 0.25s cubic-bezier(0.34,1.56,0.64,1)',
+        transform: hovered ? 'translateY(-2px)' : 'none',
+        ...style,
+      }}
+    >
       {children}
     </div>
   );
@@ -220,130 +251,286 @@ function SplashScreen({ onContinue, lang = 'en' }) {
 // ── SCREEN: HOME ─────────────────────────────────────────────
 function HomeScreen({ user, goals, onNavigate, hermes, lang = 'en' }) {
   const hour = new Date().getHours();
-  const greeting = hour < 12 ? tui(lang,'greeting_morning') : hour < 18 ? tui(lang,'greeting_afternoon') : tui(lang,'greeting_evening');
+  const greeting = hour < 12
+    ? tui(lang,'greeting_morning')
+    : hour < 18
+      ? tui(lang,'greeting_afternoon')
+      : tui(lang,'greeting_evening');
 
-  const quickActions = [
-    { label: hermes?.suggestedAction?.message || 'Consultar Dr. Smoothie', emoji: '🤖', isAvatar: true, tab: hermes?.suggestedAction?.tab || 'chat', color: C.mint },
-    { label: '🍽️ Mis Recetas', emoji: '🍽️', tab: 'recipes', color: C.gold },
-    { label: '🗺️ Tiendas cercanas', emoji: '🗺️', tab: 'map', color: C.light },
-    { label: '🎥 Video AI', emoji: '🎥', tab: 'video', color: '#8B5CF6' },
-  ];
+  const showUpsell = hermes?.upsell?.show;
 
+  // Cards de tips con imágenes reales
   const tips = [
-    { emoji: '🥬', title: tui(lang,'smoothieOfDay'), desc: tui(lang,'smoothieDesc'), tag: tui(lang,'energyTag') },
-    { emoji: '💧', title: tui(lang,'hydration'), desc: tui(lang,'hydrationDesc'), tag: tui(lang,'wellnessTag') },
-    { emoji: '🫐', title: 'Súper alimento', desc: 'Los arándanos reducen el estrés oxidativo — añádelos a tu rutina', tag: 'Nutrición' },
+    {
+      img: IMGS.smoothie1,
+      tag: tui(lang,'energyTag') || 'Energy',
+      title: tui(lang,'smoothieOfDay') || 'Smoothie of the day',
+      desc: tui(lang,'smoothieDesc') || 'Spinach + mango + ginger',
+    },
+    {
+      img: IMGS.berries,
+      tag: 'Antioxidants',
+      title: 'Power of berries',
+      desc: 'Blueberries reduce oxidative stress — add them daily',
+    },
+    {
+      img: IMGS.herbs,
+      tag: tui(lang,'wellnessTag') || 'Wellness',
+      title: tui(lang,'hydration') || 'Hydration',
+      desc: tui(lang,'hydrationDesc') || 'Drink at least 8 glasses today',
+    },
   ];
-
-  const showUpsell = hermes && hermes.upsell && hermes.upsell.show;
-  const upsellMsg = showUpsell ? hermes.upsell.message : '';
 
   return (
-    <div style={{ padding: '24px 20px', maxWidth: 480, margin: '0 auto' }}>
-      {/* Header */}
-      <div style={{ marginBottom: 28 }}>
-        <p style={{ color: C.muted, fontSize: 13, margin: '0 0 4px' }}>
-          {hermes?.welcomeMessage || (greeting + ' 👋')}
-        </p>
-        <h1 style={{ fontFamily: FONT_HEAD, color: C.cream, fontSize: 30, margin: 0 }}>
-          {hermes?.name || user?.name || 'Bienvenido'}
-        </h1>
-        <p style={{ color: C.light, fontSize: 13, marginTop: 4 }}>
-          🌿 Tu journey de bienestar continúa
-        </p>
-      </div>
+    <div style={{ paddingBottom: 100 }}>
 
-      {/* Quick Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 24 }}>
-        {[
-          { label: tui(lang,'daysActive'), value: String(hermes?.stats?.daysActive || 0), emoji: '🔥' },
-          { label: tui(lang,'consultations'), value: String(hermes?.stats?.chatCount || 0), emoji: '🤖', isAvatar: true },
-          { label: tui(lang,'plan'), value: hermes?.tierLabel || '🌿', emoji: '💎' },
-        ].map(s => (
-          <Card key={s.label} style={{ padding: '14px 12px', textAlign: 'center' }}>
-            <div style={{ fontSize: 22 }}>
-              {s.isAvatar
-                ? <img src="/dr-smoothie-avatar.jpg" style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', border: `1.5px solid ${C.mint}` }} />
-                : s.emoji}
-            </div>
-            <div style={{ color: C.cream, fontWeight: 800, fontSize: 22, fontFamily: FONT_HEAD }}>{s.value}</div>
-            <div style={{ color: C.muted, fontSize: 11 }}>{s.label}</div>
-          </Card>
-        ))}
-      </div>
-
-      {/* Quick Actions */}
-      <h3 style={{ color: C.cream, fontSize: 16, fontWeight: 700, marginBottom: 12 }}>Acciones rápidas</h3>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 28 }}>
-        {quickActions.map(a => (
-          <button key={a.tab} onClick={() => onNavigate(a.tab)} style={{
-            padding: '18px 14px', borderRadius: 16, cursor: 'pointer',
-            border: `1.5px solid ${a.color}44`,
-            background: `${a.color}14`,
-            color: C.cream, fontFamily: FONT_BODY, fontSize: 13, fontWeight: 600,
-            textAlign: 'left', transition: 'all 0.2s',
-          }}>
-            <div style={{ fontSize: 28, marginBottom: 8 }}>
-              {a.isAvatar
-                ? <img src="/dr-smoothie-avatar.jpg" style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', border: `2px solid ${C.mint}` }} />
-                : a.emoji}
-            </div>
-            {a.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Upsell Banner HERMES */}
-      {showUpsell && (
+      {/* ── HERO HEADER con imagen de fondo ── */}
+      <div style={{
+        position: 'relative',
+        height: 240,
+        overflow: 'hidden',
+        borderRadius: '0 0 28px 28px',
+        marginBottom: 24,
+      }}>
+        {/* Imagen 4K */}
+        <img
+          src={IMGS.wellness}
+          alt=""
+          style={{
+            width: '100%', height: '100%',
+            objectFit: 'cover',
+            objectPosition: 'center 30%',
+          }}
+        />
+        {/* Overlay degradado */}
         <div style={{
-          background: 'rgba(201,151,58,0.12)',
-          border: '1px solid rgba(201,151,58,0.35)',
-          borderRadius: 16, padding: '14px 18px',
-          marginBottom: 20, display: 'flex', alignItems: 'center', gap: 12,
+          position: 'absolute', inset: 0,
+          background: 'linear-gradient(to bottom, rgba(15,31,23,0.3) 0%, rgba(15,31,23,0.85) 100%)',
+        }} />
+        {/* Contenido sobre imagen */}
+        <div style={{
+          position: 'absolute', bottom: 0, left: 0, right: 0,
+          padding: '20px 20px 24px',
         }}>
-          <div style={{ fontSize: 26 }}>⚡</div>
-          <div style={{ flex: 1 }}>
-            <p style={{ color: '#E8B84B', fontSize: 13, fontWeight: 700, margin: '0 0 6px' }}>
-              {upsellMsg}
-            </p>
-            <button
-              onClick={() => onNavigate('plans')}
-              style={{
-                background: 'linear-gradient(135deg,#E8B84B,#C9973A)',
-                border: 'none', borderRadius: 8, padding: '6px 14px',
-                color: '#0F1F17', fontSize: 12, fontWeight: 800, cursor: 'pointer',
-              }}
-            >
-              Ver planes →
-            </button>
+          <p style={{
+            color: 'rgba(245,240,232,0.65)',
+            fontSize: 13, margin: '0 0 4px',
+            fontFamily: "'DM Sans', sans-serif",
+          }}>
+            {hermes?.welcomeMessage || (greeting + ' 👋')}
+          </p>
+          <h1 style={{
+            fontFamily: "'Fraunces', serif",
+            color: '#F5F0E8',
+            fontSize: 28, fontWeight: 700,
+            margin: '0 0 8px', lineHeight: 1.2,
+          }}>
+            {hermes?.name || user?.name || 'Welcome'}
+          </h1>
+          {/* Stats inline en el hero */}
+          <div style={{ display: 'flex', gap: 16 }}>
+            {[
+              { val: hermes?.stats?.daysActive || 0, label: tui(lang,'daysActive') || 'Days', icon: '🔥' },
+              { val: hermes?.stats?.chatCount || 0, label: tui(lang,'consultations') || 'Sessions', icon: '💬' },
+              { val: hermes?.tierLabel || 'Seed', label: tui(lang,'plan') || 'Plan', icon: '🌿' },
+            ].map(s => (
+              <div key={s.label} style={{ textAlign: 'center' }}>
+                <div style={{
+                  color: '#C9973A', fontSize: 18, fontWeight: 800,
+                  fontFamily: "'Fraunces', serif",
+                }}>{s.icon} {s.val}</div>
+                <div style={{
+                  color: 'rgba(245,240,232,0.5)',
+                  fontSize: 10, fontFamily: "'DM Sans', sans-serif",
+                  letterSpacing: '0.05em', textTransform: 'uppercase',
+                }}>{s.label}</div>
+              </div>
+            ))}
           </div>
         </div>
-      )}
+      </div>
 
-      {/* Tips del día */}
-      <h3 style={{ color: C.cream, fontSize: 16, fontWeight: 700, marginBottom: 12 }}>
-        💡 Tips de hoy
-      </h3>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        {tips.map(t => (
-          <Card key={t.title} style={{ display: 'flex', gap: 14, alignItems: 'flex-start', padding: '16px 18px' }}>
-            <div style={{ fontSize: 32 }}>{t.emoji}</div>
-            <div style={{ flex: 1 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                <span style={{ color: C.cream, fontWeight: 700, fontSize: 14 }}>{t.title}</span>
-                <span style={{
-                  background: `${C.mint}33`, color: C.light,
-                  fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20,
-                }}>{t.tag}</span>
-              </div>
-              <p style={{ color: C.muted, fontSize: 13, margin: 0, lineHeight: 1.5 }}>{t.desc}</p>
+      <div style={{ padding: '0 16px' }}>
+
+        {/* ── DR. SMOOTHIE AI — CTA principal ── */}
+        <button
+          onClick={() => onNavigate('chat')}
+          style={{
+            width: '100%', marginBottom: 16,
+            background: 'linear-gradient(135deg, #1A5C3A 0%, #0F1F17 100%)',
+            border: '1px solid rgba(201,151,58,0.4)',
+            borderRadius: 20, padding: '18px 20px',
+            display: 'flex', alignItems: 'center', gap: 14,
+            cursor: 'pointer', textAlign: 'left',
+            boxShadow: '0 4px 24px rgba(26,92,58,0.3)',
+            transition: 'transform 0.2s, box-shadow 0.2s',
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.boxShadow = '0 8px 32px rgba(26,92,58,0.4)';
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.transform = 'none';
+            e.currentTarget.style.boxShadow = '0 4px 24px rgba(26,92,58,0.3)';
+          }}
+        >
+          <div style={{ position: 'relative', flexShrink: 0 }}>
+            <img
+              src="/dr-smoothie-avatar.jpg"
+              alt="Dr. Smoothie AI"
+              style={{
+                width: 52, height: 52, borderRadius: '50%',
+                objectFit: 'cover',
+                border: '2px solid rgba(201,151,58,0.6)',
+              }}
+            />
+            <div style={{
+              position: 'absolute', bottom: 1, right: 1,
+              width: 12, height: 12, borderRadius: '50%',
+              background: '#2D8653',
+              border: '2px solid #0F1F17',
+            }} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{
+              color: '#F5F0E8', fontWeight: 700, fontSize: 15,
+              fontFamily: "'DM Sans', sans-serif",
+              marginBottom: 3,
+            }}>Dr. Smoothie AI</div>
+            <div style={{
+              color: 'rgba(245,240,232,0.55)', fontSize: 12,
+              fontFamily: "'DM Sans', sans-serif",
+            }}>
+              {hermes?.suggestedAction?.message || 'Ask me anything about wellness →'}
             </div>
-          </Card>
-        ))}
+          </div>
+          <div style={{ color: '#C9973A', fontSize: 20 }}>→</div>
+        </button>
+
+        {/* ── QUICK ACTIONS 2x2 ── */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 24 }}>
+          {[
+            { emoji: '🍽️', label: 'Recipes', tab: 'recipes', img: IMGS.fruits },
+            { emoji: '🗺️', label: 'Near me', tab: 'map', img: IMGS.avocado },
+            { emoji: '🎥', label: 'Video AI', tab: 'video', img: IMGS.smoothie2 },
+            { emoji: '📊', label: 'My stats', tab: 'dashboard', img: IMGS.smoothie3 },
+          ].map(a => (
+            <button
+              key={a.tab}
+              onClick={() => onNavigate(a.tab)}
+              style={{
+                position: 'relative', borderRadius: 16,
+                overflow: 'hidden', aspectRatio: '1.4',
+                cursor: 'pointer', border: 'none', padding: 0,
+                transition: 'transform 0.2s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.02)'; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = 'none'; }}
+            >
+              <img src={a.img} alt={a.label}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+              <div style={{
+                position: 'absolute', inset: 0,
+                background: 'linear-gradient(to top, rgba(15,31,23,0.9) 0%, rgba(15,31,23,0.2) 60%)',
+              }} />
+              <div style={{
+                position: 'absolute', bottom: 10, left: 12, right: 12,
+                display: 'flex', alignItems: 'center', gap: 6,
+              }}>
+                <span style={{ fontSize: 16 }}>{a.emoji}</span>
+                <span style={{
+                  color: '#F5F0E8', fontSize: 13, fontWeight: 700,
+                  fontFamily: "'DM Sans', sans-serif",
+                }}>{a.label}</span>
+              </div>
+            </button>
+          ))}
+        </div>
+
+        {/* ── UPSELL BANNER ── */}
+        {showUpsell && (
+          <div style={{
+            background: 'rgba(201,151,58,0.08)',
+            border: '1px solid rgba(201,151,58,0.3)',
+            borderRadius: 16, padding: '14px 18px',
+            marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12,
+          }}>
+            <div style={{ fontSize: 24, flexShrink: 0 }}>⚡</div>
+            <div style={{ flex: 1 }}>
+              <p style={{ color: '#E8B84B', fontSize: 13, fontWeight: 700, margin: '0 0 6px', fontFamily: "'DM Sans', sans-serif" }}>
+                {hermes.upsell.message}
+              </p>
+              <button onClick={() => onNavigate('plans')} style={{
+                background: 'linear-gradient(135deg,#E8B84B,#C9973A)',
+                border: 'none', borderRadius: 8, padding: '6px 14px',
+                color: '#0F1F17', fontSize: 12, fontWeight: 800,
+                fontFamily: "'DM Sans', sans-serif", cursor: 'pointer',
+              }}>
+                {tui(lang,'viewPlans') || 'View plans →'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ── TIPS CON IMÁGENES ── */}
+        <h3 style={{
+          color: 'rgba(245,240,232,0.5)', fontSize: 11,
+          fontFamily: "'DM Sans', sans-serif",
+          letterSpacing: '0.12em', textTransform: 'uppercase',
+          fontWeight: 600, marginBottom: 12,
+        }}>
+          Today's wellness
+        </h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {tips.map((tip, idx) => (
+            <div key={idx} style={{
+              display: 'flex', gap: 14, alignItems: 'center',
+              background: WARM.surface,
+              border: `1px solid ${WARM.border}`,
+              borderRadius: 16, padding: '12px 14px',
+              overflow: 'hidden',
+            }}>
+              <img src={tip.img} alt={tip.title}
+                style={{
+                  width: 64, height: 64, borderRadius: 12,
+                  objectFit: 'cover', flexShrink: 0,
+                }}
+              />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                  <span style={{
+                    color: '#2D8653', fontWeight: 700, fontSize: 13,
+                    fontFamily: "'DM Sans', sans-serif",
+                    whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                  }}>{tip.title}</span>
+                  <span style={{
+                    background: 'rgba(45,134,83,0.15)', color: '#5CB87A',
+                    fontSize: 10, fontWeight: 700, padding: '2px 8px',
+                    borderRadius: 20, flexShrink: 0,
+                    fontFamily: "'DM Sans', sans-serif",
+                  }}>{tip.tag}</span>
+                </div>
+                <p style={{
+                  color: 'rgba(245,240,232,0.5)', fontSize: 12,
+                  margin: 0, lineHeight: 1.5,
+                  fontFamily: "'DM Sans', sans-serif",
+                  overflow: 'hidden', textOverflow: 'ellipsis',
+                  display: '-webkit-box', WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical',
+                }}>{tip.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
       </div>
     </div>
   );
 }
+
+// ── CHAT SCREEN — completamente rediseñado ───────────────────
+
 
 // ── SCREEN: CHAT DR. SMOOTHIE AI + VOZ ───────────────────────
 function ChatScreen({ user, hermes, lang = 'en' }) {
@@ -356,12 +543,12 @@ function ChatScreen({ user, hermes, lang = 'en' }) {
   const [voiceSupported, setVoiceSupported] = useState(false);
   const bottomRef = useRef(null);
   const recognitionRef = useRef(null);
+  const inputRef = useRef(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Inicializar Web Speech API
   useEffect(() => {
     const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRec) {
@@ -374,7 +561,6 @@ function ChatScreen({ user, hermes, lang = 'en' }) {
         const text = e.results[0][0].transcript;
         setInput(text);
         setIsListening(false);
-        // Auto-enviar después de reconocimiento de voz
         setTimeout(() => sendMessage(text), 300);
       };
       rec.onerror = () => setIsListening(false);
@@ -409,7 +595,7 @@ function ChatScreen({ user, hermes, lang = 'en' }) {
       const reply = await askDrSmoothie(userMsg, history, user?.id, user?.token, lang);
       setMessages(m => [...m, { role: 'ai', text: reply }]);
     } catch {
-      setMessages(m => [...m, { role: 'ai', text: '⚠️ Error de conexión. Verifica tu conexión a internet.' }]);
+      setMessages(m => [...m, { role: 'ai', text: '⚠️ Connection error. Please try again.' }]);
     }
     setLoading(false);
   };
@@ -417,121 +603,331 @@ function ChatScreen({ user, hermes, lang = 'en' }) {
   const suggestions = tui(lang, 'suggestions') || [];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 120px)', maxWidth: 480, margin: '0 auto' }}>
-      {/* Header */}
-      <div style={{ padding: '20px 20px 12px', borderBottom: `1px solid ${C.glassBorder}` }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <img src="/dr-smoothie-avatar.jpg" alt="Dr. Smoothie AI" style={{
-            width: 44, height: 44, borderRadius: '50%', objectFit: 'cover',
-            border: `2px solid ${C.green}`, boxShadow: '0 0 12px rgba(0,201,123,0.3)',
-          }} />
-          <div style={{ flex: 1 }}>
-            <div style={{ color: C.cream, fontWeight: 800, fontSize: 16 }}>Dr. Smoothie AI</div>
-            <div style={{ color: C.light, fontSize: 12 }}>● Online · Claude · {voiceSupported ? '🎙️ Voz activada' : ''}</div>
+    <div style={{
+      display: 'flex', flexDirection: 'column',
+      height: 'calc(100vh - 120px)',
+      maxWidth: 480, margin: '0 auto',
+      background: C.dark,
+    }}>
+
+      {/* ── HEADER con imagen de fondo ── */}
+      <div style={{
+        position: 'relative',
+        padding: '16px 20px 16px',
+        borderBottom: `1px solid ${WARM.border}`,
+        overflow: 'hidden',
+      }}>
+        {/* Fondo sutil */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: 'linear-gradient(135deg, rgba(26,92,58,0.12) 0%, transparent 60%)',
+          pointerEvents: 'none',
+        }} />
+
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 14 }}>
+          {/* Avatar con estado online */}
+          <div style={{ position: 'relative', flexShrink: 0 }}>
+            <img
+              src="/dr-smoothie-avatar.jpg"
+              alt="Dr. Smoothie AI"
+              style={{
+                width: 48, height: 48, borderRadius: '50%',
+                objectFit: 'cover',
+                border: '2px solid rgba(201,151,58,0.5)',
+                boxShadow: '0 0 16px rgba(26,92,58,0.4)',
+              }}
+            />
+            {/* Pulse online */}
+            <div style={{
+              position: 'absolute', bottom: 1, right: 1,
+              width: 12, height: 12, borderRadius: '50%',
+              background: '#2D8653',
+              border: '2px solid #0F1F17',
+              animation: 'pulse 2s ease infinite',
+            }} />
           </div>
+
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{
+              color: '#F5F0E8', fontWeight: 700, fontSize: 16,
+              fontFamily: "'Fraunces', serif",
+            }}>
+              Dr. Smoothie AI
+            </div>
+            <div style={{
+              color: '#2D8653', fontSize: 12,
+              fontFamily: "'DM Sans', sans-serif",
+              display: 'flex', alignItems: 'center', gap: 5,
+            }}>
+              <span style={{
+                display: 'inline-block', width: 6, height: 6,
+                borderRadius: '50%', background: '#2D8653',
+              }} />
+              Online · Claude AI {voiceSupported ? '· 🎙️' : ''}
+            </div>
+          </div>
+
+          {/* Chat remaining */}
           {hermes?.permissions && (
             <div style={{
-              fontSize: 11, color: hermes.permissions.chatRemaining > 0 ? C.mint : C.gold,
-              background: 'rgba(255,255,255,0.06)', padding: '4px 10px',
-              borderRadius: 20, border: '1px solid rgba(255,255,255,0.1)', whiteSpace: 'nowrap',
+              fontSize: 11, fontFamily: "'DM Sans', sans-serif",
+              color: hermes.permissions.chatRemaining > 0 ? '#2D8653' : '#C9973A',
+              background: 'rgba(255,255,255,0.05)',
+              padding: '4px 10px', borderRadius: 20,
+              border: `1px solid ${WARM.border}`,
+              whiteSpace: 'nowrap', flexShrink: 0,
             }}>
-              {hermes.permissions.chatRemaining > 50 ? '∞' : hermes.permissions.chatRemaining} {tui(lang,'chatRemaining')}
+              {hermes.permissions.chatRemaining > 50 ? '∞' : hermes.permissions.chatRemaining} {tui(lang,'chatRemaining') || 'left'}
             </div>
           )}
         </div>
       </div>
 
-      {/* Messages */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+      {/* ── MESSAGES AREA ── */}
+      <div style={{
+        flex: 1, overflowY: 'auto',
+        padding: '20px 16px',
+        display: 'flex', flexDirection: 'column', gap: 16,
+        scrollbarWidth: 'none',
+      }}>
         {messages.map((m, i) => (
           <div key={i} style={{
-            display: 'flex', justifyContent: m.role === 'user' ? 'flex-end' : 'flex-start',
+            display: 'flex',
+            justifyContent: m.role === 'user' ? 'flex-end' : 'flex-start',
+            alignItems: 'flex-end', gap: 8,
           }}>
+            {/* Avatar IA */}
             {m.role === 'ai' && (
-              <img src="/dr-smoothie-avatar.jpg" style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', marginRight: 8, alignSelf: 'flex-end', flexShrink: 0 }} />
+              <img
+                src="/dr-smoothie-avatar.jpg"
+                style={{
+                  width: 30, height: 30, borderRadius: '50%',
+                  objectFit: 'cover', flexShrink: 0,
+                  border: '1.5px solid rgba(201,151,58,0.3)',
+                }}
+              />
             )}
+
             <div style={{
-              maxWidth: '78%', padding: '12px 16px', borderRadius: m.role === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+              maxWidth: '78%',
+              padding: m.role === 'user' ? '12px 16px' : '14px 18px',
+              borderRadius: m.role === 'user'
+                ? '20px 20px 4px 20px'
+                : '4px 20px 20px 20px',
               background: m.role === 'user'
-                ? `linear-gradient(135deg, ${C.mint}, ${C.green})`
-                : C.glass,
-              border: m.role === 'ai' ? `1px solid ${C.glassBorder}` : 'none',
-              color: C.cream, fontSize: 14, lineHeight: 1.6,
+                ? 'linear-gradient(135deg, #2D8653, #1A5C3A)'
+                : WARM.surface,
+              border: m.role === 'ai' ? `1px solid ${WARM.border}` : 'none',
+              color: '#F5F0E8',
+              fontSize: 14, lineHeight: 1.65,
+              fontFamily: "'DM Sans', sans-serif",
               whiteSpace: 'pre-wrap',
+              // Sombra sutil para user messages
+              boxShadow: m.role === 'user'
+                ? '0 2px 12px rgba(26,92,58,0.3)'
+                : 'none',
             }}>
+              {/* Nombre IA en primer mensaje */}
+              {m.role === 'ai' && i === 0 && (
+                <div style={{
+                  fontSize: 11, fontWeight: 700, color: '#C9973A',
+                  fontFamily: "'DM Sans', sans-serif",
+                  letterSpacing: '0.06em', textTransform: 'uppercase',
+                  marginBottom: 6,
+                }}>
+                  Dr. Smoothie AI 🌿
+                </div>
+              )}
               {m.text}
             </div>
+
+            {/* Avatar usuario */}
+            {m.role === 'user' && (
+              <div style={{
+                width: 30, height: 30, borderRadius: '50%',
+                background: 'linear-gradient(135deg, #C9973A, #E8B84B)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 13, fontWeight: 700, color: '#0F1F17',
+                flexShrink: 0, fontFamily: "'DM Sans', sans-serif",
+              }}>
+                {(user?.name || 'U')[0].toUpperCase()}
+              </div>
+            )}
           </div>
         ))}
+
+        {/* Typing indicator */}
         {loading && (
-          <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'flex-end', gap: 8 }}>
-            <img src="/dr-smoothie-avatar.jpg" style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover' }} />
-            <div style={{ padding: '12px 16px', borderRadius: '18px 18px 18px 4px', background: C.glass, border: `1px solid ${C.glassBorder}`, color: C.muted, fontSize: 14 }}>
-              🌿 Pensando...
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8 }}>
+            <img
+              src="/dr-smoothie-avatar.jpg"
+              style={{
+                width: 30, height: 30, borderRadius: '50%',
+                objectFit: 'cover',
+                border: '1.5px solid rgba(201,151,58,0.3)',
+              }}
+            />
+            <div style={{
+              padding: '14px 18px',
+              borderRadius: '4px 20px 20px 20px',
+              background: WARM.surface,
+              border: `1px solid ${WARM.border}`,
+              display: 'flex', gap: 5, alignItems: 'center',
+            }}>
+              {[0, 1, 2].map(i => (
+                <div key={i} style={{
+                  width: 7, height: 7, borderRadius: '50%',
+                  background: '#2D8653',
+                  animation: `typingDot 1.2s ease ${i * 0.2}s infinite`,
+                }} />
+              ))}
             </div>
           </div>
         )}
-        {/* Indicador de voz activa */}
+
+        {/* Indicador voz */}
         {isListening && (
-          <div style={{ textAlign: 'center', padding: '12px', color: C.light, fontSize: 13, animation: 'pulse 1s infinite' }}>
-            🎙️ Escuchando... habla ahora
+          <div style={{
+            textAlign: 'center', padding: '10px',
+            color: '#5CB87A', fontSize: 13,
+            fontFamily: "'DM Sans', sans-serif",
+            animation: 'pulse 1s infinite',
+          }}>
+            🎙️ Listening... speak now
           </div>
         )}
+
         <div ref={bottomRef} />
       </div>
 
-      {/* Suggestions */}
+      {/* ── SUGGESTIONS (primer mensaje) ── */}
       {messages.length === 1 && (
-        <div style={{ padding: '8px 20px', display: 'flex', gap: 8, overflowX: 'auto' }}>
-          {suggestions.map(s => (
-            <button key={s} onClick={() => { setInput(s); }} style={{
-              whiteSpace: 'nowrap', padding: '8px 14px', borderRadius: 20,
-              border: `1px solid ${C.glassBorder}`, background: C.glass,
-              color: C.cream, fontSize: 12, fontFamily: FONT_BODY, cursor: 'pointer',
-            }}>
+        <div style={{
+          padding: '0 16px 8px',
+          display: 'flex', gap: 8,
+          overflowX: 'auto', scrollbarWidth: 'none',
+        }}>
+          {suggestions.slice(0, 3).map(s => (
+            <button
+              key={s}
+              onClick={() => { setInput(s); inputRef.current?.focus(); }}
+              style={{
+                whiteSpace: 'nowrap', padding: '8px 14px',
+                borderRadius: 20, cursor: 'pointer',
+                border: `1px solid ${WARM.borderStrong}`,
+                background: WARM.surface,
+                color: 'rgba(245,240,232,0.75)',
+                fontSize: 12, fontFamily: "'DM Sans', sans-serif",
+                transition: 'all 0.15s', flexShrink: 0,
+              }}
+            >
               {s}
             </button>
           ))}
         </div>
       )}
 
-      {/* Input + Voice */}
-      <div style={{ padding: '12px 20px 20px', display: 'flex', gap: 8 }}>
-        {/* Botón de voz */}
-        {voiceSupported && (
-          <button onClick={toggleVoice} style={{
-            width: 48, height: 48, borderRadius: 14, border: 'none',
-            background: isListening ? `linear-gradient(135deg, ${C.red}, #8B1A1A)` : C.glass,
-            border: `1.5px solid ${isListening ? C.red : C.glassBorder}`,
-            color: C.cream, fontSize: 18, cursor: 'pointer',
-            flexShrink: 0, transition: 'all 0.2s',
-            animation: isListening ? 'pulse 1s infinite' : 'none',
+      {/* ── INPUT BAR — rediseñado ── */}
+      <div style={{
+        padding: '12px 16px 20px',
+        borderTop: `1px solid ${WARM.border}`,
+        background: 'rgba(15,31,23,0.95)',
+        backdropFilter: 'blur(20px)',
+      }}>
+        <div style={{
+          display: 'flex', gap: 8, alignItems: 'flex-end',
+        }}>
+          {/* Voice button */}
+          {voiceSupported && (
+            <button
+              onClick={toggleVoice}
+              style={{
+                width: 44, height: 44, borderRadius: 14,
+                border: `1px solid ${isListening ? '#C0392B' : WARM.border}`,
+                background: isListening
+                  ? 'rgba(192,57,43,0.15)'
+                  : WARM.surface,
+                color: '#F5F0E8', fontSize: 16,
+                cursor: 'pointer', flexShrink: 0,
+                transition: 'all 0.2s',
+                animation: isListening ? 'pulse 1s infinite' : 'none',
+              }}
+            >
+              {isListening ? '⏹' : '🎙️'}
+            </button>
+          )}
+
+          {/* Input */}
+          <div style={{
+            flex: 1, position: 'relative',
           }}>
-            {isListening ? '⏹' : '🎙️'}
+            <input
+              ref={inputRef}
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage()}
+              placeholder={isListening ? 'Listening...' : (tui(lang, 'chatPlaceholder') || 'Ask Dr. Smoothie...')}
+              style={{
+                width: '100%', padding: '12px 16px',
+                borderRadius: 14, boxSizing: 'border-box',
+                border: `1px solid ${WARM.borderStrong}`,
+                background: WARM.surface,
+                color: '#F5F0E8', fontSize: 14,
+                fontFamily: "'DM Sans', sans-serif",
+                outline: 'none',
+                transition: 'border-color 0.15s',
+              }}
+              onFocus={e => {
+                e.target.style.borderColor = 'rgba(201,151,58,0.5)';
+                e.target.style.boxShadow = '0 0 0 3px rgba(201,151,58,0.1)';
+              }}
+              onBlur={e => {
+                e.target.style.borderColor = WARM.borderStrong;
+                e.target.style.boxShadow = 'none';
+              }}
+            />
+          </div>
+
+          {/* Send button */}
+          <button
+            onClick={() => sendMessage()}
+            disabled={loading || !input.trim()}
+            style={{
+              width: 44, height: 44, borderRadius: 14,
+              border: 'none',
+              background: input.trim() && !loading
+                ? 'linear-gradient(135deg, #2D8653, #1A5C3A)'
+                : WARM.surface,
+              color: input.trim() && !loading ? '#F5F0E8' : 'rgba(245,240,232,0.3)',
+              fontSize: 18, cursor: input.trim() && !loading ? 'pointer' : 'default',
+              flexShrink: 0,
+              transition: 'all 0.2s',
+              border: `1px solid ${input.trim() && !loading ? 'transparent' : WARM.border}`,
+              boxShadow: input.trim() && !loading ? '0 2px 12px rgba(26,92,58,0.4)' : 'none',
+            }}
+          >
+            →
           </button>
-        )}
-        <input
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && sendMessage()}
-          placeholder={isListening ? 'Escuchando...' : tui(lang, 'chatPlaceholder')}
-          style={{
-            flex: 1, padding: '14px 18px', borderRadius: 14,
-            border: `1.5px solid ${C.glassBorder}`, background: C.glass,
-            color: C.cream, fontSize: 14, fontFamily: FONT_BODY,
-            outline: 'none',
-          }}
-        />
-        <button onClick={() => sendMessage()} disabled={loading || !input.trim()} style={{
-          width: 48, height: 48, borderRadius: 14, border: 'none',
-          background: `linear-gradient(135deg, ${C.mint}, ${C.green})`,
-          color: C.white, fontSize: 20, cursor: 'pointer',
-          opacity: loading || !input.trim() ? 0.5 : 1,
-        }}>→</button>
+        </div>
       </div>
+
+      {/* CSS animations para typing dots */}
+      <style>{`
+        @keyframes typingDot {
+          0%, 100% { transform: translateY(0); opacity: 0.4; }
+          50% { transform: translateY(-4px); opacity: 1; }
+        }
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
+        }
+      `}</style>
     </div>
   );
 }
+
+// ── BOTTOM NAV — rediseñada ──────────────────────────────────
+
 
 // ── SCREEN: PLANES v2 ────────────────────────────────────────
 // Skills: Emil Kowalski (spring CSS) · Taste (copy+hierarchy) · Impeccable (precios reales)
@@ -964,51 +1360,101 @@ const inputStyle = {
   outline: 'none', width: '100%', boxSizing: 'border-box',
 };
 
-// ── BOTTOM NAV — 7 tabs ──────────────────────────────────────
 function BottomNav({ active, onNavigate, lang = 'en' }) {
   const items = [
-    { id: 'home',      emoji: '🏠', label: tui(lang,'nav','home') || 'Inicio' },
-    { id: 'chat',      emoji: '🤖', isAvatar: true, label: tui(lang,'nav','chat') || 'AI' },
-    { id: 'recipes',   emoji: '🍽️', label: 'Recetas' },
-    { id: 'map',       emoji: '🗺️', label: 'Mapa' },
-    { id: 'dashboard', emoji: '📊', label: tui(lang,'nav','dashboard') || 'Stats' },
+    { id: 'home',      icon: '🏡', label: tui(lang,'nav','home') || 'Home' },
+    { id: 'chat',      icon: null, label: tui(lang,'nav','chat') || 'Dr. AI', isAvatar: true },
+    { id: 'recipes',   icon: '🥑', label: 'Recipes' },
+    { id: 'map',       icon: '📍', label: 'Near me' },
+    { id: 'dashboard', icon: '✦', label: tui(lang,'nav','dashboard') || 'Stats' },
   ];
 
   return (
     <div style={{
-      position: 'fixed', bottom: 0, left: 0, right: 0,
-      background: `${C.dark}ee`, backdropFilter: 'blur(16px)',
-      borderTop: `1px solid ${C.glassBorder}`,
-      display: 'flex', justifyContent: 'space-around',
-      padding: '10px 0 16px', zIndex: 100,
+      position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 100,
     }}>
-      {items.map(item => (
-        <button key={item.id} onClick={() => onNavigate(item.id)} style={{
-          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
-          background: 'none', border: 'none', cursor: 'pointer',
-          padding: '4px 8px', borderRadius: 10,
-          transition: 'all 0.2s',
-        }}>
-          <div style={{
-            fontSize: 20,
-            filter: active === item.id ? 'none' : 'grayscale(60%)',
-            transform: active === item.id ? 'scale(1.15)' : 'scale(1)',
-            transition: 'all 0.2s',
-          }}>{item.isAvatar
-            ? <img src="/dr-smoothie-avatar.jpg" style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover', border: `1.5px solid ${active === item.id ? C.mint : 'transparent'}` }} />
-            : item.emoji}</div>
-          <span style={{
-            fontSize: 9, fontFamily: FONT_BODY, fontWeight: 600,
-            color: active === item.id ? C.light : C.muted,
-          }}>{item.label}</span>
-          {active === item.id && (
-            <div style={{ width: 4, height: 4, borderRadius: '50%', background: C.light }} />
-          )}
-        </button>
-      ))}
+      {/* Blur backdrop */}
+      <div style={{
+        position: 'absolute', inset: 0,
+        background: 'rgba(10,22,16,0.92)',
+        backdropFilter: 'blur(20px)',
+        borderTop: `1px solid ${WARM.border}`,
+      }} />
+
+      <div style={{
+        position: 'relative',
+        display: 'flex', justifyContent: 'space-around',
+        padding: '10px 0 18px',
+      }}>
+        {items.map(item => {
+          const isActive = active === item.id;
+          return (
+            <button
+              key={item.id}
+              onClick={() => onNavigate(item.id)}
+              style={{
+                display: 'flex', flexDirection: 'column',
+                alignItems: 'center', gap: 4,
+                background: 'none', border: 'none',
+                cursor: 'pointer', padding: '4px 10px',
+                borderRadius: 12, transition: 'all 0.2s',
+                transform: isActive ? 'translateY(-1px)' : 'none',
+              }}
+            >
+              {/* Icono / Avatar */}
+              <div style={{
+                width: 32, height: 32,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                borderRadius: 10,
+                background: isActive ? 'rgba(45,134,83,0.2)' : 'transparent',
+                border: isActive ? '1px solid rgba(45,134,83,0.4)' : '1px solid transparent',
+                transition: 'all 0.2s',
+              }}>
+                {item.isAvatar ? (
+                  <img
+                    src="/dr-smoothie-avatar.jpg"
+                    style={{
+                      width: 22, height: 22, borderRadius: '50%',
+                      objectFit: 'cover',
+                      border: `1.5px solid ${isActive ? '#2D8653' : 'transparent'}`,
+                    }}
+                  />
+                ) : (
+                  <span style={{
+                    fontSize: 17,
+                    filter: isActive ? 'none' : 'grayscale(60%) opacity(0.6)',
+                    transition: 'all 0.2s',
+                  }}>{item.icon}</span>
+                )}
+              </div>
+
+              {/* Label */}
+              <span style={{
+                fontSize: 9, fontWeight: isActive ? 700 : 500,
+                fontFamily: "'DM Sans', sans-serif",
+                letterSpacing: '0.03em',
+                color: isActive ? '#5CB87A' : 'rgba(245,240,232,0.35)',
+                transition: 'color 0.2s',
+              }}>
+                {item.label}
+              </span>
+
+              {/* Dot activo */}
+              {isActive && (
+                <div style={{
+                  width: 4, height: 4, borderRadius: '50%',
+                  background: '#2D8653',
+                  marginTop: -2,
+                }} />
+              )}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
+
 
 // ── APP PRINCIPAL ────────────────────────────────────────────
 export default function App() {
