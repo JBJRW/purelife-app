@@ -45,6 +45,32 @@ const MOTION_CSS = `
     0%   { background-position: -400px 0; }
     100% { background-position: 400px 0; }
   }
+  @keyframes pl-globe-float {
+    0%   { transform: translateY(0px) rotate(0deg); }
+    25%  { transform: translateY(-4px) rotate(3deg); }
+    50%  { transform: translateY(-7px) rotate(0deg); }
+    75%  { transform: translateY(-3px) rotate(-3deg); }
+    100% { transform: translateY(0px) rotate(0deg); }
+  }
+  @keyframes pl-globe-glow {
+    0%, 100% { filter: drop-shadow(0 0 4px rgba(201,151,58,0.3)); }
+    50%       { filter: drop-shadow(0 0 10px rgba(201,151,58,0.7)); }
+  }
+  @keyframes pl-globe-spin-hover {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+  .pl-globe-icon {
+    display: inline-block;
+    animation: pl-globe-float 4s ease-in-out infinite,
+               pl-globe-glow 3s ease-in-out infinite;
+    transform-origin: center;
+    cursor: pointer;
+  }
+  .pl-globe-icon:hover {
+    animation: pl-globe-spin-hover 0.8s cubic-bezier(0.34,1.56,0.64,1) forwards,
+               pl-globe-glow 3s ease-in-out infinite;
+  }
   .pl-enter { animation: pl-fadeUp 0.5s cubic-bezier(0.34,1.56,0.64,1) both; }
   .pl-d1 { animation-delay: 80ms; }
   .pl-d2 { animation-delay: 160ms; }
@@ -474,7 +500,7 @@ function GlobeSelector({ lang, onChange }) {
           transition: 'background 0.2s',
         }}
       >
-        <span style={{ fontSize: 16 }}>🌐</span>
+        <span className="pl-globe-icon" style={{ fontSize: 18, lineHeight: 1 }}>🌐</span>
         <span style={{ fontSize: 16 }}>{current.flag}</span>
         <span>{current.label}</span>
         <span style={{
