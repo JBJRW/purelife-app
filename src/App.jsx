@@ -1044,7 +1044,7 @@ export default function App() {
   };
 
   if (screen === 'comingsoon') {
-    return <ComingSoonPage onEnterApp={() => setScreen('splash')} />;
+    return <ComingSoonPage onEnterApp={() => setScreen('splash')} lang={lang} onLangChange={handleLangChange} />;
   }
 
   if (screen === 'splash') {
