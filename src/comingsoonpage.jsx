@@ -56,20 +56,24 @@ const MOTION_CSS = `
     0%, 100% { filter: drop-shadow(0 0 4px rgba(201,151,58,0.3)); }
     50%       { filter: drop-shadow(0 0 10px rgba(201,151,58,0.7)); }
   }
-  @keyframes pl-globe-spin-hover {
-    from { transform: rotate(0deg); }
-    to   { transform: rotate(360deg); }
+  @keyframes pl-globe-spin {
+    from { transform: translateY(-4px) rotate(0deg); }
+    to   { transform: translateY(-4px) rotate(360deg); }
   }
-  .pl-globe-icon {
+  .pl-globe-idle {
     display: inline-block;
     animation: pl-globe-float 4s ease-in-out infinite,
                pl-globe-glow 3s ease-in-out infinite;
     transform-origin: center;
     cursor: pointer;
+    transition: filter 0.2s ease;
   }
-  .pl-globe-icon:hover {
-    animation: pl-globe-spin-hover 0.8s cubic-bezier(0.34,1.56,0.64,1) forwards,
+  .pl-globe-spinning {
+    display: inline-block;
+    animation: pl-globe-spin 0.7s cubic-bezier(0.34,1.56,0.64,1),
                pl-globe-glow 3s ease-in-out infinite;
+    transform-origin: center;
+    cursor: pointer;
   }
   .pl-enter { animation: pl-fadeUp 0.5s cubic-bezier(0.34,1.56,0.64,1) both; }
   .pl-d1 { animation-delay: 80ms; }
@@ -473,8 +477,16 @@ function c(lang, key, arg) {
 // ── Globe Language Selector (self-contained) ──
 function GlobeSelector({ lang, onChange }) {
   const [open, setOpen] = useState(false);
+  const [spinning, setSpinning] = useState(false);
   const ref = useState(null);
   const current = LANGUAGES.find(l => l.code === lang) || LANGUAGES[0];
+
+  const handleGlobeHover = () => {
+    if (!spinning) {
+      setSpinning(true);
+      setTimeout(() => setSpinning(false), 750);
+    }
+  };
 
   useEffect(() => {
     const close = (e) => {
@@ -500,7 +512,7 @@ function GlobeSelector({ lang, onChange }) {
           transition: 'background 0.2s',
         }}
       >
-        <span className="pl-globe-icon" style={{ fontSize: 18, lineHeight: 1 }}>🌐</span>
+        <span className={spinning ? "pl-globe-spinning" : "pl-globe-idle"} style={{ fontSize: 18, lineHeight: 1 }} onMouseEnter={handleGlobeHover}>🌐</span>
         <span style={{ fontSize: 16 }}>{current.flag}</span>
         <span>{current.label}</span>
         <span style={{
