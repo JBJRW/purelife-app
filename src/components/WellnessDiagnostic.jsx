@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
-import { ArrowRight, Sparkles, Crown } from 'lucide-react';
+
 
 const COLORS = {
   forest: '#0F1F17',
@@ -174,7 +174,7 @@ export default function WellnessDiagnostic({ onJoin, lang = 'es' }) {
       ) : (
         <>
           <div className="flex items-center gap-2 mb-3">
-            <Sparkles size={20} style={{ color: COLORS.gold }} />
+            <span style={{ fontSize: 20 }}>✨</span>
             <p className="text-xs uppercase tracking-wide" style={{ color: COLORS.gold }}>
               Tu recomendación
             </p>
@@ -212,7 +212,7 @@ export default function WellnessDiagnostic({ onJoin, lang = 'es' }) {
                 className="flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm"
                 style={{ backgroundColor: COLORS.gold, color: COLORS.forest }}
               >
-                Guardar mi perfil <ArrowRight size={16} />
+                Guardar mi perfil →
               </button>
             </div>
           ) : (
@@ -221,7 +221,7 @@ export default function WellnessDiagnostic({ onJoin, lang = 'es' }) {
               style={{ backgroundColor: `${COLORS.gold}15` }}
             >
               <div className="flex items-center gap-2 mb-2">
-                <Crown size={18} style={{ color: COLORS.gold }} />
+                <span style={{ fontSize: 18 }}>👑</span>
                 <p className="font-semibold text-sm">¿Quieres ser parte de la familia PureLife?</p>
               </div>
               <p className="text-xs opacity-70 mb-4">
