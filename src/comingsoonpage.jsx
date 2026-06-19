@@ -644,6 +644,13 @@ export default function ComingSoonPage({ onEnterApp, lang = 'en', onLangChange }
         fontFamily: "'DM Sans', sans-serif",
         color: COLORS.cream, textAlign: 'center',
       }}>
+        <div className="pl-float pl-enter" style={{ marginBottom: '1.25rem' }}>
+          <img src="/purelife-logo.png" alt="PureLife"
+            style={{ width: 64, height: 64, borderRadius: '50%', border: `2px solid ${COLORS.borderGold}`, boxShadow: '0 0 24px rgba(201,151,58,0.15)', objectFit: 'cover' }}
+            onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+          />
+          <div style={{ display: 'none', width: 64, height: 64, borderRadius: '50%', background: 'linear-gradient(135deg,#1A5C3A,#060D08)', border: `2px solid ${COLORS.borderGold}`, alignItems: 'center', justifyContent: 'center', fontSize: 26 }}>🌿</div>
+        </div>
         <p className="pl-enter" style={{ fontSize: 11, letterSpacing: '0.14em', color: COLORS.gold, textTransform: 'uppercase', marginBottom: 18, fontWeight: 600 }}>
           Dr. Smoothie · PureLife Wellness Club
         </p>
