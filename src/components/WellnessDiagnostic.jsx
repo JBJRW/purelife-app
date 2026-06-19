@@ -1,11 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 
-
 const COLORS = {
   forest: '#0F1F17',
+  forestLight: '#1a3528',
   gold: '#C9973A',
+  goldLight: '#E8B84B',
   cream: '#F5F0E8',
+  muted: 'rgba(245,240,232,0.55)',
 };
 
 const QUESTIONS = [
@@ -78,6 +80,49 @@ function getAnonId() {
   return id;
 }
 
+const cardStyle = {
+  borderRadius: 18,
+  padding: '28px 24px',
+  width: '100%',
+  maxWidth: 380,
+  margin: '0 auto',
+  backgroundColor: COLORS.forest,
+  color: COLORS.cream,
+  boxShadow: '0 20px 60px rgba(0,0,0,0.35)',
+  border: `1px solid ${COLORS.gold}30`,
+  fontFamily: "'DM Sans', sans-serif",
+  boxSizing: 'border-box',
+};
+
+const optionButtonStyle = {
+  display: 'block',
+  width: '100%',
+  textAlign: 'left',
+  padding: '13px 16px',
+  borderRadius: 12,
+  fontSize: 14,
+  color: COLORS.cream,
+  backgroundColor: 'rgba(245,240,232,0.06)',
+  border: `1px solid ${COLORS.gold}30`,
+  cursor: 'pointer',
+  marginBottom: 8,
+  transition: 'background-color 0.15s ease',
+  fontFamily: "'DM Sans', sans-serif",
+};
+
+const primaryButtonStyle = {
+  width: '100%',
+  padding: '14px',
+  borderRadius: 12,
+  fontWeight: 700,
+  fontSize: 14,
+  border: 'none',
+  cursor: 'pointer',
+  backgroundColor: COLORS.gold,
+  color: COLORS.forest,
+  fontFamily: "'DM Sans', sans-serif",
+};
+
 export default function WellnessDiagnostic({ onJoin, lang = 'es' }) {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState({});
@@ -90,7 +135,6 @@ export default function WellnessDiagnostic({ onJoin, lang = 'es' }) {
   useEffect(() => {
     const id = getAnonId();
     setProfileId(id);
-    // Crea la fila vacía desde el primer render — antes de la primera respuesta.
     supabase
       .from('wellness_diagnostic_profiles')
       .upsert({ id, lang }, { onConflict: 'id' })
@@ -131,40 +175,55 @@ export default function WellnessDiagnostic({ onJoin, lang = 'es' }) {
   };
 
   const progress = showResult ? 100 : Math.round((step / QUESTIONS.length) * 100);
+  const rec = RECOMMENDATIONS[answers.goal] || RECOMMENDATIONS.energy;
 
   return (
-    <div
-      className="rounded-2xl p-6 max-w-md mx-auto"
-      style={{ backgroundColor: COLORS.forest, color: COLORS.cream }}
-    >
+    <div style={cardStyle}>
       <div
-        className="w-full h-1.5 rounded-full mb-6 overflow-hidden"
-        style={{ backgroundColor: `${COLORS.cream}15` }}
+        style={{
+          width: '100%',
+          height: 5,
+          borderRadius: 99,
+          marginBottom: 22,
+          overflow: 'hidden',
+          backgroundColor: 'rgba(245,240,232,0.1)',
+        }}
       >
         <div
-          className="h-full rounded-full transition-all duration-500"
-          style={{ width: `${progress}%`, backgroundColor: COLORS.gold }}
+          style={{
+            height: '100%',
+            borderRadius: 99,
+            width: `${progress}%`,
+            backgroundColor: COLORS.gold,
+            transition: 'width 0.5s ease',
+          }}
         />
       </div>
 
       {!showResult ? (
         <>
-          <p className="text-xs uppercase tracking-wide opacity-60 mb-2">
+          <p style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', opacity: 0.55, marginBottom: 8 }}>
             Pregunta {step + 1} de {QUESTIONS.length}
           </p>
           <h3
-            className="text-xl font-bold mb-5"
-            style={{ fontFamily: 'Fraunces, serif' }}
+            style={{
+              fontSize: 20,
+              fontWeight: 700,
+              marginBottom: 18,
+              fontFamily: "'Fraunces', serif",
+              lineHeight: 1.3,
+            }}
           >
             {QUESTIONS[step].question}
           </h3>
-          <div className="flex flex-col gap-2">
+          <div>
             {QUESTIONS[step].options.map((opt) => (
               <button
                 key={opt.value}
                 onClick={() => handleAnswer(QUESTIONS[step].key, opt.value)}
-                className="text-left px-4 py-3 rounded-xl text-sm transition"
-                style={{ backgroundColor: `${COLORS.cream}10`, border: `1px solid ${COLORS.gold}30` }}
+                style={optionButtonStyle}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(245,240,232,0.12)')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'rgba(245,240,232,0.06)')}
               >
                 {opt.label}
               </button>
@@ -173,30 +232,17 @@ export default function WellnessDiagnostic({ onJoin, lang = 'es' }) {
         </>
       ) : (
         <>
-          <div className="flex items-center gap-2 mb-3">
-            <span style={{ fontSize: 20 }}>✨</span>
-            <p className="text-xs uppercase tracking-wide" style={{ color: COLORS.gold }}>
-              Tu recomendación
-            </p>
-          </div>
-          {(() => {
-            const rec = RECOMMENDATIONS[answers.goal] || RECOMMENDATIONS.energy;
-            return (
-              <>
-                <h3
-                  className="text-2xl font-bold mb-2"
-                  style={{ fontFamily: 'Fraunces, serif' }}
-                >
-                  {rec.name}
-                </h3>
-                <p className="text-sm opacity-80 mb-6">{rec.desc}</p>
-              </>
-            );
-          })()}
+          <p style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: COLORS.gold, marginBottom: 6 }}>
+            ✨ Tu recomendación
+          </p>
+          <h3 style={{ fontSize: 24, fontWeight: 700, marginBottom: 8, fontFamily: "'Fraunces', serif" }}>
+            {rec.name}
+          </h3>
+          <p style={{ fontSize: 14, opacity: 0.8, marginBottom: 24, lineHeight: 1.5 }}>{rec.desc}</p>
 
           {!emailSaved ? (
-            <div className="flex flex-col gap-2 mb-4">
-              <p className="text-sm opacity-80">
+            <div>
+              <p style={{ fontSize: 13, opacity: 0.8, marginBottom: 10 }}>
                 Déjanos tu email para guardar tu perfil y desbloquear tu plan completo:
               </p>
               <input
@@ -204,33 +250,41 @@ export default function WellnessDiagnostic({ onJoin, lang = 'es' }) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="tu@email.com"
-                className="px-4 py-3 rounded-xl text-sm"
-                style={{ backgroundColor: `${COLORS.cream}10`, border: `1px solid ${COLORS.gold}30`, color: COLORS.cream }}
+                style={{
+                  width: '100%',
+                  padding: '13px 16px',
+                  borderRadius: 12,
+                  fontSize: 14,
+                  marginBottom: 10,
+                  backgroundColor: 'rgba(245,240,232,0.06)',
+                  border: `1px solid ${COLORS.gold}40`,
+                  color: COLORS.cream,
+                  fontFamily: "'DM Sans', sans-serif",
+                  boxSizing: 'border-box',
+                  outline: 'none',
+                }}
               />
-              <button
-                onClick={handleEmailSubmit}
-                className="flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm"
-                style={{ backgroundColor: COLORS.gold, color: COLORS.forest }}
-              >
+              <button onClick={handleEmailSubmit} style={primaryButtonStyle}>
                 Guardar mi perfil →
               </button>
             </div>
           ) : (
             <div
-              className="rounded-xl p-4 mb-4"
-              style={{ backgroundColor: `${COLORS.gold}15` }}
+              style={{
+                borderRadius: 14,
+                padding: 18,
+                backgroundColor: `${COLORS.gold}18`,
+              }}
             >
-              <div className="flex items-center gap-2 mb-2">
-                <span style={{ fontSize: 18 }}>👑</span>
-                <p className="font-semibold text-sm">¿Quieres ser parte de la familia PureLife?</p>
-              </div>
-              <p className="text-xs opacity-70 mb-4">
+              <p style={{ fontWeight: 700, fontSize: 14, marginBottom: 6 }}>
+                👑 ¿Quieres ser parte de la familia PureLife?
+              </p>
+              <p style={{ fontSize: 12, opacity: 0.75, marginBottom: 16, lineHeight: 1.5 }}>
                 Tu perfil ya está guardado. Únete ahora como Founding Member y desbloquea tu plan completo.
               </p>
               <button
                 onClick={() => onJoin && onJoin({ profileId, ...answers })}
-                className="w-full py-3 rounded-xl font-semibold text-sm"
-                style={{ backgroundColor: COLORS.gold, color: COLORS.forest }}
+                style={primaryButtonStyle}
               >
                 Unirme a la familia wellness →
               </button>
