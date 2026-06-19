@@ -7,6 +7,7 @@
 
 import { useState, useEffect } from "react";
 import { LANGUAGES } from "./i18n";
+import WellnessDiagnostic from "./components/WellnessDiagnostic";
 
 const COLORS = {
   dark:   "#060D08",
@@ -584,6 +585,9 @@ export default function ComingSoonPage({ onEnterApp, lang = 'en', onLangChange }
   const [freeResult, setFreeResult] = useState(null);
   const [counter, setCounter]       = useState({ total: 0, remaining: 100, percentFull: 0, isFull: false });
   const [counterLoaded, setCounterLoaded] = useState(false);
+  const [diagnosticDone, setDiagnosticDone] = useState(
+    () => localStorage.getItem('pl_diagnostic_done') === 'true'
+  );
 
   useEffect(() => {
     const id = 'pl-cs-styles';
@@ -629,6 +633,43 @@ export default function ComingSoonPage({ onEnterApp, lang = 'en', onLangChange }
 
   const { total, remaining, percentFull, isFull } = counter;
   const handleLang = onLangChange || (() => {});
+
+  if (!diagnosticDone) {
+    return (
+      <div style={{
+        minHeight: '100vh', background: COLORS.dark,
+        display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center',
+        padding: '2.5rem 1.5rem',
+        fontFamily: "'DM Sans', sans-serif",
+        color: COLORS.cream, textAlign: 'center',
+      }}>
+        <p className="pl-enter" style={{ fontSize: 11, letterSpacing: '0.14em', color: COLORS.gold, textTransform: 'uppercase', marginBottom: 18, fontWeight: 600 }}>
+          Dr. Smoothie · PureLife Wellness Club
+        </p>
+        <WellnessDiagnostic
+          lang={lang}
+          onJoin={() => {
+            localStorage.setItem('pl_diagnostic_done', 'true');
+            setDiagnosticDone(true);
+          }}
+        />
+        <button
+          onClick={() => {
+            localStorage.setItem('pl_diagnostic_done', 'true');
+            setDiagnosticDone(true);
+          }}
+          style={{
+            marginTop: 24, background: 'transparent', color: COLORS.muted,
+            border: 'none', fontSize: 12, textDecoration: 'underline',
+            cursor: 'pointer', fontFamily: "'DM Sans', sans-serif",
+          }}
+        >
+          Ya soy miembro, saltar diagnóstico →
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div style={{
