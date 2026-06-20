@@ -1,5 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { loadLang, saveLang, tui } from './i18n';
 import LanguageSelector from './components/LanguageSelector';
 import ComingSoonPage from './comingsoonpage';
@@ -353,8 +354,11 @@ function HomeScreen({ user, goals, onNavigate, hermes, lang = 'en' }) {
       <div style={{ padding: '0 16px' }}>
 
         {/* ── DR. SMOOTHIE AI — CTA principal ── */}
-        <button
+        <motion.button
           onClick={() => onNavigate('chat')}
+          whileHover={{ scale: 1.04, boxShadow: '0 8px 32px rgba(26,92,58,0.4)' }}
+          whileTap={{ scale: 0.97 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 22 }}
           style={{
             width: '100%', marginBottom: 16,
             background: 'linear-gradient(135deg, #1A5C3A 0%, #0F1F17 100%)',
@@ -363,15 +367,6 @@ function HomeScreen({ user, goals, onNavigate, hermes, lang = 'en' }) {
             display: 'flex', alignItems: 'center', gap: 14,
             cursor: 'pointer', textAlign: 'left',
             boxShadow: '0 4px 24px rgba(26,92,58,0.3)',
-            transition: 'transform 0.2s, box-shadow 0.2s',
-          }}
-          onMouseEnter={e => {
-            e.currentTarget.style.transform = 'translateY(-2px)';
-            e.currentTarget.style.boxShadow = '0 8px 32px rgba(26,92,58,0.4)';
-          }}
-          onMouseLeave={e => {
-            e.currentTarget.style.transform = 'none';
-            e.currentTarget.style.boxShadow = '0 4px 24px rgba(26,92,58,0.3)';
           }}
         >
           <div style={{ position: 'relative', flexShrink: 0 }}>
@@ -405,7 +400,7 @@ function HomeScreen({ user, goals, onNavigate, hermes, lang = 'en' }) {
             </div>
           </div>
           <div style={{ color: '#C9973A', fontSize: 20 }}>→</div>
-        </button>
+        </motion.button>
 
         {/* ── QUICK ACTIONS 2x2 ── */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 24 }}>
@@ -1136,10 +1131,13 @@ function PlansScreen({ hermes, user, lang = 'en' }) {
 
       {/* CTA — TASTE: 1 botón primario. Info útil debajo, no decorativa. */}
       <div style={{ marginTop: 20 }}>
-        <button
+        <motion.button
           className="pl-pcta"
           disabled={loading}
           onClick={handleCheckout}
+          whileHover={!loading ? { scale: 1.04 } : {}}
+          whileTap={!loading ? { scale: 0.97 } : {}}
+          transition={{ type: 'spring', stiffness: 400, damping: 22 }}
           style={{
             width: '100%', padding: '15px', borderRadius: 12,
             border: 'none', cursor: loading ? 'wait' : 'pointer',
@@ -1155,7 +1153,7 @@ function PlansScreen({ hermes, user, lang = 'en' }) {
             // TASTE: CTA = nombre del plan seleccionado + acción
             : `Empezar con ${selectedPlan?.name} — ${selectedPlan?.price}/mo`
           }
-        </button>
+        </motion.button>
 
         {/* TASTE: garantía concreta + seguridad — no solo un ícono 🔒 */}
         <div style={{
