@@ -1,6 +1,6 @@
 // /src/components/NewsSection.jsx
 import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabaseClient'; // ajustar path según tu proyecto
+import { supabase } from '../lib/supabase'; // ajustar path según tu proyecto
 
 const CATEGORIES = [
   { key: 'todas', label: 'Todas' },
