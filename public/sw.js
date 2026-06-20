@@ -4,7 +4,7 @@
 // JRMB Food Network LLC · 2026
 // ================================================================
 
-const CACHE = 'purelife-v1';
+const CACHE = 'purelife-v2';
 const STATIC = ['/', '/purelife-logo.png', '/dr-smoothie-avatar.jpg'];
 
 self.addEventListener('install', e => {
@@ -58,12 +58,23 @@ self.addEventListener('notificationclick', e => {
   );
 });
 
-// ── FETCH (offline first para assets estáticos) ─────────────────
+// ── FETCH (network-first: siempre intenta red primero, cache solo si offline) ──
+// CRÍTICO: estrategia cache-first anterior servía el bundle JS viejo para
+// siempre porque el nombre del CACHE no cambiaba entre deploys, y el
+// 'activate' que purga cachés viejos nunca se disparaba. Esto bloqueaba
+// que cualquier cambio de código se reflejara en navegadores que ya
+// habían cacheado la app una vez.
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   if (e.request.url.includes('/api/')) return; // No cachear APIs
 
   e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request).catch(() => caches.match('/')))
+    fetch(e.request)
+      .then(res => {
+        const resClone = res.clone();
+        caches.open(CACHE).then(c => c.put(e.request, resClone)).catch(() => {});
+        return res;
+      })
+      .catch(() => caches.match(e.request).then(cached => cached || caches.match('/')))
   );
 });
