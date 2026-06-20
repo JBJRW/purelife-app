@@ -145,9 +145,15 @@ function Btn({ children, onClick, variant = 'primary', style = {}, disabled }) {
     danger: { background: C.red, color: C.white, padding: '10px 20px', fontSize: 14 },
   };
   return (
-    <button onClick={disabled ? undefined : onClick} style={{ ...base, ...variants[variant] }}>
+    <motion.button
+      onClick={disabled ? undefined : onClick}
+      whileHover={!disabled ? { scale: 1.04 } : {}}
+      whileTap={!disabled ? { scale: 0.97 } : {}}
+      transition={{ type: 'spring', stiffness: 400, damping: 22 }}
+      style={{ ...base, ...variants[variant] }}
+    >
       {children}
-    </button>
+    </motion.button>
   );
 }
 
@@ -225,16 +231,22 @@ function SplashScreen({ onContinue, lang = 'en' }) {
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 32 }}>
           {GOALS.map(g => (
-            <button key={g.id} onClick={() => toggleGoal(g.id)} style={{
-              padding: '16px 12px', borderRadius: 14, cursor: 'pointer',
-              border: `2px solid ${selectedGoals.includes(g.id) ? C.mint : C.glassBorder}`,
-              background: selectedGoals.includes(g.id) ? `${C.mint}22` : C.glass,
-              color: C.cream, fontFamily: FONT_BODY, fontSize: 13, fontWeight: 600,
-              transition: 'all 0.2s', textAlign: 'center',
-            }}>
+            <motion.button
+              key={g.id}
+              onClick={() => toggleGoal(g.id)}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.96 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 22 }}
+              style={{
+                padding: '16px 12px', borderRadius: 14, cursor: 'pointer',
+                border: `2px solid ${selectedGoals.includes(g.id) ? C.mint : C.glassBorder}`,
+                background: selectedGoals.includes(g.id) ? `${C.mint}22` : C.glass,
+                color: C.cream, fontFamily: FONT_BODY, fontSize: 13, fontWeight: 600,
+                textAlign: 'center',
+              }}>
               <div style={{ fontSize: 28, marginBottom: 6 }}>{g.emoji}</div>
               {g.label}
-            </button>
+            </motion.button>
           ))}
         </div>
         <Btn
@@ -410,17 +422,17 @@ function HomeScreen({ user, goals, onNavigate, hermes, lang = 'en' }) {
             { emoji: '🎥', label: 'Video AI', tab: 'video', img: IMGS.smoothie2 },
             { emoji: '📊', label: 'My stats', tab: 'dashboard', img: IMGS.smoothie3 },
           ].map(a => (
-            <button
+            <motion.button
               key={a.tab}
               onClick={() => onNavigate(a.tab)}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 22 }}
               style={{
                 position: 'relative', borderRadius: 16,
                 overflow: 'hidden', aspectRatio: '1.4',
                 cursor: 'pointer', border: 'none', padding: 0,
-                transition: 'transform 0.2s',
               }}
-              onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.02)'; }}
-              onMouseLeave={e => { e.currentTarget.style.transform = 'none'; }}
             >
               <img src={a.img} alt={a.label}
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
@@ -439,7 +451,7 @@ function HomeScreen({ user, goals, onNavigate, hermes, lang = 'en' }) {
                   fontFamily: "'DM Sans', sans-serif",
                 }}>{a.label}</span>
               </div>
-            </button>
+            </motion.button>
           ))}
         </div>
 
@@ -456,14 +468,19 @@ function HomeScreen({ user, goals, onNavigate, hermes, lang = 'en' }) {
               <p style={{ color: '#E8B84B', fontSize: 13, fontWeight: 700, margin: '0 0 6px', fontFamily: "'DM Sans', sans-serif" }}>
                 {hermes.upsell.message}
               </p>
-              <button onClick={() => onNavigate('plans')} style={{
-                background: 'linear-gradient(135deg,#E8B84B,#C9973A)',
-                border: 'none', borderRadius: 8, padding: '6px 14px',
-                color: '#0F1F17', fontSize: 12, fontWeight: 800,
-                fontFamily: "'DM Sans', sans-serif", cursor: 'pointer',
-              }}>
+              <motion.button
+                onClick={() => onNavigate('plans')}
+                whileHover={{ scale: 1.06 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 22 }}
+                style={{
+                  background: 'linear-gradient(135deg,#E8B84B,#C9973A)',
+                  border: 'none', borderRadius: 8, padding: '6px 14px',
+                  color: '#0F1F17', fontSize: 12, fontWeight: 800,
+                  fontFamily: "'DM Sans', sans-serif", cursor: 'pointer',
+                }}>
                 {tui(lang,'viewPlans') || 'View plans →'}
-              </button>
+              </motion.button>
             </div>
           </div>
         )}
@@ -1336,23 +1353,31 @@ function AuthScreen({ onAuth }) {
 
         <p style={{ color: C.muted, fontSize: 14, textAlign: 'center', marginTop: 20 }}>
           {mode === 'login' ? '¿No tienes cuenta? ' : '¿Ya tienes cuenta? '}
-          <button onClick={() => setMode(mode === 'login' ? 'signup' : 'login')} style={{
-            background: 'none', border: 'none', color: C.light,
-            cursor: 'pointer', fontWeight: 700, fontSize: 14,
-          }}>
+          <motion.button
+            onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 22 }}
+            style={{
+              background: 'none', border: 'none', color: C.light,
+              cursor: 'pointer', fontWeight: 700, fontSize: 14,
+            }}>
             {mode === 'login' ? 'Regístrate gratis' : 'Inicia sesión'}
-          </button>
+          </motion.button>
         </p>
 
         {/* Demo bypass */}
-        <button onClick={() => onAuth({ email: 'demo@purelife.app', name: 'Usuario Demo', token: 'demo', id: 'demo' })}
+        <motion.button onClick={() => onAuth({ email: 'demo@purelife.app', name: 'Usuario Demo', token: 'demo', id: 'demo' })}
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 22 }}
           style={{
             width: '100%', marginTop: 12, padding: '12px',
             background: 'transparent', border: `1px dashed ${C.glassBorder}`,
             color: C.muted, fontSize: 13, borderRadius: 12, cursor: 'pointer', fontFamily: FONT_BODY,
           }}>
           Entrar en modo demo →
-        </button>
+        </motion.button>
       </div>
     </div>
   );
@@ -1396,16 +1421,19 @@ function BottomNav({ active, onNavigate, lang = 'en' }) {
         {items.map(item => {
           const isActive = active === item.id;
           return (
-            <button
+            <motion.button
               key={item.id}
               onClick={() => onNavigate(item.id)}
+              animate={{ y: isActive ? -1 : 0 }}
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.9 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 22 }}
               style={{
                 display: 'flex', flexDirection: 'column',
                 alignItems: 'center', gap: 4,
                 background: 'none', border: 'none',
                 cursor: 'pointer', padding: '4px 10px',
-                borderRadius: 12, transition: 'all 0.2s',
-                transform: isActive ? 'translateY(-1px)' : 'none',
+                borderRadius: 12,
               }}
             >
               {/* Icono / Avatar */}
@@ -1454,7 +1482,7 @@ function BottomNav({ active, onNavigate, lang = 'en' }) {
                   marginTop: -2,
                 }} />
               )}
-            </button>
+            </motion.button>
           );
         })}
       </div>
