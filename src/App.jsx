@@ -11,6 +11,7 @@ import OnboardingChat from './components/OnboardingChat';
 import ReminderSystem from './components/ReminderSystem';
 import ProgressExam from './components/ProgressExam';
 import { useHermes } from './hooks/useHermes';
+import NewsSection from './components/NewsSection';
 // ── PALETA OFICIAL PURELIFE ─────────────────────────────────
 const C = {
   dark:    '#0F1F17',
@@ -1399,6 +1400,7 @@ function BottomNav({ active, onNavigate, lang = 'en' }) {
     { id: 'recipes',   icon: '🥑', label: 'Recipes' },
     { id: 'map',       icon: '📍', label: 'Near me' },
     { id: 'dashboard', icon: '✦', label: tui(lang,'nav','dashboard') || 'Stats' },
+    { id: 'news',      icon: '📰', label: 'News' },
   ];
 
   return (
@@ -1553,6 +1555,7 @@ export default function App() {
     plans:     <PlansScreen hermes={hermes} lang={lang} />,
     dashboard: <DashboardScreen user={user} hermes={hermes} lang={lang} onOpenReminders={() => setShowReminderSetup(true)} onOpenProgress={() => setShowProgressExam(true)} />,
     video:     <VideoAgent user={user} hermes={hermes} lang={lang} />,
+    news:      <NewsSection />,
   };
 
   return (
