@@ -36,7 +36,7 @@ const CATEGORIES = [
 const SYSTEM_PROMPT = `Eres un curador editorial para una plataforma global de wellness (PureLife Wellness Club / Dr. Smoothie).
 
 REGLAS ESTRICTAS:
-1. Responde ÚNICAMENTE con un array JSON válido. Sin texto antes o después, sin markdown, sin backticks.
+1. Responde con un array JSON válido. Evita texto explicativo extenso antes del JSON; si necesitas razonar, hazlo brevemente y termina siempre con el array JSON completo y válido.
 2. Cada noticia debe tener fuente verificable real (no inventes URLs ni fuentes).
 3. El "summary" debe estar 100% en tus propias palabras — JAMÁS copies frases textuales del artículo original (derechos de autor). Máximo 4 líneas, en español.
 4. Descarta cualquier resultado que sea clickbait, publicidad encubierta, o que haga afirmaciones médicas no respaldadas.
@@ -85,14 +85,17 @@ async function fetchCategoryNews(category) {
     .join('\n');
 
   try {
-    const cleaned = textBlocks.replace(/```json|```/g, '').trim();
-    const parsed = JSON.parse(cleaned);
+    // El modelo a veces antepone razonamiento editorial antes del JSON.
+    // Extraemos el primer array [...] que aparezca en el texto, sin asumir
+    // que la respuesta completa es JSON puro.
+    const arrayMatch = textBlocks.match(/\[[\s\S]*\]/);
+    const jsonStr = arrayMatch ? arrayMatch[0] : textBlocks.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(jsonStr);
     return Array.isArray(parsed)
       ? parsed.map(item => ({ ...item, category: category.key }))
       : [];
   } catch (err) {
-    global.__debugRaw = global.__debugRaw || {};
-    global.__debugRaw[category.key] = textBlocks.slice(0, 400);
+    console.error(`No se pudo parsear JSON para ${category.key}`);
     return [];
   }
 }
@@ -100,11 +103,7 @@ async function fetchCategoryNews(category) {
 export default async function handler(req, res) {
   // Protección: solo Vercel Cron puede llamar esto
   const authHeader = req.headers['authorization'];
-  const expected = `Bearer ${process.env.CRON_SECRET}`;
-  const envVal = process.env.CRON_SECRET || '';
-  const hdrVal = authHeader || '';
-  console.log('ZQ env=' + envVal.length + '|' + envVal.slice(0,6) + '|' + envVal.slice(-6) + ' hdr=' + hdrVal.length + '|' + hdrVal.slice(0,13) + '|' + hdrVal.slice(-6) + ' match=' + (authHeader === expected));
-  if (authHeader !== expected) {
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return res.status(401).json({ error: 'No autorizado' });
   }
 
@@ -149,5 +148,5 @@ export default async function handler(req, res) {
     }
   }
 
-  return res.status(200).json({ success: true, results, debugRaw: global.__debugRaw || {} });
+  return res.status(200).json({ success: true, results });
 }
