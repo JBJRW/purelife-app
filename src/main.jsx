@@ -1,5 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
+import { MotionConfig } from 'framer-motion'
 import App from './App.jsx'
 
 class ErrorBoundary extends React.Component {
@@ -52,6 +53,10 @@ class ErrorBoundary extends React.Component {
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <ErrorBoundary>
-    <App />
+    {/* reducedMotion="never": fuerza que whileHover/whileTap se reproduzcan
+        siempre, sin importar la preferencia "Reducir movimiento" del SO */}
+    <MotionConfig reducedMotion="never">
+      <App />
+    </MotionConfig>
   </ErrorBoundary>
 )
