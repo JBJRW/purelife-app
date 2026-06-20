@@ -1,3 +1,4 @@
+// redeploy-trigger: env vars actualizadas
 // /api/cron/fetch-news.js
 // Vercel Cron job — se ejecuta 1x al día (configurar en vercel.json)
 // Busca noticias de wellness vía Claude + web_search, filtra calidad, inserta en Supabase.
