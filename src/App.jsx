@@ -803,9 +803,12 @@ function ChatScreen({ user, hermes, lang = 'en' }) {
           overflowX: 'auto', scrollbarWidth: 'none',
         }}>
           {suggestions.slice(0, 3).map(s => (
-            <button
+            <motion.button
               key={s}
               onClick={() => { setInput(s); inputRef.current?.focus(); }}
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.97 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 22 }}
               style={{
                 whiteSpace: 'nowrap', padding: '8px 14px',
                 borderRadius: 20, cursor: 'pointer',
@@ -813,11 +816,11 @@ function ChatScreen({ user, hermes, lang = 'en' }) {
                 background: WARM.surface,
                 color: 'rgba(245,240,232,0.75)',
                 fontSize: 12, fontFamily: "'DM Sans', sans-serif",
-                transition: 'all 0.15s', flexShrink: 0,
+                flexShrink: 0,
               }}
             >
               {s}
-            </button>
+            </motion.button>
           ))}
         </div>
       )}
@@ -834,8 +837,11 @@ function ChatScreen({ user, hermes, lang = 'en' }) {
         }}>
           {/* Voice button */}
           {voiceSupported && (
-            <button
+            <motion.button
               onClick={toggleVoice}
+              whileHover={{ scale: 1.06 }}
+              whileTap={{ scale: 0.94 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 22 }}
               style={{
                 width: 44, height: 44, borderRadius: 14,
                 border: `1px solid ${isListening ? '#C0392B' : WARM.border}`,
@@ -844,12 +850,11 @@ function ChatScreen({ user, hermes, lang = 'en' }) {
                   : WARM.surface,
                 color: '#F5F0E8', fontSize: 16,
                 cursor: 'pointer', flexShrink: 0,
-                transition: 'all 0.2s',
                 animation: isListening ? 'pulse 1s infinite' : 'none',
               }}
             >
               {isListening ? '⏹' : '🎙️'}
-            </button>
+            </motion.button>
           )}
 
           {/* Input */}
@@ -884,25 +889,26 @@ function ChatScreen({ user, hermes, lang = 'en' }) {
           </div>
 
           {/* Send button */}
-          <button
+          <motion.button
             onClick={() => sendMessage()}
             disabled={loading || !input.trim()}
+            whileHover={input.trim() && !loading ? { scale: 1.08 } : {}}
+            whileTap={input.trim() && !loading ? { scale: 0.92 } : {}}
+            transition={{ type: 'spring', stiffness: 400, damping: 22 }}
             style={{
               width: 44, height: 44, borderRadius: 14,
-              border: 'none',
               background: input.trim() && !loading
                 ? 'linear-gradient(135deg, #2D8653, #1A5C3A)'
                 : WARM.surface,
               color: input.trim() && !loading ? '#F5F0E8' : 'rgba(245,240,232,0.3)',
               fontSize: 18, cursor: input.trim() && !loading ? 'pointer' : 'default',
               flexShrink: 0,
-              transition: 'all 0.2s',
               border: `1px solid ${input.trim() && !loading ? 'transparent' : WARM.border}`,
               boxShadow: input.trim() && !loading ? '0 2px 12px rgba(26,92,58,0.4)' : 'none',
             }}
           >
             →
-          </button>
+          </motion.button>
         </div>
       </div>
 
@@ -1049,10 +1055,13 @@ function PlansScreen({ hermes, user, lang = 'en' }) {
           const isSelected = selected === plan.id;
           const isCurrent  = activeTier === plan.id;
           return (
-            <div
+            <motion.div
               key={plan.id}
               className={`pl-pcard pl-enter pl-enter-d${i + 1}`}
               onClick={() => setSelected(plan.id)}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 22 }}
               style={{
                 borderRadius: 18, padding: '18px 20px',
                 border: `1.5px solid ${isSelected ? plan.color : C.glassBorder}`,
@@ -1124,7 +1133,7 @@ function PlansScreen({ hermes, user, lang = 'en' }) {
                   </div>
                 ))}
               </div>
-            </div>
+            </motion.div>
           );
         })}
       </div>
