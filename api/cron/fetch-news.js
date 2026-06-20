@@ -91,7 +91,8 @@ async function fetchCategoryNews(category) {
       ? parsed.map(item => ({ ...item, category: category.key }))
       : [];
   } catch (err) {
-    console.log('PARSEFAIL_' + category.key + '_' + textBlocks.replace(/\n/g,' ').slice(0,180));
+    global.__debugRaw = global.__debugRaw || {};
+    global.__debugRaw[category.key] = textBlocks.slice(0, 400);
     return [];
   }
 }
@@ -148,5 +149,5 @@ export default async function handler(req, res) {
     }
   }
 
-  return res.status(200).json({ success: true, results });
+  return res.status(200).json({ success: true, results, debugRaw: global.__debugRaw || {} });
 }
