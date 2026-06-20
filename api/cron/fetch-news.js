@@ -91,7 +91,7 @@ async function fetchCategoryNews(category) {
       ? parsed.map(item => ({ ...item, category: category.key }))
       : [];
   } catch (err) {
-    console.error(`No se pudo parsear JSON para ${category.key}:`, textBlocks);
+    console.log('PARSEFAIL_' + category.key + '_' + textBlocks.replace(/\n/g,' ').slice(0,180));
     return [];
   }
 }
