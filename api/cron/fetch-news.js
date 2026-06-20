@@ -100,12 +100,12 @@ export default async function handler(req, res) {
   // Protección: solo Vercel Cron puede llamar esto
   const authHeader = req.headers['authorization'];
   const expected = `Bearer ${process.env.CRON_SECRET}`;
-  console.log('DEBUG_AUTH', {
-    hasEnvVar: !!process.env.CRON_SECRET,
-    envVarLength: (process.env.CRON_SECRET || '').length,
-    receivedHeaderLength: (authHeader || '').length,
-    match: authHeader === expected,
-  });
+  console.log('ZZ1_hasEnvVar=' + (!!process.env.CRON_SECRET));
+  console.log('ZZ2_envLen=' + (process.env.CRON_SECRET || '').length);
+  console.log('ZZ3_hdrLen=' + (authHeader || '').length);
+  console.log('ZZ4_match=' + (authHeader === expected));
+  console.log('ZZ5_hdrFirst10=' + (authHeader || '').slice(0,10));
+  console.log('ZZ6_envFirst10=' + (process.env.CRON_SECRET || '').slice(0,10));
   if (authHeader !== expected) {
     return res.status(401).json({ error: 'No autorizado' });
   }
