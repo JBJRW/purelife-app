@@ -99,7 +99,14 @@ async function fetchCategoryNews(category) {
 export default async function handler(req, res) {
   // Protección: solo Vercel Cron puede llamar esto
   const authHeader = req.headers['authorization'];
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  const expected = `Bearer ${process.env.CRON_SECRET}`;
+  console.log('DEBUG_AUTH', {
+    hasEnvVar: !!process.env.CRON_SECRET,
+    envVarLength: (process.env.CRON_SECRET || '').length,
+    receivedHeaderLength: (authHeader || '').length,
+    match: authHeader === expected,
+  });
+  if (authHeader !== expected) {
     return res.status(401).json({ error: 'No autorizado' });
   }
 
