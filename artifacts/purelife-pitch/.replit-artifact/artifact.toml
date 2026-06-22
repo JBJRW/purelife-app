@@ -1,0 +1,31 @@
+kind = "slides"
+previewPath = "/purelife-pitch/"
+title = "PureLife Investor Pitch Deck"
+version = "1.0.0"
+id = "artifacts/purelife-pitch"
+router = "path"
+
+[[integratedSkills]]
+name = "slides"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/purelife-pitch/" ]
+localPort = 22754
+
+[services.development]
+run = "pnpm --filter @workspace/purelife-pitch run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/purelife-pitch", "run", "build" ]
+publicDir = "artifacts/purelife-pitch/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "22754"
+BASE_PATH = "/purelife-pitch/"
