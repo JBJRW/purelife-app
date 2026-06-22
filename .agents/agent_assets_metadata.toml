@@ -1,0 +1,8 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "318mMfm5pQUbvdKxsU1Oo"
+uri = "file://artifacts/purelife-mobile/assets/images/icon.png"
+type = "image"
+title = "generated_image"
