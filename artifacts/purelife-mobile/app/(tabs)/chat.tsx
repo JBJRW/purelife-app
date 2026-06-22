@@ -1,6 +1,5 @@
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import { fetch } from "expo/fetch";
 import React, { useCallback, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -15,13 +14,19 @@ import {
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { useAuth } from "@/context/AuthContext";
 import { useColors } from "@/hooks/useColors";
+
+const WELLNESS_SYSTEM_PROMPT = `You are Dr. Smoothie AI — the lead wellness intelligence for PureLife Wellness Club, a premium global health platform. You combine nutritional science with personalized guidance.
+
+PERSONALITY: Warm, authoritative, science-backed. Never preachy. Think of a brilliant friend who happens to be a nutritionist.
+
+IMPORTANT: Do not give medical diagnoses or prescriptions. You are a nutritional motivation platform, not a medical service. Always recommend consulting a doctor for health conditions. Speak in the user's language. Base recommendations on natural ingredient properties.`;
 
 interface Message {
   id: string;
   role: "user" | "assistant";
   content: string;
-  timestamp: Date;
 }
 
 const SYSTEM_INTRO: Message = {
@@ -29,17 +34,21 @@ const SYSTEM_INTRO: Message = {
   role: "assistant",
   content:
     "Hi! I'm Dr. Smoothie 🥤 — your AI-powered wellness guide. Ask me anything about nutrition, recipes, healthy habits, or your wellness journey!",
-  timestamp: new Date(),
 };
 
-const API_DOMAIN = process.env.EXPO_PUBLIC_DOMAIN;
-
 function getApiUrl() {
-  if (API_DOMAIN) return `https://${API_DOMAIN}/api/chat`;
+  const domain = process.env.EXPO_PUBLIC_DOMAIN;
+  if (domain) return `https://${domain}/api/chat`;
   return "/api/chat";
 }
 
-function MessageBubble({ message, colors }: { message: Message; colors: ReturnType<typeof useColors> }) {
+function MessageBubble({
+  message,
+  colors,
+}: {
+  message: Message;
+  colors: ReturnType<typeof useColors>;
+}) {
   const isUser = message.role === "user";
   return (
     <View
@@ -49,7 +58,9 @@ function MessageBubble({ message, colors }: { message: Message; colors: ReturnTy
       ]}
     >
       {!isUser && (
-        <View style={[styles.avatar, { backgroundColor: colors.primary + "25" }]}>
+        <View
+          style={[styles.avatar, { backgroundColor: colors.primary + "25" }]}
+        >
           <Text style={{ fontSize: 16 }}>🥤</Text>
         </View>
       )}
@@ -58,7 +69,10 @@ function MessageBubble({ message, colors }: { message: Message; colors: ReturnTy
           styles.bubble,
           isUser
             ? [styles.bubbleUser, { backgroundColor: colors.primary }]
-            : [styles.bubbleAssistant, { backgroundColor: colors.card, borderColor: colors.border }],
+            : [
+                styles.bubbleAssistant,
+                { backgroundColor: colors.card, borderColor: colors.border },
+              ],
           { maxWidth: "82%" },
         ]}
       >
@@ -78,10 +92,10 @@ function MessageBubble({ message, colors }: { message: Message; colors: ReturnTy
 export default function ChatScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
+  const { session } = useAuth();
   const [messages, setMessages] = useState<Message[]>([SYSTEM_INTRO]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const flatListRef = useRef<FlatList>(null);
 
   const topInset = Platform.OS === "web" ? 67 : insets.top;
   const bottomInset = Platform.OS === "web" ? 34 : insets.bottom;
@@ -98,117 +112,67 @@ export default function ChatScreen() {
       id: Date.now().toString(),
       role: "user",
       content: text,
-      timestamp: new Date(),
     };
 
     const assistantId = (Date.now() + 1).toString();
-    const assistantMsg: Message = {
-      id: assistantId,
-      role: "assistant",
-      content: "",
-      timestamp: new Date(),
-    };
 
-    setMessages((prev) => [assistantMsg, userMsg, ...prev]);
+    setMessages((prev) => [
+      { id: assistantId, role: "assistant", content: "" },
+      userMsg,
+      ...prev,
+    ]);
 
     try {
-      const history = messages
-        .slice()
+      const conversationHistory = [...messages]
         .reverse()
         .filter((m) => m.id !== "intro")
         .map((m) => ({ role: m.role, content: m.content }));
 
-      history.push({ role: "user", content: text });
+      conversationHistory.push({ role: "user", content: text });
 
       const response = await fetch(getApiUrl(), {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: history }),
+        headers: {
+          "Content-Type": "application/json",
+          ...(session?.access_token
+            ? { Authorization: `Bearer ${session.access_token}` }
+            : {}),
+        },
+        body: JSON.stringify({
+          system: [
+            {
+              type: "text",
+              text: WELLNESS_SYSTEM_PROMPT,
+              cache_control: { type: "ephemeral" },
+            },
+          ],
+          messages: conversationHistory,
+        }),
       });
 
-      if (!response.ok) throw new Error("API error");
+      if (!response.ok) throw new Error(`API ${response.status}`);
 
-      const reader = response.body?.getReader();
-      if (!reader) throw new Error("No reader");
+      const data = await response.json();
 
-      const decoder = new TextDecoder();
-      let accumulated = "";
+      const reply =
+        data?.content?.[0]?.text ||
+        data?.reply ||
+        data?.message ||
+        "I couldn't generate a response. Please try again.";
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split("\n");
-
-        for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            const data = line.slice(6).trim();
-            if (data === "[DONE]") break;
-            try {
-              const parsed = JSON.parse(data);
-              const delta =
-                parsed?.choices?.[0]?.delta?.content ||
-                parsed?.delta?.text ||
-                parsed?.content ||
-                "";
-              if (delta) {
-                accumulated += delta;
-                setMessages((prev) =>
-                  prev.map((m) =>
-                    m.id === assistantId ? { ...m, content: accumulated } : m
-                  )
-                );
-              }
-            } catch {
-              if (data && !data.startsWith("{")) {
-                accumulated += data;
-                setMessages((prev) =>
-                  prev.map((m) =>
-                    m.id === assistantId ? { ...m, content: accumulated } : m
-                  )
-                );
-              }
-            }
-          }
-        }
-      }
-
-      if (!accumulated) {
-        const text = await response.text().catch(() => "");
-        try {
-          const parsed = JSON.parse(text);
-          const content =
-            parsed?.choices?.[0]?.message?.content ||
-            parsed?.content ||
-            parsed?.message ||
-            "I couldn't process that. Please try again.";
-          setMessages((prev) =>
-            prev.map((m) =>
-              m.id === assistantId ? { ...m, content } : m
-            )
-          );
-        } catch {
-          setMessages((prev) =>
-            prev.map((m) =>
-              m.id === assistantId
-                ? {
-                    ...m,
-                    content:
-                      text || "I couldn't process that. Please try again.",
-                  }
-                : m
-            )
-          );
-        }
-      }
-    } catch (err) {
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === assistantId ? { ...m, content: reply } : m
+        )
+      );
+    } catch {
       setMessages((prev) =>
         prev.map((m) =>
           m.id === assistantId
             ? {
                 ...m,
-                content: "Sorry, I'm having trouble connecting. Please try again.",
+                content:
+                  "Sorry, I'm having trouble connecting. Please try again.",
               }
             : m
         )
@@ -216,7 +180,7 @@ export default function ChatScreen() {
     } finally {
       setIsLoading(false);
     }
-  }, [input, isLoading, messages]);
+  }, [input, isLoading, messages, session]);
 
   const renderItem = useCallback(
     ({ item }: { item: Message }) => (
@@ -244,7 +208,12 @@ export default function ChatScreen() {
           },
         ]}
       >
-        <View style={[styles.headerAvatar, { backgroundColor: colors.primary + "20" }]}>
+        <View
+          style={[
+            styles.headerAvatar,
+            { backgroundColor: colors.primary + "20" },
+          ]}
+        >
           <Text style={{ fontSize: 22 }}>🥤</Text>
         </View>
         <View>
@@ -253,7 +222,9 @@ export default function ChatScreen() {
           </Text>
           <View style={styles.onlineRow}>
             <View style={[styles.onlineDot, { backgroundColor: "#4CAF50" }]} />
-            <Text style={[styles.onlineText, { color: colors.mutedForeground }]}>
+            <Text
+              style={[styles.onlineText, { color: colors.mutedForeground }]}
+            >
               Always available
             </Text>
           </View>
@@ -266,21 +237,26 @@ export default function ChatScreen() {
         keyboardVerticalOffset={0}
       >
         <FlatList
-          ref={flatListRef}
           data={messages}
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
           inverted
-          contentContainerStyle={[
-            styles.messageList,
-            { paddingBottom: 12 },
-          ]}
+          contentContainerStyle={styles.messageList}
           showsVerticalScrollIndicator={false}
           keyboardDismissMode="interactive"
           keyboardShouldPersistTaps="handled"
+          scrollEnabled={!!messages.length}
           ListHeaderComponent={
             isLoading && messages[0]?.content === "" ? (
-              <View style={[styles.typingBubble, { backgroundColor: colors.card, borderColor: colors.border }]}>
+              <View
+                style={[
+                  styles.typingBubble,
+                  {
+                    backgroundColor: colors.card,
+                    borderColor: colors.border,
+                  },
+                ]}
+              >
                 <ActivityIndicator size="small" color={colors.primary} />
               </View>
             ) : null
@@ -289,7 +265,12 @@ export default function ChatScreen() {
 
         {messages.length === 1 && (
           <View style={styles.suggestions}>
-            <Text style={[styles.suggestionsTitle, { color: colors.mutedForeground }]}>
+            <Text
+              style={[
+                styles.suggestionsTitle,
+                { color: colors.mutedForeground },
+              ]}
+            >
               Try asking...
             </Text>
             <View style={styles.suggestionsGrid}>
@@ -309,7 +290,12 @@ export default function ChatScreen() {
                     },
                   ]}
                 >
-                  <Text style={[styles.suggestionText, { color: colors.foreground }]}>
+                  <Text
+                    style={[
+                      styles.suggestionText,
+                      { color: colors.foreground },
+                    ]}
+                  >
                     {s}
                   </Text>
                 </Pressable>
@@ -395,13 +381,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   headerTitle: { fontSize: 16, fontWeight: "700" },
-  onlineRow: { flexDirection: "row", alignItems: "center", gap: 5, marginTop: 2 },
+  onlineRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    marginTop: 2,
+  },
   onlineDot: { width: 7, height: 7, borderRadius: 4 },
   onlineText: { fontSize: 12 },
-  messageList: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
-  },
+  messageList: { paddingHorizontal: 16, paddingTop: 12 },
   bubbleRow: {
     flexDirection: "row",
     marginBottom: 12,
@@ -440,11 +428,7 @@ const styles = StyleSheet.create({
   },
   suggestions: { paddingHorizontal: 16, paddingBottom: 8 },
   suggestionsTitle: { fontSize: 12, fontWeight: "500", marginBottom: 8 },
-  suggestionsGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-  },
+  suggestionsGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   suggestionChip: {
     borderRadius: 20,
     paddingHorizontal: 14,
