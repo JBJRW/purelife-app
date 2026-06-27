@@ -13,7 +13,7 @@ const C = {
 const FONT_HEAD = "'Georgia', serif";
 const FONT = "'Helvetica Neue', Arial, sans-serif";
 
-const SB_URL = 'https://efatctcxlcotsgxhmgjg.supabase.co';
+const SB_URL = 'https://slcvymfgcpoafjufaplx.supabase.co';
 
 async function sbFetch(path, token, opts = {}) {
   const KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';

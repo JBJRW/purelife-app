@@ -3,7 +3,7 @@
 // api/hermes.js
 // ═══════════════════════════════════════════════════════════════
 
-const SUPABASE_URL = 'https://efatctcxlcotsgxhmgjg.supabase.co';
+const SUPABASE_URL = 'https://slcvymfgcpoafjufaplx.supabase.co';
 const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY || '';
 
 const TIER_CONFIG = {

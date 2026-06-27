@@ -5,7 +5,7 @@
 // ============================================================
 
 const FAL_API      = 'https://fal.run';
-const SUPABASE_URL = 'https://efatctcxlcotsgxhmgjg.supabase.co';
+const SUPABASE_URL = 'https://slcvymfgcpoafjufaplx.supabase.co';
 
 const CORS_ORIGINS = [
   'https://purelifewellnessclub.org',

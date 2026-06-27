@@ -4,7 +4,7 @@
 // + Recraft V3 pipeline (seed+)
 // ============================================================
 
-const SUPABASE_URL = 'https://efatctcxlcotsgxhmgjg.supabase.co';
+const SUPABASE_URL = 'https://slcvymfgcpoafjufaplx.supabase.co';
 const FAL_API      = 'https://fal.run';
 
 const PIPELINES = {

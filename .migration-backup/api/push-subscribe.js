@@ -4,7 +4,7 @@
 // JRMB Food Network LLC · 2026
 // ================================================================
 
-const SUPABASE_URL = 'https://efatctcxlcotsgxhmgjg.supabase.co';
+const SUPABASE_URL = 'https://slcvymfgcpoafjufaplx.supabase.co';
 const ALLOWED_ORIGINS = [
   'https://purelifewellnessclub.org','https://www.purelifewellnessclub.org',
   'http://localhost:5173','http://localhost:3000',

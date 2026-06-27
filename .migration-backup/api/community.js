@@ -10,7 +10,7 @@ const ALLOWED = [
   "http://localhost:3000",
 ];
 
-const SUPA = "https://efatctcxlcotsgxhmgjg.supabase.co";
+const SUPA = "https://slcvymfgcpoafjufaplx.supabase.co";
 
 function sbHeaders(accessToken) {
   // Usar SUPABASE_ANON_KEY (sin NEXT_PUBLIC_ ni VITE_ — esta es API serverless)

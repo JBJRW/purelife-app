@@ -10,7 +10,7 @@ const ALLOWED_ORIGINS = [
   "http://localhost:5173",
 ];
 
-const SUPABASE_URL = process.env.SUPABASE_URL || "https://efatctcxlcotsgxhmgjg.supabase.co";
+const SUPABASE_URL = process.env.SUPABASE_URL || "https://slcvymfgcpoafjufaplx.supabase.co";
 const SUPABASE_SRK = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const FOUNDING_LIMIT = 100;
 

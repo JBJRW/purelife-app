@@ -4,7 +4,7 @@
 // GET/POST contador de generaciones de video por usuario/mes
 // ============================================================
 
-const SUPABASE_URL = 'https://efatctcxlcotsgxhmgjg.supabase.co';
+const SUPABASE_URL = 'https://slcvymfgcpoafjufaplx.supabase.co';
 
 function sbHeaders(accessToken, key) {
   return {

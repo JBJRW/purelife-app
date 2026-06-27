@@ -4,7 +4,7 @@
 
 import crypto from 'crypto';
 
-const SB_URL  = process.env.VITE_SUPABASE_URL  || 'https://efatctcxlcotsgxhmgjg.supabase.co';
+const SB_URL  = process.env.VITE_SUPABASE_URL  || 'https://slcvymfgcpoafjufaplx.supabase.co';
 const SB_KEY  = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 const ALLOWED_ORIGINS = [

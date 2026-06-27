@@ -54,7 +54,7 @@ const FONT_HEAD = "'Georgia', serif";
 const FONT_BODY = "'Helvetica Neue', Arial, sans-serif";
 
 // ── SUPABASE CONFIG ─────────────────────────────────────────
-const SB_URL = 'https://efatctcxlcotsgxhmgjg.supabase.co';
+const SB_URL = 'https://slcvymfgcpoafjufaplx.supabase.co';
 const SB_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
 async function sbFetch(path, opts = {}) {

@@ -14,7 +14,7 @@ const ALLOWED_ORIGINS = [
 
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
 const PRICE_ID = process.env.STRIPE_PRICE_ID_ANNUAL || "price_1TVbUd2d05WpkcPe9HUVy3eK";
-const SUPABASE_URL = process.env.SUPABASE_URL || "https://efatctcxlcotsgxhmgjg.supabase.co";
+const SUPABASE_URL = process.env.SUPABASE_URL || "https://slcvymfgcpoafjufaplx.supabase.co";
 const SUPABASE_SRK = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const FOUNDING_LIMIT = 100;
 
