@@ -416,17 +416,12 @@ function HomeScreen({ user, goals, onNavigate, hermes, lang = 'en' }) {
         </motion.button>
 
         {/* ── QUICK ACTIONS 2x2 ── */}
-        {/* NOTA: img3D queda null a propósito — espacio reservado para los
-            íconos 3D de marca (generación AI 4K) que se insertan aquí en
-            cuanto haya créditos en jorge creador/Higgsfield. Mientras tanto
-            usamos un tile de marca (gradiente verde+dorado) en vez de las
-            fotos de stock de Unsplash que había antes. */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 24 }}>
           {[
-            { emoji: '🍽️', label: 'Recipes', tab: 'recipes', img3D: null },
-            { emoji: '📍', label: 'Near me', tab: 'map', img3D: null },
-            { emoji: '▶', label: 'Video AI', tab: 'video', img3D: null },
-            { emoji: '◐', label: 'My stats', tab: 'dashboard', img3D: null },
+            { emoji: '🍽️', label: 'Recipes', tab: 'recipes', img: IMGS.fruits },
+            { emoji: '🗺️', label: 'Near me', tab: 'map', img: IMGS.avocado },
+            { emoji: '🎥', label: 'Video AI', tab: 'video', img: IMGS.smoothie2 },
+            { emoji: '📊', label: 'My stats', tab: 'dashboard', img: IMGS.smoothie3 },
           ].map(a => (
             <motion.button
               key={a.tab}
@@ -437,25 +432,21 @@ function HomeScreen({ user, goals, onNavigate, hermes, lang = 'en' }) {
               style={{
                 position: 'relative', borderRadius: 16,
                 overflow: 'hidden', aspectRatio: '1.4',
-                cursor: 'pointer', border: '1px solid rgba(201,151,58,0.25)',
-                padding: 0,
-                background: a.img3D
-                  ? `center/cover no-repeat url(${a.img3D})`
-                  : 'linear-gradient(160deg, #13251d 0%, #0a1410 100%)',
+                cursor: 'pointer', border: 'none', padding: 0,
               }}
             >
-              {a.img3D && (
-                <div style={{
-                  position: 'absolute', inset: 0,
-                  background: 'linear-gradient(to top, rgba(10,20,16,0.92) 0%, rgba(10,20,16,0.25) 60%)',
-                }} />
-              )}
+              <img src={a.img} alt={a.label}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
               <div style={{
                 position: 'absolute', inset: 0,
-                display: 'flex', flexDirection: 'column',
-                justifyContent: 'space-between', padding: '14px 12px',
+                background: 'linear-gradient(to top, rgba(15,31,23,0.9) 0%, rgba(15,31,23,0.2) 60%)',
+              }} />
+              <div style={{
+                position: 'absolute', bottom: 10, left: 12, right: 12,
+                display: 'flex', alignItems: 'center', gap: 6,
               }}>
-                <span style={{ fontSize: 22, color: '#C9973A' }}>{a.emoji}</span>
+                <span style={{ fontSize: 16 }}>{a.emoji}</span>
                 <span style={{
                   color: '#F5F0E8', fontSize: 13, fontWeight: 700,
                   fontFamily: "'DM Sans', sans-serif",
