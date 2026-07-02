@@ -401,7 +401,7 @@ export default function ComingSoonPage({ onEnterApp, lang = "en", onLangChange }
   if (showDiag) {
     return (
       <div style={{ background: "#060D08", minHeight: "100vh" }}>
-        <WellnessDiagnostic onComplete={onEnterApp} lang={lang} />
+        <WellnessDiagnostic onJoin={onEnterApp} lang={lang} />
       </div>
     );
   }
