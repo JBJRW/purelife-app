@@ -105,15 +105,25 @@ export default function ClubTab({ user }) {
   return (
     <div style={{ position: 'relative', minHeight: '100vh' }}>
       {!reducedData && (
-        <img
-          src="/backgrounds/bg-club.webp"
-          alt=""
-          loading="lazy"
-          onError={e => { e.currentTarget.style.display = 'none'; }}
-          className="it-bg-figure"
-        />
+        <>
+          <div className="it-glow it-glow-club" />
+          <img
+            src="/backgrounds/bg-club.webp"
+            alt=""
+            loading="lazy"
+            onError={e => { e.currentTarget.style.display = 'none'; }}
+            className="it-bg-figure"
+          />
+        </>
       )}
       <div style={{ position: 'fixed', inset: 0, background: IT.obsidian, opacity: 0.75, zIndex: 0 }} />
+      {!reducedData && (
+        <>
+          <span className="it-particle" style={{ top: '22%', right: '22%', animationDelay: '0.5s' }} />
+          <span className="it-particle" style={{ top: '38%', left: '16%', animationDelay: '2.1s' }} />
+          <span className="it-particle" style={{ top: '55%', right: '14%', animationDelay: '3.8s' }} />
+        </>
+      )}
 
       <div style={{ position: 'relative', zIndex: 1, padding: '24px 20px 20px' }} className="it-scrim-text">
         <div style={{ fontFamily: IT_FONT_HEAD, color: IT.goldLight, fontSize: 30, fontStyle: 'italic', marginBottom: 4 }}>

@@ -16,16 +16,50 @@ const INTERIOR_CSS = `
   .it-snap-y { scroll-snap-type: y mandatory; }
   .it-snap-item { scroll-snap-align: start; scroll-snap-stop: always; }
 
-  /* Fondos de figura completa (Progreso, Club): sin recorte ni estiramiento */
+  /* Fondos de figura (Progreso, Club): cover + bordes desvanecidos (resplandor, no marco) */
   .it-bg-figure {
-    position: fixed; top: 0; left: 0; right: 0; width: 100%; height: 100%;
-    object-fit: contain; object-position: center;
+    position: fixed; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; object-position: center;
     background: ${IT.obsidian};
+    -webkit-mask-image: radial-gradient(ellipse at center, black 40%, transparent 75%);
+    mask-image: radial-gradient(ellipse at center, black 40%, transparent 75%);
+    -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+    -webkit-mask-size: 100% 100%; mask-size: 100% 100%;
     z-index: 0;
   }
-  @media (max-width: 430px) {
-    /* Pantallas angostas: banda superior de 65vh en vez de 100vh para que la figura no se vea diminuta */
-    .it-bg-figure { height: 65vh; }
+
+  /* Resplandor ambiental detrás de la figura */
+  .it-glow {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .it-glow::before {
+    content: '';
+    width: min(70vw, 420px); height: min(70vw, 420px);
+    border-radius: 50%;
+    filter: blur(72px);
+    opacity: 0.18;
+    animation: itGlowPulse 5s ease-in-out infinite;
+  }
+  .it-glow-progreso::before { background: ${IT.gold}; }
+  .it-glow-club::before { background: radial-gradient(circle, ${IT.emerald} 0%, ${IT.gold} 75%); }
+  @keyframes itGlowPulse {
+    0%, 100% { transform: scale(1); opacity: 0.15; }
+    50%      { transform: scale(1.03); opacity: 0.25; }
+  }
+
+  /* Partículas doradas flotantes (consistencia con el chat de Dr. Smoothie) */
+  .it-particle {
+    position: fixed; z-index: 0; pointer-events: none;
+    width: 4px; height: 4px; border-radius: 50%;
+    background: ${IT.goldLight};
+    box-shadow: 0 0 8px 2px rgba(232,201,106,0.7);
+    opacity: 0.5;
+    animation: itParticleFloat 6s ease-in-out infinite;
+  }
+  @keyframes itParticleFloat {
+    0%, 100% { transform: translateY(0); opacity: 0.35; }
+    50%      { transform: translateY(-14px); opacity: 0.7; }
   }
 
   /* Feedback táctil sutil para elementos interactivos del interior */
@@ -41,6 +75,8 @@ const INTERIOR_CSS = `
     .it-tap { transition: none !important; }
     .it-tap:active { transform: none !important; }
     .it-tap-glow:active > span { text-shadow: none !important; }
+    .it-glow::before { animation: none !important; opacity: 0.18; }
+    .it-particle { animation: none !important; opacity: 0.45; }
   }
 `;
 

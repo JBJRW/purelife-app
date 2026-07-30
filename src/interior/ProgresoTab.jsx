@@ -214,15 +214,25 @@ export default function ProgresoTab({ user, hermes }) {
   return (
     <div style={{ position: 'relative', minHeight: '100vh' }}>
       {!reducedData && (
-        <img
-          src="/backgrounds/bg-progreso.webp"
-          alt=""
-          loading="lazy"
-          onError={e => { e.currentTarget.style.display = 'none'; }}
-          className="it-bg-figure"
-        />
+        <>
+          <div className="it-glow it-glow-progreso" />
+          <img
+            src="/backgrounds/bg-progreso.webp"
+            alt=""
+            loading="lazy"
+            onError={e => { e.currentTarget.style.display = 'none'; }}
+            className="it-bg-figure"
+          />
+        </>
       )}
       <div style={{ position: 'fixed', inset: 0, background: IT.obsidian, opacity: 0.75, zIndex: 0 }} />
+      {!reducedData && (
+        <>
+          <span className="it-particle" style={{ top: '18%', left: '20%', animationDelay: '0s' }} />
+          <span className="it-particle" style={{ top: '30%', right: '18%', animationDelay: '1.6s' }} />
+          <span className="it-particle" style={{ top: '50%', left: '12%', animationDelay: '3.2s' }} />
+        </>
+      )}
 
       <div style={{ position: 'relative', zIndex: 1, padding: '24px 20px 20px' }} className="it-scrim-text">
         <div style={{ fontFamily: IT_FONT_HEAD, color: IT.goldLight, fontSize: 30, fontStyle: 'italic', marginBottom: 4 }}>
