@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { IT, IT_FONT_HEAD, IT_FONT_BODY, IT_EASE } from './tokens';
+import { IT, IT_FONT_HEAD, IT_FONT_BODY } from './tokens';
 import { askDrSmoothie } from '../App';
 
 const RECIPE_INSTRUCTION = '\n\n(Instrucción de formato para esta respuesta: después de tu respuesta normal en texto, agrega en una línea aparte un bloque delimitado exactamente así, con JSON válido en una sola línea: ```recipe\n{"name":"nombre del smoothie","ingredients":["ingrediente 1","ingrediente 2"],"macros":{"protein":0,"carbs":0,"fat":0,"fiber":0}}\n``` — los valores de macros son porcentajes relativos 0-100 para barras visuales, no gramos exactos.)';
@@ -148,6 +148,7 @@ export default function ChatTab({ user, hermes, lang = 'es', onNavigate }) {
           <button
             key={c.id}
             onClick={() => handleChip(c.id)}
+            className="it-tap"
             style={{
               whiteSpace: 'nowrap', padding: '7px 14px', borderRadius: 20,
               border: `1px solid ${IT.divider}`, background: 'transparent',
@@ -205,8 +206,8 @@ export default function ChatTab({ user, hermes, lang = 'es', onNavigate }) {
         <motion.button
           onClick={() => sendMessage()}
           disabled={loading || !input.trim()}
-          whileTap={{ scale: 0.92 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 22, ease: IT_EASE }}
+          whileTap={{ scale: 0.96 }}
+          transition={{ duration: 0.12, ease: 'easeOut' }}
           style={{
             background: 'none', border: 'none', cursor: input.trim() ? 'pointer' : 'default',
             color: input.trim() ? IT.goldLight : IT.textSecondary, fontSize: 18, fontFamily: IT_FONT_BODY,

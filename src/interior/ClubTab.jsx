@@ -49,12 +49,13 @@ function ShareForm({ user, onDone }) {
       />
       <div style={{ display: 'flex', gap: 4, margin: '10px 0' }}>
         {[1, 2, 3, 4, 5].map(n => (
-          <button key={n} onClick={() => setRating(n)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: n <= rating ? IT.gold : IT.textSecondary }}>★</button>
+          <button key={n} onClick={() => setRating(n)} className="it-tap" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: n <= rating ? IT.gold : IT.textSecondary }}>★</button>
         ))}
       </div>
       <button
         onClick={submit}
         disabled={saving || !content.trim()}
+        className="it-tap"
         style={{
           padding: '10px 18px', borderRadius: 10, border: 'none', cursor: 'pointer',
           background: `linear-gradient(135deg, ${IT.gold}, ${IT.goldLight})`,
@@ -108,7 +109,8 @@ export default function ClubTab({ user }) {
           src="/backgrounds/bg-club.webp"
           alt=""
           loading="lazy"
-          style={{ position: 'fixed', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }}
+          onError={e => { e.currentTarget.style.display = 'none'; }}
+          className="it-bg-figure"
         />
       )}
       <div style={{ position: 'fixed', inset: 0, background: IT.obsidian, opacity: 0.75, zIndex: 0 }} />
@@ -133,6 +135,7 @@ export default function ClubTab({ user }) {
         {!showShareForm && !shared && (
           <button
             onClick={() => setShowShareForm(true)}
+            className="it-tap"
             style={{
               width: '100%', padding: '13px', marginBottom: 6, borderRadius: 10,
               border: `1px solid ${IT.goldLight}`, background: 'transparent',

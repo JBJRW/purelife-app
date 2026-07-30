@@ -84,15 +84,15 @@ function VideoItem({ video, user, onLiked }) {
         position: 'absolute', right: 12, bottom: 24,
         display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20,
       }}>
-        <button onClick={handleLike} style={actionBtnStyle}>
+        <button onClick={handleLike} className="it-tap" style={actionBtnStyle}>
           <span style={{ fontSize: 22, color: liked ? IT.emerald : IT.cream }}>{liked ? '♥' : '♡'}</span>
           <span style={actionLabelStyle}>{(video.likes_count || 0) + (liked ? 1 : 0)}</span>
         </button>
-        <button onClick={() => showToast('Comentarios — próximamente')} style={actionBtnStyle}>
+        <button onClick={() => showToast('Comentarios — próximamente')} className="it-tap" style={actionBtnStyle}>
           <span style={{ fontSize: 20, color: IT.cream }}>💬</span>
           <span style={actionLabelStyle}>Comentar</span>
         </button>
-        <button onClick={() => showToast('Guardado — próximamente')} style={actionBtnStyle}>
+        <button onClick={() => showToast('Guardado — próximamente')} className="it-tap" style={actionBtnStyle}>
           <span style={{ fontSize: 20, color: IT.cream }}>⬇</span>
           <span style={actionLabelStyle}>Guardar</span>
         </button>

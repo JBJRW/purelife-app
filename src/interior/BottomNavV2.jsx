@@ -30,8 +30,9 @@ export default function BottomNavV2({ active, onNavigate }) {
             <motion.button
               key={t.id}
               onClick={() => onNavigate(t.id)}
-              whileTap={{ scale: 0.92 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 22 }}
+              whileTap={{ scale: 0.96 }}
+              transition={{ duration: 0.12, ease: 'easeOut' }}
+              className={isActive ? 'it-tap-glow' : ''}
               style={{
                 background: 'none', border: 'none', cursor: 'pointer',
                 display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,

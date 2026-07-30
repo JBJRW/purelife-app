@@ -34,6 +34,7 @@ function SubView({ id, user, hermes, lang, onBack }) {
       }}>
         <button
           onClick={onBack}
+          className="it-tap"
           style={{ background: 'none', border: 'none', color: IT.goldLight, fontSize: 14, fontFamily: IT_FONT_BODY, cursor: 'pointer' }}
         >
           ← Volver a Perfil
@@ -89,11 +90,12 @@ export default function PerfilTab({ user, hermes, lang, onLangChange, onSignOut 
                   color: IT.cream, fontSize: 16, fontFamily: IT_FONT_BODY, outline: 'none', width: 160,
                 }}
               />
-              <button onClick={saveName} style={{ background: 'none', border: 'none', color: IT.emerald, cursor: 'pointer' }}>✓</button>
+              <button onClick={saveName} className="it-tap" style={{ background: 'none', border: 'none', color: IT.emerald, cursor: 'pointer' }}>✓</button>
             </div>
           ) : (
             <div
               onClick={() => setEditingName(true)}
+              className="it-tap"
               style={{ fontFamily: IT_FONT_HEAD, color: IT.cream, fontSize: 20, cursor: 'pointer' }}
             >
               {profile?.full_name || user?.name || 'Tu nombre'}
@@ -121,6 +123,7 @@ export default function PerfilTab({ user, hermes, lang, onLangChange, onSignOut 
         <button
           key={item.id}
           onClick={() => setSubView(item.id)}
+          className="it-tap"
           style={{
             display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%',
             padding: '13px 0', borderTop: `1px solid ${IT.divider}`, background: 'none',
@@ -139,6 +142,7 @@ export default function PerfilTab({ user, hermes, lang, onLangChange, onSignOut 
           <button
             key={code}
             onClick={() => onLangChange?.(code)}
+            className="it-tap"
             style={{
               padding: '6px 14px', borderRadius: 20, cursor: 'pointer',
               border: `1px solid ${lang === code ? IT.goldLight : IT.divider}`,
@@ -153,6 +157,7 @@ export default function PerfilTab({ user, hermes, lang, onLangChange, onSignOut 
 
       <button
         onClick={onSignOut}
+        className="it-tap"
         style={{
           width: '100%', padding: '13px', borderRadius: 10, cursor: 'pointer',
           border: `1px solid rgba(224,90,90,0.4)`, background: 'transparent',

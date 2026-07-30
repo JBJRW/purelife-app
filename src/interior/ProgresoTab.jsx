@@ -63,6 +63,7 @@ function ExamForm({ user, onDone }) {
               <button
                 key={n}
                 onClick={() => setAnswers(a => ({ ...a, [f.key]: n }))}
+                className="it-tap"
                 style={{
                   width: 34, height: 34, borderRadius: '50%', cursor: 'pointer',
                   border: `1px solid ${answers[f.key] === n ? IT.goldLight : IT.divider}`,
@@ -80,6 +81,7 @@ function ExamForm({ user, onDone }) {
       <button
         onClick={submit}
         disabled={saving}
+        className="it-tap"
         style={{
           width: '100%', padding: '13px', borderRadius: 10, border: 'none', cursor: 'pointer',
           background: `linear-gradient(135deg, ${IT.gold}, ${IT.goldLight})`,
@@ -107,6 +109,7 @@ function ReminderRow({ reminder, onToggle }) {
       </div>
       <button
         onClick={() => onToggle(reminder)}
+        className="it-tap"
         style={{
           width: 38, height: 22, borderRadius: 12, border: `1px solid ${IT.divider}`, cursor: 'pointer',
           background: reminder.is_active ? IT.sage : 'transparent', position: 'relative', flexShrink: 0,
@@ -150,6 +153,7 @@ function NewReminderForm({ user, onCreated }) {
       </select>
       <button
         onClick={submit}
+        className="it-tap"
         style={{
           padding: '10px', borderRadius: 10, border: `1px solid ${IT.divider}`, background: 'transparent',
           color: IT.goldLight, fontSize: 13, fontFamily: IT_FONT_BODY, cursor: 'pointer',
@@ -215,10 +219,7 @@ export default function ProgresoTab({ user, hermes }) {
           alt=""
           loading="lazy"
           onError={e => { e.currentTarget.style.display = 'none'; }}
-          style={{
-            position: 'fixed', inset: 0, width: '100%', height: '100%',
-            objectFit: 'cover', zIndex: 0,
-          }}
+          className="it-bg-figure"
         />
       )}
       <div style={{ position: 'fixed', inset: 0, background: IT.obsidian, opacity: 0.75, zIndex: 0 }} />
@@ -263,6 +264,7 @@ export default function ProgresoTab({ user, hermes }) {
         {needsExam && !showExamForm && (
           <button
             onClick={() => setShowExamForm(true)}
+            className="it-tap"
             style={{
               width: '100%', padding: '13px', marginBottom: 20, borderRadius: 10,
               border: `1px solid ${IT.goldLight}`, background: 'transparent',
@@ -294,6 +296,7 @@ export default function ProgresoTab({ user, hermes }) {
         ) : (
           <button
             onClick={() => setShowReminderForm(true)}
+            className="it-tap"
             style={{
               marginTop: 12, padding: '10px 0', background: 'none', border: 'none',
               color: IT.gold, fontSize: 13, fontFamily: IT_FONT_BODY, cursor: 'pointer',
