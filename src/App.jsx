@@ -2,16 +2,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { loadLang, saveLang, tui } from './i18n';
-import LanguageSelector from './components/LanguageSelector';
 import ComingSoonPage from './comingsoonpage';
 import VideoAgent from './pages/VideoAgent';
 import RecipesScreen from './pages/RecipesScreen';
 import MapScreen from './pages/MapScreen';
 import OnboardingChat from './components/OnboardingChat';
-import ReminderSystem from './components/ReminderSystem';
-import ProgressExam from './components/ProgressExam';
 import { useHermes } from './hooks/useHermes';
 import NewsSection from './components/NewsSection';
+import { useAuth } from './context/AuthContext';
+import InteriorApp from './interior/InteriorApp';
 // ── PALETA OFICIAL PURELIFE ─────────────────────────────────
 const C = {
   dark:    '#0F1F17',
@@ -53,25 +52,8 @@ const IMGS = {
 const FONT_HEAD = "'Georgia', serif";
 const FONT_BODY = "'Helvetica Neue', Arial, sans-serif";
 
-// ── SUPABASE CONFIG ─────────────────────────────────────────
-const SB_URL = 'https://slcvymfgcpoafjufaplx.supabase.co';
-const SB_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
-
-async function sbFetch(path, opts = {}) {
-  const res = await fetch(`${SB_URL}${path}`, {
-    headers: {
-      apikey: SB_KEY,
-      Authorization: `Bearer ${SB_KEY}`,
-      'Content-Type': 'application/json',
-      ...opts.headers,
-    },
-    ...opts,
-  });
-  return res.json();
-}
-
 // ── CLAUDE API — via proxy seguro /api/chat ──────────────────
-async function askDrSmoothie(message, history, userId, accessToken, lang = "en") {
+export async function askDrSmoothie(message, history, userId, accessToken, lang = "en") {
   const res = await fetch('/api/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -263,7 +245,7 @@ function SplashScreen({ onContinue, lang = 'en' }) {
 }
 
 // ── SCREEN: HOME ─────────────────────────────────────────────
-function HomeScreen({ user, goals, onNavigate, hermes, lang = 'en' }) {
+export function HomeScreen({ user, goals, onNavigate, hermes, lang = 'en' }) {
   const hour = new Date().getHours();
   const greeting = hour < 12
     ? tui(lang,'greeting_morning')
@@ -950,7 +932,7 @@ function ChatScreen({ user, hermes, lang = 'en' }) {
 
 // ── SCREEN: PLANES v2 ────────────────────────────────────────
 // Skills: Emil Kowalski (spring CSS) · Taste (copy+hierarchy) · Impeccable (precios reales)
-function PlansScreen({ hermes, user, lang = 'en' }) {
+export function PlansScreen({ hermes, user, lang = 'en' }) {
   const PLANS = getPlans(lang);
   // IMPECCABLE: tier real desde hermes o Supabase — nunca asume 'free' sin verificar
   const activeTier = hermes?.tier || user?.membership_tier || 'free';
@@ -1294,7 +1276,7 @@ function DashboardScreen({ user, hermes, lang = 'en' }) {
 }
 
 // ── SCREEN: LOGIN / REGISTRO ─────────────────────────────────
-function AuthScreen({ onAuth }) {
+function AuthScreen({ onAuth, signIn, signUp }) {
   const [mode, setMode] = useState('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -1306,11 +1288,17 @@ function AuthScreen({ onAuth }) {
     if (!email || !password) { setError('Completa todos los campos'); return; }
     setLoading(true); setError('');
     try {
-      const endpoint = mode === 'login' ? '/auth/v1/token?grant_type=password' : '/auth/v1/signup';
-      const body = mode === 'login' ? { email, password } : { email, password, data: { name } };
-      const res = await sbFetch(endpoint, { method: 'POST', body: JSON.stringify(body) });
-      if (res.error) { setError(res.error.message || 'Error de autenticación'); }
-      else { onAuth({ email, name: name || email.split('@')[0], token: res.access_token, id: res.user?.id || res.session?.user?.id }); }
+      const { data, error: authError } = mode === 'login'
+        ? await signIn(email, password)
+        : await signUp(email, password, name || email.split('@')[0]);
+      if (authError) {
+        setError(authError.message || 'Error de autenticación');
+      } else if (mode === 'signup' && !data?.session) {
+        // Supabase puede requerir confirmación por email antes de crear sesión
+        setError('Cuenta creada. Revisa tu correo para confirmar antes de iniciar sesión.');
+      } else {
+        onAuth({ isNewAccount: mode === 'signup' });
+      }
     } catch {
       setError('Error de conexión. Verifica tu configuración de Supabase.');
     }
@@ -1366,19 +1354,6 @@ function AuthScreen({ onAuth }) {
             {mode === 'login' ? 'Regístrate gratis' : 'Inicia sesión'}
           </motion.button>
         </p>
-
-        {/* Demo bypass */}
-        <motion.button onClick={() => onAuth({ email: 'demo@purelife.app', name: 'Usuario Demo', token: 'demo', id: 'demo' })}
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 22 }}
-          style={{
-            width: '100%', marginTop: 12, padding: '12px',
-            background: 'transparent', border: `1px dashed ${C.glassBorder}`,
-            color: C.muted, fontSize: 13, borderRadius: 12, cursor: 'pointer', fontFamily: FONT_BODY,
-          }}>
-          Entrar en modo demo →
-        </motion.button>
       </div>
     </div>
   );
@@ -1393,115 +1368,23 @@ const inputStyle = {
   outline: 'none', width: '100%', boxSizing: 'border-box',
 };
 
-function BottomNav({ active, onNavigate, lang = 'en' }) {
-  const items = [
-    { id: 'home',      icon: '🏡', label: tui(lang,'nav','home') || 'Home' },
-    { id: 'chat',      icon: null, label: tui(lang,'nav','chat') || 'Dr. AI', isAvatar: true },
-    { id: 'recipes',   icon: '🥑', label: 'Recipes' },
-    { id: 'map',       icon: '📍', label: 'Near me' },
-    { id: 'dashboard', icon: '✦', label: tui(lang,'nav','dashboard') || 'Stats' },
-    { id: 'news',      icon: '📰', label: 'News' },
-  ];
-
-  return (
-    <div style={{
-      position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 100,
-    }}>
-      {/* Blur backdrop */}
-      <div style={{
-        position: 'absolute', inset: 0,
-        background: 'rgba(10,22,16,0.92)',
-        backdropFilter: 'blur(20px)',
-        borderTop: `1px solid ${WARM.border}`,
-      }} />
-
-      <div style={{
-        position: 'relative',
-        display: 'flex', justifyContent: 'space-around',
-        padding: '10px 0 18px',
-      }}>
-        {items.map(item => {
-          const isActive = active === item.id;
-          return (
-            <motion.button
-              key={item.id}
-              onClick={() => onNavigate(item.id)}
-              animate={{ y: isActive ? -1 : 0 }}
-              whileHover={{ scale: 1.08 }}
-              whileTap={{ scale: 0.9 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 22 }}
-              style={{
-                display: 'flex', flexDirection: 'column',
-                alignItems: 'center', gap: 4,
-                background: 'none', border: 'none',
-                cursor: 'pointer', padding: '4px 10px',
-                borderRadius: 12,
-              }}
-            >
-              {/* Icono / Avatar */}
-              <div style={{
-                width: 32, height: 32,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                borderRadius: 10,
-                background: isActive ? 'rgba(45,134,83,0.2)' : 'transparent',
-                border: isActive ? '1px solid rgba(45,134,83,0.4)' : '1px solid transparent',
-                transition: 'all 0.2s',
-              }}>
-                {item.isAvatar ? (
-                  <img
-                    src="/dr-smoothie-avatar.jpg"
-                    style={{
-                      width: 22, height: 22, borderRadius: '50%',
-                      objectFit: 'cover',
-                      border: `1.5px solid ${isActive ? '#2D8653' : 'transparent'}`,
-                    }}
-                  />
-                ) : (
-                  <span style={{
-                    fontSize: 17,
-                    filter: isActive ? 'none' : 'grayscale(60%) opacity(0.6)',
-                    transition: 'all 0.2s',
-                  }}>{item.icon}</span>
-                )}
-              </div>
-
-              {/* Label */}
-              <span style={{
-                fontSize: 9, fontWeight: isActive ? 700 : 500,
-                fontFamily: "'DM Sans', sans-serif",
-                letterSpacing: '0.03em',
-                color: isActive ? '#5CB87A' : 'rgba(245,240,232,0.35)',
-                transition: 'color 0.2s',
-              }}>
-                {item.label}
-              </span>
-
-              {/* Dot activo */}
-              {isActive && (
-                <div style={{
-                  width: 4, height: 4, borderRadius: '50%',
-                  background: '#2D8653',
-                  marginTop: -2,
-                }} />
-              )}
-            </motion.button>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-
 // ── APP PRINCIPAL ────────────────────────────────────────────
 export default function App() {
   const [lang, setLang] = useState(() => loadLang());
   const [screen, setScreen] = useState('comingsoon');
 
   const handleLangChange = (code) => { saveLang(code); setLang(code); };
-  const [tab, setTab] = useState('home');
-  const [user, setUser] = useState(null);
   const [goals, setGoals] = useState([]);
+  const { user: authUser, session, loading: authLoading, signIn, signUp, signOut, supabase } = useAuth();
+
+  // Forma compatible con los componentes existentes (HomeScreen, VideoAgent, etc.)
+  const user = authUser ? {
+    id: authUser.id,
+    email: authUser.email,
+    name: authUser.user_metadata?.full_name || authUser.email?.split('@')[0],
+    token: session?.access_token,
+  } : null;
+
   const { hermes, loading: hermesLoading } = useHermes(user);
 
   const handleSplash = (selectedGoals) => {
@@ -1511,15 +1394,30 @@ export default function App() {
 
   const [showOnboarding, setShowOnboarding] = useState(false);
 
-  const handleAuth = (userData) => {
-    setUser(userData);
-    const isFirstTime = !userData?.has_completed_onboarding;
-    if (isFirstTime) setShowOnboarding(true);
+  // Sesión de Supabase persistida (recarga de página, visita futura): saltar directo a la app
+  useEffect(() => {
+    if (!authLoading && session && screen !== 'app') {
+      setScreen('app');
+    }
+  }, [authLoading, session]);
+
+  // Cerrar sesión (desde Perfil) debe devolver al login, no dejar la app montada sin usuario
+  useEffect(() => {
+    if (!authLoading && !session && screen === 'app') {
+      setScreen('auth');
+    }
+  }, [authLoading, session, screen]);
+
+  const handleAuth = async ({ isNewAccount }) => {
+    if (isNewAccount) {
+      const { data: { user: newUser } } = await supabase.auth.getUser();
+      if (newUser) {
+        await supabase.from('profiles').upsert({ id: newUser.id, language: lang }, { onConflict: 'id' });
+      }
+      setShowOnboarding(true);
+    }
     setScreen('app');
   };
-
-  const [showReminderSetup, setShowReminderSetup] = useState(false);
-  const [showProgressExam, setShowProgressExam] = useState(false);
 
   const handleOnboardingComplete = (onboardingData) => {
     setShowOnboarding(false);
@@ -1541,39 +1439,21 @@ export default function App() {
   if (screen === 'auth') {
     return (
       <div style={{ background: C.dark, minHeight: '100vh', fontFamily: FONT_BODY }}>
-        <AuthScreen onAuth={handleAuth} lang={lang} />
+        <AuthScreen onAuth={handleAuth} signIn={signIn} signUp={signUp} lang={lang} />
       </div>
     );
   }
 
-  // App principal — screens dict
-  const screens = {
-    home:      <HomeScreen user={user} goals={goals} onNavigate={setTab} hermes={hermes} lang={lang} />,
-    chat:      <ChatScreen user={user} hermes={hermes} lang={lang} />,
-    recipes:   <RecipesScreen user={user} />,
-    map:       <MapScreen user={user} />,
-    plans:     <PlansScreen hermes={hermes} lang={lang} />,
-    dashboard: <DashboardScreen user={user} hermes={hermes} lang={lang} onOpenReminders={() => setShowReminderSetup(true)} onOpenProgress={() => setShowProgressExam(true)} />,
-    video:     <VideoAgent user={user} hermes={hermes} lang={lang} />,
-    news:      <NewsSection />,
-  };
-
   return (
-    <div style={{
-      background: `radial-gradient(ellipse at top left, ${C.green}22 0%, transparent 40%),
-                   radial-gradient(ellipse at bottom right, ${C.gold}11 0%, transparent 50%),
-                   ${C.dark}`,
-      minHeight: '100vh', fontFamily: FONT_BODY,
-      paddingBottom: 80,
-    }}>
-      {screens[tab] || screens.home}
-      <BottomNav active={tab} onNavigate={setTab} lang={lang} />
-      {showReminderSetup && (
-        <ReminderSystem user={user} lang={lang} onClose={() => setShowReminderSetup(false)} />
-      )}
-      {showProgressExam && (
-        <ProgressExam user={user} lang={lang} onClose={() => setShowProgressExam(false)} />
-      )}
+    <>
+      <InteriorApp
+        user={user}
+        hermes={hermes}
+        goals={goals}
+        lang={lang}
+        onLangChange={handleLangChange}
+        onSignOut={signOut}
+      />
       {showOnboarding && (
         <OnboardingChat
           user={user} lang={lang}
@@ -1581,9 +1461,6 @@ export default function App() {
           onSkip={() => setShowOnboarding(false)}
         />
       )}
-      <div style={{ position: 'fixed', top: 12, right: 12, zIndex: 100 }}>
-        <LanguageSelector lang={lang} onChange={handleLangChange} />
-      </div>
-    </div>
+    </>
   );
 }
