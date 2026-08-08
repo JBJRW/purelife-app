@@ -1,182 +1,227 @@
-import { useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase';
+import { useEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 import { IT, IT_FONT_HEAD, IT_FONT_BODY } from './tokens';
+import { askDrSmoothie } from '../App';
 import { tui } from '../i18n';
 
-function TestimonialRow({ t }) {
-  return (
-    <div style={{ padding: '14px 0', borderTop: `1px solid ${IT.divider}` }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
-        <span style={{ fontSize: 13, fontWeight: 600, color: IT.cream }}>{t.display_name}</span>
-        {t.rating && (
-          <span style={{ fontSize: 11, color: IT.gold }}>{'★'.repeat(t.rating)}{'☆'.repeat(5 - t.rating)}</span>
-        )}
-      </div>
-      <p style={{ fontSize: 13, color: IT.cream, opacity: 0.85, lineHeight: 1.6, margin: 0 }}>{t.content}</p>
-    </div>
-  );
+// Instrucción interna para el modelo (no visible al usuario) — se mantiene en español
+// porque el AI la interpreta como instrucción de formato, no como contenido a mostrar.
+const RECIPE_INSTRUCTION = '\n\n(Format instruction for this response: after your normal text reply, add on a separate line a block delimited exactly like this, with valid JSON on a single line: ```recipe\n{"name":"smoothie name","ingredients":["ingredient 1","ingredient 2"],"macros":{"protein":0,"carbs":0,"fat":0,"fiber":0}}\n``` — macros values are relative percentages 0-100 for visual bars, not exact grams.)';
+
+function extractRecipeBlock(text) {
+  const match = text.match(/```recipe\s*([\s\S]*?)```/);
+  if (!match) return { text: text.trim(), recipe: null };
+  const clean = text.replace(match[0], '').trim();
+  try {
+    return { text: clean, recipe: JSON.parse(match[1].trim()) };
+  } catch {
+    return { text: clean, recipe: null };
+  }
 }
 
-function ShareForm({ user, onDone, lang }) {
-  const [content, setContent] = useState('');
-  const [rating, setRating] = useState(5);
-  const [saving, setSaving] = useState(false);
-
-  const submit = async () => {
-    if (!content.trim()) return;
-    setSaving(true);
-    const { error } = await supabase.from('testimonials').insert({
-      user_id: user.id,
-      display_name: user.name || 'PureLife Member',
-      content: content.trim(),
-      rating,
-    });
-    setSaving(false);
-    if (!error) onDone();
-  };
-
+function RecipeBlock({ recipe, lang }) {
+  const bars = [
+    { key: 'protein', label: tui(lang, 'itRecipeProtein'), color: IT.emerald },
+    { key: 'carbs', label: tui(lang, 'itRecipeCarbs'), color: IT.gold },
+    { key: 'fat', label: tui(lang, 'itRecipeFat'), color: IT.sage },
+    { key: 'fiber', label: tui(lang, 'itRecipeFiber'), color: IT.goldLight },
+  ];
   return (
-    <div style={{ padding: '14px 0', borderTop: `1px solid ${IT.divider}` }}>
-      <textarea
-        value={content}
-        onChange={e => setContent(e.target.value)}
-        placeholder={tui(lang, 'itClubSharePlaceholder')}
-        rows={3}
-        style={{
-          width: '100%', background: 'transparent', border: `1px solid ${IT.divider}`, borderRadius: 8,
-          color: IT.cream, fontSize: 13, fontFamily: IT_FONT_BODY, padding: 10, outline: 'none', resize: 'vertical',
-          boxSizing: 'border-box',
-        }}
-      />
-      <div style={{ display: 'flex', gap: 4, margin: '10px 0' }}>
-        {[1, 2, 3, 4, 5].map(n => (
-          <button key={n} onClick={() => setRating(n)} className="it-tap" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: n <= rating ? IT.gold : IT.textSecondary }}>★</button>
-        ))}
+    <div style={{ padding: '14px 0', borderTop: `1px solid ${IT.divider}`, marginTop: 10 }}>
+      <div style={{
+        fontFamily: IT_FONT_HEAD, color: IT.goldLight, fontSize: 22,
+        fontStyle: 'italic', marginBottom: 10,
+      }}>
+        {recipe.name}
       </div>
-      <button
-        onClick={submit}
-        disabled={saving || !content.trim()}
-        className="it-tap"
-        style={{
-          padding: '10px 18px', borderRadius: 10, border: 'none', cursor: 'pointer',
-          background: `linear-gradient(135deg, ${IT.gold}, ${IT.goldLight})`,
-          color: IT.obsidian, fontWeight: 700, fontSize: 13, fontFamily: IT_FONT_BODY,
-        }}
-      >
-        {saving ? tui(lang, 'itClubSharing') : tui(lang, 'itClubShare')}
-      </button>
-    </div>
-  );
-}
-
-export default function ClubTab({ user, lang = 'en' }) {
-  const [testimonials, setTestimonials] = useState(undefined);
-  const [founder, setFounder] = useState(null);
-  const [showShareForm, setShowShareForm] = useState(false);
-  const [shared, setShared] = useState(false);
-  const [reducedData, setReducedData] = useState(false);
-
-  useEffect(() => {
-    setReducedData(!!navigator.connection?.saveData);
-  }, []);
-
-  const loadFeed = () => {
-    supabase
-      .from('testimonials')
-      .select('*')
-      .eq('is_approved', true)
-      .order('created_at', { ascending: false })
-      .then(({ data }) => setTestimonials(data || []));
-  };
-
-  useEffect(() => {
-    loadFeed();
-    if (user?.token) {
-      fetch('/api/founder-rank', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ accessToken: user.token }),
-      })
-        .then(r => r.json())
-        .then(data => { if (data.isFoundingMember) setFounder(data.rank); })
-        .catch(() => {});
-    }
-  }, [user?.id]);
-
-  return (
-    <div style={{ position: 'relative', minHeight: '100vh' }}>
-      {!reducedData && (
-        <>
-          <div className="it-glow it-glow-club" />
-          <img
-            src="/backgrounds/bg-club.webp"
-            alt=""
-            loading="lazy"
-            onError={e => { e.currentTarget.style.display = 'none'; }}
-            className="it-bg-figure"
-          />
-        </>
+      {Array.isArray(recipe.ingredients) && recipe.ingredients.length > 0 && (
+        <ul style={{ margin: '0 0 14px', padding: 0, listStyle: 'none' }}>
+          {recipe.ingredients.map((ing, i) => (
+            <li key={i} style={{
+              fontSize: 13, color: IT.cream, opacity: 0.85,
+              padding: '4px 0', display: 'flex', gap: 8,
+            }}>
+              <span style={{ color: IT.gold }}>—</span> {ing}
+            </li>
+          ))}
+        </ul>
       )}
-      <div style={{ position: 'fixed', inset: 0, background: IT.obsidian, opacity: 0.75, zIndex: 0 }} />
-      {!reducedData && (
-        <>
-          <span className="it-particle" style={{ top: '22%', right: '22%', animationDelay: '0.5s' }} />
-          <span className="it-particle" style={{ top: '38%', left: '16%', animationDelay: '2.1s' }} />
-          <span className="it-particle" style={{ top: '55%', right: '14%', animationDelay: '3.8s' }} />
-        </>
-      )}
-
-      <div style={{ position: 'relative', zIndex: 1, padding: '24px 20px 20px' }} className="it-scrim-text">
-        <div style={{ fontFamily: IT_FONT_HEAD, color: IT.goldLight, fontSize: 30, fontStyle: 'italic', marginBottom: 4 }}>
-          {tui(lang, 'itClubTitle')}
+      {recipe.macros && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {bars.map(b => {
+            const val = Math.min(Math.max(Number(recipe.macros[b.key]) || 0, 0), 100);
+            return (
+              <div key={b.key}>
+                <div style={{
+                  display: 'flex', justifyContent: 'space-between',
+                  fontSize: 10, color: IT.textSecondary, marginBottom: 3,
+                  letterSpacing: '0.05em', textTransform: 'uppercase',
+                }}>
+                  <span>{b.label}</span><span>{val}%</span>
+                </div>
+                <div style={{ height: 3, background: 'rgba(244,239,230,0.08)', borderRadius: 2, overflow: 'hidden' }}>
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${val}%` }}
+                    transition={{ duration: 0.8, ease: [0.34, 1.56, 0.64, 1] }}
+                    style={{ height: '100%', background: b.color }}
+                  />
+                </div>
+              </div>
+            );
+          })}
         </div>
+      )}
+    </div>
+  );
+}
 
-        {founder && (
+export default function ChatTab({ user, hermes, lang = 'en', onNavigate }) {
+  const CHIPS = [
+    { id: 'recipe', label: tui(lang, 'itChatChipRecipe') },
+    { id: 'diagnosis', label: tui(lang, 'itChatChipDiagnosis') },
+    { id: 'reminders', label: tui(lang, 'itChatChipReminders') },
+  ];
+  const [messages, setMessages] = useState([
+    { role: 'ai', text: tui(lang, 'itChatWelcome'), recipe: null },
+  ]);
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const bottomRef = useRef(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, loading]);
+
+  // Si el usuario cambia de idioma con el chat recién abierto (sin mensajes propios), refresca el saludo
+  useEffect(() => {
+    setMessages(m => (m.length === 1 && m[0].role === 'ai' ? [{ role: 'ai', text: tui(lang, 'itChatWelcome'), recipe: null }] : m));
+  }, [lang]);
+
+  const sendMessage = async (visibleText, hiddenSuffix = '') => {
+    const displayText = (visibleText ?? input).trim();
+    if (!displayText || loading) return;
+    setInput('');
+    const newMessages = [...messages, { role: 'user', text: displayText, recipe: null }];
+    setMessages(newMessages);
+    setLoading(true);
+    try {
+      const history = newMessages.slice(1).map(m => ({
+        role: m.role === 'ai' ? 'assistant' : 'user',
+        content: m.text,
+      }));
+      const reply = await askDrSmoothie(displayText + hiddenSuffix, history, user?.id, user?.token, lang);
+      const { text, recipe } = extractRecipeBlock(reply);
+      setMessages(m => [...m, { role: 'ai', text, recipe }]);
+    } catch {
+      setMessages(m => [...m, { role: 'ai', text: tui(lang, 'itChatError'), recipe: null }]);
+    }
+    setLoading(false);
+  };
+
+  const handleChip = (id) => {
+    if (id === 'recipe') sendMessage(tui(lang, 'itChatChipRecipe'), RECIPE_INSTRUCTION);
+    else if (id === 'diagnosis') onNavigate?.('progreso');
+    else if (id === 'reminders') onNavigate?.('progreso');
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      {/* Header */}
+      <div style={{ padding: '18px 20px 14px', display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ position: 'relative', flexShrink: 0 }}>
+          <img
+            src="/dr-smoothie-avatar.jpg"
+            alt="Dr. Smoothie AI"
+            style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', border: `2px solid ${IT.emerald}` }}
+          />
           <div style={{
-            display: 'inline-block', marginTop: 8, marginBottom: 12,
-            padding: '5px 14px', borderRadius: 20, border: `1px solid ${IT.goldLight}`,
-            fontSize: 11, letterSpacing: '0.05em', color: IT.goldLight,
-          }}>
-            ✦ {tui(lang, 'itClubFounderBadge')}{founder}
+            position: 'absolute', bottom: 0, right: 0, width: 10, height: 10,
+            borderRadius: '50%', background: IT.emerald, border: `2px solid ${IT.obsidian}`,
+          }} />
+        </div>
+        <div>
+          <div style={{ fontFamily: IT_FONT_HEAD, color: IT.goldLight, fontSize: 20, fontStyle: 'italic' }}>
+            Dr. Smoothie AI
           </div>
-        )}
+          <div style={{ fontSize: 11, color: IT.emerald, letterSpacing: '0.04em' }}>{tui(lang, 'itChatOnline')}</div>
+        </div>
+      </div>
+      <div className="it-divider" />
 
-        <div className="it-divider" style={{ margin: '16px 0' }} />
-
-        {!showShareForm && !shared && (
+      {/* Chips */}
+      <div style={{ display: 'flex', gap: 8, padding: '12px 16px', overflowX: 'auto' }} className="it-scroll-hide">
+        {CHIPS.map(c => (
           <button
-            onClick={() => setShowShareForm(true)}
+            key={c.id}
+            onClick={() => handleChip(c.id)}
             className="it-tap"
             style={{
-              width: '100%', padding: '13px', marginBottom: 6, borderRadius: 10,
-              border: `1px solid ${IT.goldLight}`, background: 'transparent',
-              color: IT.goldLight, fontSize: 13, fontFamily: IT_FONT_BODY, cursor: 'pointer',
+              whiteSpace: 'nowrap', padding: '7px 14px', borderRadius: 20,
+              border: `1px solid ${IT.divider}`, background: 'transparent',
+              color: IT.cream, fontSize: 12, fontFamily: IT_FONT_BODY, cursor: 'pointer',
             }}
           >
-            {tui(lang, 'itClubShareProgress')}
+            {c.label}
           </button>
-        )}
-        {showShareForm && (
-          <ShareForm user={user} lang={lang} onDone={() => { setShowShareForm(false); setShared(true); }} />
-        )}
-        {shared && (
-          <div style={{ fontSize: 12, color: IT.emerald, padding: '10px 0' }}>
-            {tui(lang, 'itClubShared')}
-          </div>
-        )}
+        ))}
+      </div>
 
-        <div style={{ fontFamily: IT_FONT_HEAD, color: IT.goldLight, fontSize: 20, fontStyle: 'italic', margin: '20px 0 4px' }}>
-          {tui(lang, 'itClubCommunity')}
-        </div>
-        {testimonials === undefined ? (
-          <div style={{ color: IT.textSecondary, fontSize: 13, padding: '10px 0' }}>{tui(lang, 'itClubLoading')}</div>
-        ) : testimonials.length === 0 ? (
-          <div style={{ color: IT.textSecondary, fontSize: 13, padding: '10px 0' }}>
-            {tui(lang, 'itClubNoStories')}
+      {/* Messages */}
+      <div style={{ flex: 1, padding: '4px 20px 16px', display: 'flex', flexDirection: 'column', gap: 4 }}>
+        {messages.map((m, i) => (
+          <div key={i} style={{ padding: '10px 0', borderTop: i === 0 ? 'none' : `1px solid ${IT.divider}` }}>
+            <div style={{
+              fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase',
+              color: IT.textSecondary, marginBottom: 4, textAlign: m.role === 'user' ? 'right' : 'left',
+            }}>
+              {m.role === 'user' ? tui(lang, 'itChatYou') : 'Dr. Smoothie AI'}
+            </div>
+            <div style={{
+              fontSize: 14, lineHeight: 1.65, whiteSpace: 'pre-wrap',
+              color: IT.cream, textAlign: m.role === 'user' ? 'right' : 'left',
+            }}>
+              {m.text}
+            </div>
+            {m.recipe && <RecipeBlock recipe={m.recipe} lang={lang} />}
           </div>
-        ) : (
-          testimonials.map(t => <TestimonialRow key={t.id} t={t} />)
+        ))}
+        {loading && (
+          <div style={{ padding: '10px 0', color: IT.textSecondary, fontSize: 13, fontStyle: 'italic' }}>
+            {tui(lang, 'itChatTyping')}
+          </div>
         )}
+        <div ref={bottomRef} />
+      </div>
+
+      {/* Input bar */}
+      <div style={{
+        position: 'sticky', bottom: 0, padding: '10px 16px calc(10px + env(safe-area-inset-bottom))',
+        background: IT.obsidian, borderTop: `1px solid ${IT.divider}`,
+        display: 'flex', gap: 8,
+      }}>
+        <input
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && sendMessage()}
+          placeholder={tui(lang, 'itChatPlaceholder')}
+          style={{
+            flex: 1, background: 'transparent', border: 'none', borderBottom: `1px solid ${IT.divider}`,
+            color: IT.cream, fontSize: 14, fontFamily: IT_FONT_BODY, padding: '8px 2px', outline: 'none',
+          }}
+        />
+        <motion.button
+          onClick={() => sendMessage()}
+          disabled={loading || !input.trim()}
+          whileTap={{ scale: 0.96 }}
+          transition={{ duration: 0.12, ease: 'easeOut' }}
+          style={{
+            background: 'none', border: 'none', cursor: input.trim() ? 'pointer' : 'default',
+            color: input.trim() ? IT.goldLight : IT.textSecondary, fontSize: 18, fontFamily: IT_FONT_BODY,
+          }}
+        >
+          →
+        </motion.button>
       </div>
     </div>
   );
