@@ -7,6 +7,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
 
   useEffect(() => {
     if (!supabase) { setLoading(false); return; }
@@ -17,7 +18,8 @@ export function AuthProvider({ children }) {
       setLoading(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY') setIsPasswordRecovery(true);
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -47,8 +49,23 @@ export function AuthProvider({ children }) {
     await supabase.auth.signOut();
   };
 
+  const resetPasswordForEmail = async (email) => {
+    if (!supabase) return { data: null, error: new Error('Supabase not configured') };
+    const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/?reset=1`,
+    });
+    return { data, error };
+  };
+
+  const updatePassword = async (newPassword) => {
+    if (!supabase) return { data: null, error: new Error('Supabase not configured') };
+    const { data, error } = await supabase.auth.updateUser({ password: newPassword });
+    if (!error) setIsPasswordRecovery(false);
+    return { data, error };
+  };
+
   return (
-    <AuthContext.Provider value={{ user, session, loading, signUp, signIn, signOut, supabase }}>
+    <AuthContext.Provider value={{ user, session, loading, signUp, signIn, signOut, resetPasswordForEmail, updatePassword, isPasswordRecovery, supabase }}>
       {children}
     </AuthContext.Provider>
   );
