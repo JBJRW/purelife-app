@@ -2,14 +2,9 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 import { IT, IT_FONT_HEAD, IT_FONT_BODY } from './tokens';
+import { tui } from '../i18n';
 
 const TIER_LABELS = { seed: 'Seed 🌱', bloom: 'Bloom 🌸', canopy: 'Canopy 🌿' };
-const EXAM_FIELDS = [
-  { key: 'energy_level', label: '¿Cómo está tu energía?' },
-  { key: 'hydration_level', label: '¿Qué tan hidratado te sientes?' },
-  { key: 'rest_quality', label: '¿Cómo dormiste esta semana?' },
-  { key: 'mood', label: '¿Cómo está tu ánimo?' },
-];
 
 function daysAgo(dateStr) {
   return (Date.now() - new Date(dateStr).getTime()) / 86400000;
@@ -36,7 +31,13 @@ function Bar({ label, value, color }) {
   );
 }
 
-function ExamForm({ user, onDone }) {
+function ExamForm({ user, onDone, lang }) {
+  const EXAM_FIELDS = [
+    { key: 'energy_level', label: tui(lang, 'itExamEnergy') },
+    { key: 'hydration_level', label: tui(lang, 'itExamHydration') },
+    { key: 'rest_quality', label: tui(lang, 'itExamRest') },
+    { key: 'mood', label: tui(lang, 'itExamMood') },
+  ];
   const [answers, setAnswers] = useState({ energy_level: 3, hydration_level: 3, rest_quality: 3, mood: 3 });
   const [saving, setSaving] = useState(false);
 
@@ -88,13 +89,13 @@ function ExamForm({ user, onDone }) {
           color: IT.obsidian, fontWeight: 700, fontSize: 14, fontFamily: IT_FONT_BODY,
         }}
       >
-        {saving ? 'Guardando…' : 'Guardar examen'}
+        {saving ? tui(lang, 'itProgresoSaving') : tui(lang, 'itProgresoSaveExam')}
       </button>
     </div>
   );
 }
 
-function ReminderRow({ reminder, onToggle }) {
+function ReminderRow({ reminder, onToggle, lang }) {
   return (
     <div style={{
       display: 'flex', justifyContent: 'space-between', alignItems: 'center',
@@ -103,7 +104,7 @@ function ReminderRow({ reminder, onToggle }) {
       <div>
         <div style={{ fontSize: 13, color: IT.cream }}>{reminder.title}</div>
         <div style={{ fontSize: 11, color: IT.textSecondary, marginTop: 2 }}>
-          {new Date(reminder.scheduled_at).toLocaleString('es', { weekday: 'short', hour: '2-digit', minute: '2-digit' })}
+          {new Date(reminder.scheduled_at).toLocaleString(lang || 'en', { weekday: 'short', hour: '2-digit', minute: '2-digit' })}
           {reminder.recurrence && reminder.recurrence !== 'none' ? ` · ${reminder.recurrence}` : ''}
         </div>
       </div>
@@ -124,7 +125,7 @@ function ReminderRow({ reminder, onToggle }) {
   );
 }
 
-function NewReminderForm({ user, onCreated }) {
+function NewReminderForm({ user, onCreated, lang }) {
   const [title, setTitle] = useState('');
   const [when, setWhen] = useState('');
   const [recurrence, setRecurrence] = useState('none');
@@ -144,12 +145,12 @@ function NewReminderForm({ user, onCreated }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: '14px 0' }}>
-      <input style={inputStyle} placeholder="Título del recordatorio" value={title} onChange={e => setTitle(e.target.value)} />
+      <input style={inputStyle} placeholder={tui(lang, 'itReminderTitlePlaceholder')} value={title} onChange={e => setTitle(e.target.value)} />
       <input style={inputStyle} type="datetime-local" value={when} onChange={e => setWhen(e.target.value)} />
       <select style={{ ...inputStyle, color: IT.textSecondary }} value={recurrence} onChange={e => setRecurrence(e.target.value)}>
-        <option value="none">Una vez</option>
-        <option value="daily">Diario</option>
-        <option value="weekly">Semanal</option>
+        <option value="none">{tui(lang, 'itFreqOnce')}</option>
+        <option value="daily">{tui(lang, 'itFreqDaily')}</option>
+        <option value="weekly">{tui(lang, 'itFreqWeekly')}</option>
       </select>
       <button
         onClick={submit}
@@ -159,13 +160,13 @@ function NewReminderForm({ user, onCreated }) {
           color: IT.goldLight, fontSize: 13, fontFamily: IT_FONT_BODY, cursor: 'pointer',
         }}
       >
-        + Agregar recordatorio
+        + {tui(lang, 'itProgresoAddReminder').replace(/^\+\s*/, '')}
       </button>
     </div>
   );
 }
 
-export default function ProgresoTab({ user, hermes }) {
+export default function ProgresoTab({ user, hermes, lang = 'en' }) {
   const [exam, setExam] = useState(undefined); // undefined = cargando, null = sin datos
   const [reminders, setReminders] = useState(undefined);
   const [showExamForm, setShowExamForm] = useState(false);
@@ -206,9 +207,9 @@ export default function ProgresoTab({ user, hermes }) {
 
   const needsExam = exam !== undefined && (!exam || daysAgo(exam.taken_at) > 7);
   const bars = exam?.answers ? [
-    { label: 'Energía', value: Math.round((exam.answers.energy_level || 0) / 5 * 100), color: IT.emerald },
-    { label: 'Hidratación', value: Math.round((exam.answers.hydration_level || 0) / 5 * 100), color: IT.gold },
-    { label: 'Descanso', value: Math.round((exam.answers.rest_quality || 0) / 5 * 100), color: IT.sage },
+    { label: tui(lang, 'itProgresoBarEnergy'), value: Math.round((exam.answers.energy_level || 0) / 5 * 100), color: IT.emerald },
+    { label: tui(lang, 'itProgresoBarHydration'), value: Math.round((exam.answers.hydration_level || 0) / 5 * 100), color: IT.gold },
+    { label: tui(lang, 'itProgresoBarRest'), value: Math.round((exam.answers.rest_quality || 0) / 5 * 100), color: IT.sage },
   ] : [];
 
   return (
@@ -236,7 +237,7 @@ export default function ProgresoTab({ user, hermes }) {
 
       <div style={{ position: 'relative', zIndex: 1, padding: '24px 20px 20px' }} className="it-scrim-text">
         <div style={{ fontFamily: IT_FONT_HEAD, color: IT.goldLight, fontSize: 30, fontStyle: 'italic', marginBottom: 4 }}>
-          Tu progreso
+          {tui(lang, 'itProgresoTitle')}
         </div>
         <div style={{ display: 'flex', gap: 18, marginBottom: 20 }}>
           <div>
@@ -244,7 +245,7 @@ export default function ProgresoTab({ user, hermes }) {
               🔥 {hermes?.stats?.daysActive ?? 0}
             </div>
             <div style={{ fontSize: 10, color: IT.textSecondary, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              Días de racha
+              {tui(lang, 'itProgresoStreak')}
             </div>
           </div>
           <div>
@@ -252,7 +253,7 @@ export default function ProgresoTab({ user, hermes }) {
               {TIER_LABELS[hermes?.tier] || 'Seed 🌱'}
             </div>
             <div style={{ fontSize: 10, color: IT.textSecondary, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              Membresía
+              {tui(lang, 'itProgresoMembership')}
             </div>
           </div>
         </div>
@@ -260,14 +261,14 @@ export default function ProgresoTab({ user, hermes }) {
         <div className="it-divider" style={{ marginBottom: 20 }} />
 
         {exam === undefined ? (
-          <div style={{ color: IT.textSecondary, fontSize: 13 }}>Cargando…</div>
+          <div style={{ color: IT.textSecondary, fontSize: 13 }}>{tui(lang, 'itProgresoLoading')}</div>
         ) : bars.length > 0 ? (
           <div style={{ marginBottom: 20 }}>
             {bars.map(b => <Bar key={b.label} {...b} />)}
           </div>
         ) : (
           <div style={{ color: IT.textSecondary, fontSize: 13, marginBottom: 20 }}>
-            Aún no tienes un examen de bienestar. Tómalo para ver tus barras de energía, hidratación y descanso.
+            {tui(lang, 'itProgresoNoExam')}
           </div>
         )}
 
@@ -281,28 +282,28 @@ export default function ProgresoTab({ user, hermes }) {
               color: IT.goldLight, fontSize: 13, fontFamily: IT_FONT_BODY, cursor: 'pointer',
             }}
           >
-            {exam ? 'Tomar examen de esta semana' : 'Tomar examen ahora'}
+            {exam ? tui(lang, 'itProgresoTakeExamWeek') : tui(lang, 'itProgresoTakeExamNow')}
           </button>
         )}
         {showExamForm && (
-          <ExamForm user={user} onDone={() => { setShowExamForm(false); loadExam(); }} />
+          <ExamForm user={user} lang={lang} onDone={() => { setShowExamForm(false); loadExam(); }} />
         )}
 
         <div className="it-divider" style={{ margin: '20px 0' }} />
 
         <div style={{ fontFamily: IT_FONT_HEAD, color: IT.goldLight, fontSize: 20, fontStyle: 'italic', marginBottom: 6 }}>
-          Recordatorios activos
+          {tui(lang, 'itProgresoReminders')}
         </div>
         {reminders === undefined ? (
-          <div style={{ color: IT.textSecondary, fontSize: 13 }}>Cargando…</div>
+          <div style={{ color: IT.textSecondary, fontSize: 13 }}>{tui(lang, 'itProgresoLoading')}</div>
         ) : reminders.length === 0 && !showReminderForm ? (
-          <div style={{ color: IT.textSecondary, fontSize: 13 }}>No tienes recordatorios todavía.</div>
+          <div style={{ color: IT.textSecondary, fontSize: 13 }}>{tui(lang, 'itProgresoNoReminders')}</div>
         ) : (
-          reminders.map(r => <ReminderRow key={r.id} reminder={r} onToggle={toggleReminder} />)
+          reminders.map(r => <ReminderRow key={r.id} reminder={r} onToggle={toggleReminder} lang={lang} />)
         )}
 
         {showReminderForm ? (
-          <NewReminderForm user={user} onCreated={() => { setShowReminderForm(false); loadReminders(); }} />
+          <NewReminderForm user={user} lang={lang} onCreated={() => { setShowReminderForm(false); loadReminders(); }} />
         ) : (
           <button
             onClick={() => setShowReminderForm(true)}
@@ -312,7 +313,7 @@ export default function ProgresoTab({ user, hermes }) {
               color: IT.gold, fontSize: 13, fontFamily: IT_FONT_BODY, cursor: 'pointer',
             }}
           >
-            + Nuevo recordatorio
+            {tui(lang, 'itProgresoAddReminder')}
           </button>
         )}
       </div>
