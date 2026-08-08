@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { IT, IT_FONT_HEAD, IT_FONT_BODY } from './tokens';
+import { tui } from '../i18n';
 
-function VideoItem({ video, user, onLiked }) {
+function VideoItem({ video, user, onLiked, lang }) {
   const ref = useRef(null);
   const videoRef = useRef(null);
   const [liked, setLiked] = useState(false);
@@ -88,13 +89,13 @@ function VideoItem({ video, user, onLiked }) {
           <span style={{ fontSize: 22, color: liked ? IT.emerald : IT.cream }}>{liked ? '♥' : '♡'}</span>
           <span style={actionLabelStyle}>{(video.likes_count || 0) + (liked ? 1 : 0)}</span>
         </button>
-        <button onClick={() => showToast('Comentarios — próximamente')} className="it-tap" style={actionBtnStyle}>
+        <button onClick={() => showToast(tui(lang, 'itVideosCommentToast'))} className="it-tap" style={actionBtnStyle}>
           <span style={{ fontSize: 20, color: IT.cream }}>💬</span>
-          <span style={actionLabelStyle}>Comentar</span>
+          <span style={actionLabelStyle}>{tui(lang, 'itVideosComment')}</span>
         </button>
-        <button onClick={() => showToast('Guardado — próximamente')} className="it-tap" style={actionBtnStyle}>
+        <button onClick={() => showToast(tui(lang, 'itVideosSaveToast'))} className="it-tap" style={actionBtnStyle}>
           <span style={{ fontSize: 20, color: IT.cream }}>⬇</span>
-          <span style={actionLabelStyle}>Guardar</span>
+          <span style={actionLabelStyle}>{tui(lang, 'itVideosSave')}</span>
         </button>
       </div>
 
@@ -118,7 +119,7 @@ const actionBtnStyle = {
 };
 const actionLabelStyle = { fontSize: 10, color: IT.textSecondary, fontFamily: IT_FONT_BODY };
 
-export default function VideosTab({ user }) {
+export default function VideosTab({ user, lang = 'en' }) {
   const [videos, setVideos] = useState(null);
   const [error, setError] = useState(false);
 
@@ -144,7 +145,7 @@ export default function VideosTab({ user }) {
   if (videos === null) {
     return (
       <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: IT.textSecondary }}>
-        Cargando videos…
+        {tui(lang, 'itVideosLoading')}
       </div>
     );
   }
@@ -152,8 +153,8 @@ export default function VideosTab({ user }) {
   if (error || videos.length === 0) {
     return (
       <div style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8, padding: 20, textAlign: 'center' }}>
-        <div style={{ fontFamily: IT_FONT_HEAD, color: IT.goldLight, fontSize: 24, fontStyle: 'italic' }}>Aún no hay videos</div>
-        <div style={{ color: IT.textSecondary, fontSize: 13 }}>Vuelve pronto — el feed se actualiza seguido.</div>
+        <div style={{ fontFamily: IT_FONT_HEAD, color: IT.goldLight, fontSize: 24, fontStyle: 'italic' }}>{tui(lang, 'itVideosEmptyTitle')}</div>
+        <div style={{ color: IT.textSecondary, fontSize: 13 }}>{tui(lang, 'itVideosEmptySub')}</div>
       </div>
     );
   }
@@ -161,7 +162,7 @@ export default function VideosTab({ user }) {
   return (
     <div className="it-snap-y it-scroll-hide" style={{ height: 'calc(100vh - 84px)', overflowY: 'auto' }}>
       {videos.map(v => (
-        <VideoItem key={v.id} video={v} user={user} onLiked={bumpLikes} />
+        <VideoItem key={v.id} video={v} user={user} onLiked={bumpLikes} lang={lang} />
       ))}
     </div>
   );
