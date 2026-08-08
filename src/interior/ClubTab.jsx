@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { IT, IT_FONT_HEAD, IT_FONT_BODY } from './tokens';
+import { tui } from '../i18n';
 
 function TestimonialRow({ t }) {
   return (
@@ -16,7 +17,7 @@ function TestimonialRow({ t }) {
   );
 }
 
-function ShareForm({ user, onDone }) {
+function ShareForm({ user, onDone, lang }) {
   const [content, setContent] = useState('');
   const [rating, setRating] = useState(5);
   const [saving, setSaving] = useState(false);
@@ -26,7 +27,7 @@ function ShareForm({ user, onDone }) {
     setSaving(true);
     const { error } = await supabase.from('testimonials').insert({
       user_id: user.id,
-      display_name: user.name || 'Miembro PureLife',
+      display_name: user.name || 'PureLife Member',
       content: content.trim(),
       rating,
     });
@@ -39,7 +40,7 @@ function ShareForm({ user, onDone }) {
       <textarea
         value={content}
         onChange={e => setContent(e.target.value)}
-        placeholder="Cuenta tu avance…"
+        placeholder={tui(lang, 'itClubSharePlaceholder')}
         rows={3}
         style={{
           width: '100%', background: 'transparent', border: `1px solid ${IT.divider}`, borderRadius: 8,
@@ -62,13 +63,13 @@ function ShareForm({ user, onDone }) {
           color: IT.obsidian, fontWeight: 700, fontSize: 13, fontFamily: IT_FONT_BODY,
         }}
       >
-        {saving ? 'Enviando…' : 'Compartir'}
+        {saving ? tui(lang, 'itClubSharing') : tui(lang, 'itClubShare')}
       </button>
     </div>
   );
 }
 
-export default function ClubTab({ user }) {
+export default function ClubTab({ user, lang = 'en' }) {
   const [testimonials, setTestimonials] = useState(undefined);
   const [founder, setFounder] = useState(null);
   const [showShareForm, setShowShareForm] = useState(false);
@@ -127,7 +128,7 @@ export default function ClubTab({ user }) {
 
       <div style={{ position: 'relative', zIndex: 1, padding: '24px 20px 20px' }} className="it-scrim-text">
         <div style={{ fontFamily: IT_FONT_HEAD, color: IT.goldLight, fontSize: 30, fontStyle: 'italic', marginBottom: 4 }}>
-          Club PureLife
+          {tui(lang, 'itClubTitle')}
         </div>
 
         {founder && (
@@ -136,7 +137,7 @@ export default function ClubTab({ user }) {
             padding: '5px 14px', borderRadius: 20, border: `1px solid ${IT.goldLight}`,
             fontSize: 11, letterSpacing: '0.05em', color: IT.goldLight,
           }}>
-            ✦ Fundador #{founder}
+            ✦ {tui(lang, 'itClubFounderBadge')}{founder}
           </div>
         )}
 
@@ -152,26 +153,26 @@ export default function ClubTab({ user }) {
               color: IT.goldLight, fontSize: 13, fontFamily: IT_FONT_BODY, cursor: 'pointer',
             }}
           >
-            Compartir mi avance
+            {tui(lang, 'itClubShareProgress')}
           </button>
         )}
         {showShareForm && (
-          <ShareForm user={user} onDone={() => { setShowShareForm(false); setShared(true); }} />
+          <ShareForm user={user} lang={lang} onDone={() => { setShowShareForm(false); setShared(true); }} />
         )}
         {shared && (
           <div style={{ fontSize: 12, color: IT.emerald, padding: '10px 0' }}>
-            ✓ Publicado — en revisión antes de aparecer en el feed público.
+            {tui(lang, 'itClubShared')}
           </div>
         )}
 
         <div style={{ fontFamily: IT_FONT_HEAD, color: IT.goldLight, fontSize: 20, fontStyle: 'italic', margin: '20px 0 4px' }}>
-          Comunidad
+          {tui(lang, 'itClubCommunity')}
         </div>
         {testimonials === undefined ? (
-          <div style={{ color: IT.textSecondary, fontSize: 13, padding: '10px 0' }}>Cargando…</div>
+          <div style={{ color: IT.textSecondary, fontSize: 13, padding: '10px 0' }}>{tui(lang, 'itClubLoading')}</div>
         ) : testimonials.length === 0 ? (
           <div style={{ color: IT.textSecondary, fontSize: 13, padding: '10px 0' }}>
-            Todavía no hay historias publicadas. ¡Sé el primero en compartir tu avance!
+            {tui(lang, 'itClubNoStories')}
           </div>
         ) : (
           testimonials.map(t => <TestimonialRow key={t.id} t={t} />)
