@@ -6,16 +6,11 @@ import MapScreen from '../pages/MapScreen';
 import NewsSection from '../components/NewsSection';
 import VideoAgent from '../pages/VideoAgent';
 import { PlansScreen } from '../App';
+import { tui } from '../i18n';
 
 const TIER_LABELS = { seed: 'Seed 🌱', bloom: 'Bloom 🌸', canopy: 'Canopy 🌿' };
-
-const MORE_ITEMS = [
-  { id: 'recipes', label: 'Recetas' },
-  { id: 'map', label: 'Cerca de mí' },
-  { id: 'video', label: 'Video AI' },
-  { id: 'news', label: 'Noticias' },
-  { id: 'plans', label: 'Planes y membresía' },
-];
+// Idiomas con traducción completa de la UI (deben coincidir con LANGS_WITH_FULL_UI en i18n.js)
+const FULL_UI_LANGS = ['en', 'es', 'fr', 'pt', 'it'];
 
 function SubView({ id, user, hermes, lang, onBack }) {
   const content = {
@@ -37,7 +32,7 @@ function SubView({ id, user, hermes, lang, onBack }) {
           className="it-tap"
           style={{ background: 'none', border: 'none', color: IT.goldLight, fontSize: 14, fontFamily: IT_FONT_BODY, cursor: 'pointer' }}
         >
-          ← Volver a Perfil
+          {tui(lang, 'itPerfilBackToProfile')}
         </button>
       </div>
       {content}
@@ -45,7 +40,14 @@ function SubView({ id, user, hermes, lang, onBack }) {
   );
 }
 
-export default function PerfilTab({ user, hermes, lang, onLangChange, onSignOut }) {
+export default function PerfilTab({ user, hermes, goals, lang = 'en', onLangChange, onSignOut }) {
+  const MORE_ITEMS = [
+    { id: 'recipes', label: tui(lang, 'itPerfilRecipes') },
+    { id: 'map', label: tui(lang, 'itPerfilNearMe') },
+    { id: 'video', label: tui(lang, 'itPerfilVideoAI') },
+    { id: 'news', label: tui(lang, 'itPerfilNews') },
+    { id: 'plans', label: tui(lang, 'itPerfilPlans') },
+  ];
   const [profile, setProfile] = useState(undefined);
   const [subView, setSubView] = useState(null);
   const [editingName, setEditingName] = useState(false);
@@ -98,7 +100,7 @@ export default function PerfilTab({ user, hermes, lang, onLangChange, onSignOut 
               className="it-tap"
               style={{ fontFamily: IT_FONT_HEAD, color: IT.cream, fontSize: 20, cursor: 'pointer' }}
             >
-              {profile?.full_name || user?.name || 'Tu nombre'}
+              {profile?.full_name || user?.name || tui(lang, 'itPerfilYourName')}
             </div>
           )}
           <div style={{ fontSize: 12, color: IT.textSecondary }}>{user?.email}</div>
@@ -111,13 +113,13 @@ export default function PerfilTab({ user, hermes, lang, onLangChange, onSignOut 
         fontSize: 12, color: IT.goldLight,
       }}>
         {TIER_LABELS[profile?.membership_tier || hermes?.tier] || 'Seed 🌱'}
-        {profile?.is_founding_member ? ' · Fundador' : ''}
+        {profile?.is_founding_member ? tui(lang, 'itPerfilFounderTag') : ''}
       </div>
 
       <div className="it-divider" style={{ margin: '4px 0 14px' }} />
 
       <div style={{ fontSize: 11, color: IT.textSecondary, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>
-        Más
+        {tui(lang, 'itPerfilMore')}
       </div>
       {MORE_ITEMS.map(item => (
         <button
@@ -137,8 +139,8 @@ export default function PerfilTab({ user, hermes, lang, onLangChange, onSignOut 
 
       <div className="it-divider" style={{ margin: '20px 0 14px' }} />
 
-      <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
-        {['es', 'en', 'pt'].map(code => (
+      <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
+        {FULL_UI_LANGS.map(code => (
           <button
             key={code}
             onClick={() => onLangChange?.(code)}
@@ -164,7 +166,7 @@ export default function PerfilTab({ user, hermes, lang, onLangChange, onSignOut 
           color: '#E05A5A', fontSize: 13, fontFamily: IT_FONT_BODY,
         }}
       >
-        Cerrar sesión
+        {tui(lang, 'itPerfilSignOut')}
       </button>
     </div>
   );
