@@ -1276,13 +1276,14 @@ function DashboardScreen({ user, hermes, lang = 'en' }) {
 }
 
 // ── SCREEN: LOGIN / REGISTRO ─────────────────────────────────
-function AuthScreen({ onAuth, signIn, signUp }) {
+function AuthScreen({ onAuth, signIn, signUp, resetPasswordForEmail }) {
   const [mode, setMode] = useState('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [resetSent, setResetSent] = useState(false);
 
   const handleAuth = async () => {
     if (!email || !password) { setError('Completa todos los campos'); return; }
@@ -1304,6 +1305,69 @@ function AuthScreen({ onAuth, signIn, signUp }) {
     }
     setLoading(false);
   };
+
+  const handleReset = async () => {
+    if (!email) { setError('Ingresa tu correo primero'); return; }
+    setLoading(true); setError('');
+    try {
+      const { error: resetError } = await resetPasswordForEmail(email);
+      if (resetError) setError(resetError.message || 'No se pudo enviar el correo');
+      else setResetSent(true);
+    } catch {
+      setError('Error de conexión. Intenta de nuevo.');
+    }
+    setLoading(false);
+  };
+
+  if (mode === 'forgot') {
+    return (
+      <div style={{
+        minHeight: '100vh', display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center', padding: '40px 24px',
+        background: `radial-gradient(ellipse at top, ${C.green}33 0%, transparent 50%), ${C.dark}`,
+      }}>
+        <div style={{ width: '100%', maxWidth: 380 }}>
+          <div style={{ textAlign: 'center', marginBottom: 36 }}>
+            <img src="/purelife-logo.png" alt="PureLife" style={{ width: 80, height: 80, borderRadius: '50%', objectFit: 'cover', marginBottom: 10, boxShadow: '0 0 32px rgba(201,168,76,0.3)' }} />
+            <h2 style={{ fontFamily: FONT_HEAD, color: C.cream, fontSize: 28, margin: '0 0 6px' }}>Recuperar contraseña</h2>
+            <p style={{ color: C.muted, fontSize: 14 }}>Te enviamos un enlace para restablecerla</p>
+          </div>
+
+          {resetSent ? (
+            <p style={{ color: C.light, fontSize: 14, textAlign: 'center' }}>
+              ✓ Listo. Revisa tu correo <strong>{email}</strong> y sigue el enlace para crear una contraseña nueva.
+            </p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <input value={email} onChange={e => setEmail(e.target.value)}
+                type="email" placeholder="Tu correo" style={inputStyle}
+                onKeyDown={e => e.key === 'Enter' && handleReset()} />
+              {error && (
+                <p style={{ color: '#FF6B6B', fontSize: 13, margin: 0, textAlign: 'center' }}>{error}</p>
+              )}
+              <Btn onClick={handleReset} disabled={loading} style={{ width: '100%', fontSize: 16, padding: '15px', marginTop: 4 }}>
+                {loading ? 'Enviando...' : 'Enviar enlace de recuperación'}
+              </Btn>
+            </div>
+          )}
+
+          <p style={{ color: C.muted, fontSize: 14, textAlign: 'center', marginTop: 20 }}>
+            <motion.button
+              onClick={() => { setMode('login'); setError(''); setResetSent(false); }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 22 }}
+              style={{
+                background: 'none', border: 'none', color: C.light,
+                cursor: 'pointer', fontWeight: 700, fontSize: 14,
+              }}>
+              ← Volver a iniciar sesión
+            </motion.button>
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{
@@ -1330,6 +1394,19 @@ function AuthScreen({ onAuth, signIn, signUp }) {
           <input value={password} onChange={e => setPassword(e.target.value)}
             type="password" placeholder="Contraseña" style={inputStyle}
             onKeyDown={e => e.key === 'Enter' && handleAuth()} />
+
+          {mode === 'login' && (
+            <motion.button
+              onClick={() => { setMode('forgot'); setError(''); }}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              style={{
+                background: 'none', border: 'none', color: C.muted,
+                cursor: 'pointer', fontSize: 13, textAlign: 'right', padding: 0,
+              }}>
+              ¿Olvidaste tu contraseña?
+            </motion.button>
+          )}
 
           {error && (
             <p style={{ color: '#FF6B6B', fontSize: 13, margin: 0, textAlign: 'center' }}>{error}</p>
@@ -1359,6 +1436,56 @@ function AuthScreen({ onAuth, signIn, signUp }) {
   );
 }
 
+function ResetPasswordScreen({ updatePassword, onDone }) {
+  const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async () => {
+    if (!password || password.length < 6) { setError('La contraseña debe tener al menos 6 caracteres'); return; }
+    if (password !== confirm) { setError('Las contraseñas no coinciden'); return; }
+    setLoading(true); setError('');
+    try {
+      const { error: updateError } = await updatePassword(password);
+      if (updateError) setError(updateError.message || 'No se pudo actualizar la contraseña');
+      else onDone();
+    } catch {
+      setError('Error de conexión. Intenta de nuevo.');
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div style={{
+      minHeight: '100vh', display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center', padding: '40px 24px',
+      background: `radial-gradient(ellipse at top, ${C.green}33 0%, transparent 50%), ${C.dark}`,
+    }}>
+      <div style={{ width: '100%', maxWidth: 380 }}>
+        <div style={{ textAlign: 'center', marginBottom: 36 }}>
+          <img src="/purelife-logo.png" alt="PureLife" style={{ width: 80, height: 80, borderRadius: '50%', objectFit: 'cover', marginBottom: 10, boxShadow: '0 0 32px rgba(201,168,76,0.3)' }} />
+          <h2 style={{ fontFamily: FONT_HEAD, color: C.cream, fontSize: 28, margin: '0 0 6px' }}>Nueva contraseña</h2>
+          <p style={{ color: C.muted, fontSize: 14 }}>Elige tu nueva contraseña</p>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <input value={password} onChange={e => setPassword(e.target.value)}
+            type="password" placeholder="Contraseña nueva" style={inputStyle} />
+          <input value={confirm} onChange={e => setConfirm(e.target.value)}
+            type="password" placeholder="Confirmar contraseña" style={inputStyle}
+            onKeyDown={e => e.key === 'Enter' && handleSubmit()} />
+          {error && (
+            <p style={{ color: '#FF6B6B', fontSize: 13, margin: 0, textAlign: 'center' }}>{error}</p>
+          )}
+          <Btn onClick={handleSubmit} disabled={loading} style={{ width: '100%', fontSize: 16, padding: '15px', marginTop: 4 }}>
+            {loading ? 'Guardando...' : 'Guardar contraseña'}
+          </Btn>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const inputStyle = {
   padding: '14px 18px', borderRadius: 12,
   border: `1.5px solid rgba(255,255,255,0.12)`,
@@ -1375,7 +1502,7 @@ export default function App() {
 
   const handleLangChange = (code) => { saveLang(code); setLang(code); };
   const [goals, setGoals] = useState([]);
-  const { user: authUser, session, loading: authLoading, signIn, signUp, signOut, supabase } = useAuth();
+  const { user: authUser, session, loading: authLoading, signIn, signUp, signOut, resetPasswordForEmail, updatePassword, isPasswordRecovery, supabase } = useAuth();
 
   // Forma compatible con los componentes existentes (HomeScreen, VideoAgent, etc.)
   const user = authUser ? {
@@ -1424,6 +1551,17 @@ export default function App() {
     if (onboardingData?.goals) setGoals(onboardingData.goals);
   };
 
+  // Enlace de recuperación de contraseña: Supabase crea una sesión temporal y dispara
+  // el evento PASSWORD_RECOVERY; mostramos la pantalla de nueva contraseña por encima
+  // de cualquier otro flujo hasta que el usuario la actualice.
+  if (isPasswordRecovery) {
+    return (
+      <div style={{ background: C.dark, minHeight: '100vh', fontFamily: FONT_BODY }}>
+        <ResetPasswordScreen updatePassword={updatePassword} onDone={() => setScreen('app')} />
+      </div>
+    );
+  }
+
   if (screen === 'comingsoon') {
     return <ComingSoonPage onEnterApp={() => setScreen('splash')} lang={lang} onLangChange={handleLangChange} />;
   }
@@ -1439,7 +1577,7 @@ export default function App() {
   if (screen === 'auth') {
     return (
       <div style={{ background: C.dark, minHeight: '100vh', fontFamily: FONT_BODY }}>
-        <AuthScreen onAuth={handleAuth} signIn={signIn} signUp={signUp} lang={lang} />
+        <AuthScreen onAuth={handleAuth} signIn={signIn} signUp={signUp} resetPasswordForEmail={resetPasswordForEmail} lang={lang} />
       </div>
     );
   }
