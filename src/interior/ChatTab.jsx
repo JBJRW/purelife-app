@@ -1,169 +1,228 @@
 import { useEffect, useRef, useState } from 'react';
-import { supabase } from '../lib/supabase';
+import { motion } from 'framer-motion';
 import { IT, IT_FONT_HEAD, IT_FONT_BODY } from './tokens';
+import { askDrSmoothie } from '../App';
 import { tui } from '../i18n';
 
-function VideoItem({ video, user, onLiked, lang }) {
-  const ref = useRef(null);
-  const videoRef = useRef(null);
-  const [liked, setLiked] = useState(false);
-  const [toast, setToast] = useState('');
+// Instrucción interna para el modelo (no visible al usuario) — se mantiene en español
+// porque el AI la interpreta como instrucción de formato, no como contenido a mostrar.
+const RECIPE_INSTRUCTION = '\n\n(Format instruction for this response: after your normal text reply, add on a separate line a block delimited exactly like this, with valid JSON on a single line: ```recipe\n{"name":"smoothie name","ingredients":["ingredient 1","ingredient 2"],"macros":{"protein":0,"carbs":0,"fat":0,"fiber":0}}\n``` — macros values are relative percentages 0-100 for visual bars, not exact grams.)';
 
-  useEffect(() => {
-    const el = videoRef.current;
-    if (!el) return;
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reducedMotion) return;
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) el.play().catch(() => {});
-      else el.pause();
-    }, { threshold: 0.6 });
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
+function extractRecipeBlock(text) {
+  const match = text.match(/```recipe\s*([\s\S]*?)```/);
+  if (!match) return { text: text.trim(), recipe: null };
+  const clean = text.replace(match[0], '').trim();
+  try {
+    return { text: clean, recipe: JSON.parse(match[1].trim()) };
+  } catch {
+    return { text: clean, recipe: null };
+  }
+}
 
-  const handleLike = async () => {
-    if (liked || !user?.token) return;
-    setLiked(true);
-    onLiked(video.id);
-    try {
-      await fetch('/api/video-like', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ videoId: video.id, accessToken: user.token }),
-      });
-    } catch {
-      // el contador visual ya subió; si falla la red, se corrige en el próximo fetch del feed
-    }
-  };
-
-  const showToast = (msg) => {
-    setToast(msg);
-    setTimeout(() => setToast(''), 1800);
-  };
-
+function RecipeBlock({ recipe, lang }) {
+  const bars = [
+    { key: 'protein', label: tui(lang, 'itRecipeProtein'), color: IT.emerald },
+    { key: 'carbs', label: tui(lang, 'itRecipeCarbs'), color: IT.gold },
+    { key: 'fat', label: tui(lang, 'itRecipeFat'), color: IT.sage },
+    { key: 'fiber', label: tui(lang, 'itRecipeFiber'), color: IT.goldLight },
+  ];
   return (
-    <section
-      ref={ref}
-      className="it-snap-item"
-      style={{
-        position: 'relative', height: 'calc(100vh - 84px)', width: '100%',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: IT.obsidian, overflow: 'hidden',
-      }}
-    >
-      <video
-        ref={videoRef}
-        src={video.video_url}
-        poster={video.thumbnail_url || undefined}
-        muted
-        loop
-        playsInline
-        preload="metadata"
-        controls
-        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-      />
-      <div style={{ position: 'absolute', inset: 0, background: IT.scrim, pointerEvents: 'none' }} />
-
-      {/* Caption + autor */}
-      <div style={{ position: 'absolute', left: 16, right: 76, bottom: 20 }} className="it-scrim-text">
-        {video.title && (
-          <div style={{ fontFamily: IT_FONT_HEAD, color: IT.goldLight, fontSize: 19, fontStyle: 'italic', marginBottom: 4 }}>
-            {video.title}
-          </div>
-        )}
-        {video.description && (
-          <div style={{ fontSize: 13, color: IT.cream, lineHeight: 1.5, marginBottom: 6 }}>{video.description}</div>
-        )}
-        {video.author_name && (
-          <div style={{ fontSize: 11, color: IT.textSecondary }}>@{video.author_name}</div>
-        )}
-      </div>
-
-      {/* Acciones laterales */}
+    <div style={{ padding: '14px 0', borderTop: `1px solid ${IT.divider}`, marginTop: 10 }}>
       <div style={{
-        position: 'absolute', right: 12, bottom: 24,
-        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20,
+        fontFamily: IT_FONT_HEAD, color: IT.goldLight, fontSize: 22,
+        fontStyle: 'italic', marginBottom: 10,
       }}>
-        <button onClick={handleLike} className="it-tap" style={actionBtnStyle}>
-          <span style={{ fontSize: 22, color: liked ? IT.emerald : IT.cream }}>{liked ? '♥' : '♡'}</span>
-          <span style={actionLabelStyle}>{(video.likes_count || 0) + (liked ? 1 : 0)}</span>
-        </button>
-        <button onClick={() => showToast(tui(lang, 'itVideosCommentToast'))} className="it-tap" style={actionBtnStyle}>
-          <span style={{ fontSize: 20, color: IT.cream }}>💬</span>
-          <span style={actionLabelStyle}>{tui(lang, 'itVideosComment')}</span>
-        </button>
-        <button onClick={() => showToast(tui(lang, 'itVideosSaveToast'))} className="it-tap" style={actionBtnStyle}>
-          <span style={{ fontSize: 20, color: IT.cream }}>⬇</span>
-          <span style={actionLabelStyle}>{tui(lang, 'itVideosSave')}</span>
-        </button>
+        {recipe.name}
       </div>
-
-      {toast && (
-        <div style={{
-          position: 'absolute', top: 20, left: '50%', transform: 'translateX(-50%)',
-          background: 'rgba(11,15,13,.9)', border: `1px solid ${IT.divider}`,
-          borderRadius: 20, padding: '8px 16px', fontSize: 12, color: IT.cream,
-          fontFamily: IT_FONT_BODY,
-        }}>
-          {toast}
+      {Array.isArray(recipe.ingredients) && recipe.ingredients.length > 0 && (
+        <ul style={{ margin: '0 0 14px', padding: 0, listStyle: 'none' }}>
+          {recipe.ingredients.map((ing, i) => (
+            <li key={i} style={{
+              fontSize: 13, color: IT.cream, opacity: 0.85,
+              padding: '4px 0', display: 'flex', gap: 8,
+            }}>
+              <span style={{ color: IT.gold }}>—</span> {ing}
+            </li>
+          ))}
+        </ul>
+      )}
+      {recipe.macros && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {bars.map(b => {
+            const val = Math.min(Math.max(Number(recipe.macros[b.key]) || 0, 0), 100);
+            return (
+              <div key={b.key}>
+                <div style={{
+                  display: 'flex', justifyContent: 'space-between',
+                  fontSize: 10, color: IT.textSecondary, marginBottom: 3,
+                  letterSpacing: '0.05em', textTransform: 'uppercase',
+                }}>
+                  <span>{b.label}</span><span>{val}%</span>
+                </div>
+                <div style={{ height: 3, background: 'rgba(244,239,230,0.08)', borderRadius: 2, overflow: 'hidden' }}>
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${val}%` }}
+                    transition={{ duration: 0.8, ease: [0.34, 1.56, 0.64, 1] }}
+                    style={{ height: '100%', background: b.color }}
+                  />
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
-    </section>
+    </div>
   );
 }
 
-const actionBtnStyle = {
-  background: 'none', border: 'none', cursor: 'pointer',
-  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
-};
-const actionLabelStyle = { fontSize: 10, color: IT.textSecondary, fontFamily: IT_FONT_BODY };
-
-export default function VideosTab({ user, lang = 'en' }) {
-  const [videos, setVideos] = useState(null);
-  const [error, setError] = useState(false);
+export default function ChatTab({ user, hermes, lang = 'en', onNavigate }) {
+  const CHIPS = [
+    { id: 'recipe', label: tui(lang, 'itChatChipRecipe') },
+    { id: 'diagnosis', label: tui(lang, 'itChatChipDiagnosis') },
+    { id: 'reminders', label: tui(lang, 'itChatChipReminders') },
+  ];
+  const [messages, setMessages] = useState([
+    { role: 'ai', text: tui(lang, 'itChatWelcome'), recipe: null },
+  ]);
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const bottomRef = useRef(null);
 
   useEffect(() => {
-    let cancelled = false;
-    supabase
-      .from('video_feed')
-      .select('*')
-      .eq('is_published', true)
-      .order('created_at', { ascending: false })
-      .then(({ data, error: fetchError }) => {
-        if (cancelled) return;
-        if (fetchError) { setError(true); setVideos([]); return; }
-        setVideos(data || []);
-      });
-    return () => { cancelled = true; };
-  }, []);
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, loading]);
 
-  const bumpLikes = (id) => {
-    setVideos(vs => vs.map(v => v.id === id ? { ...v, likes_count: (v.likes_count || 0) + 1 } : v));
+  // Si el usuario cambia de idioma con el chat recién abierto (sin mensajes propios), refresca el saludo
+  useEffect(() => {
+    setMessages(m => (m.length === 1 && m[0].role === 'ai' ? [{ role: 'ai', text: tui(lang, 'itChatWelcome'), recipe: null }] : m));
+  }, [lang]);
+
+  const sendMessage = async (visibleText, hiddenSuffix = '') => {
+    const displayText = (visibleText ?? input).trim();
+    if (!displayText || loading) return;
+    setInput('');
+    const newMessages = [...messages, { role: 'user', text: displayText, recipe: null }];
+    setMessages(newMessages);
+    setLoading(true);
+    try {
+      const history = newMessages.slice(1).map(m => ({
+        role: m.role === 'ai' ? 'assistant' : 'user',
+        content: m.text,
+      }));
+      const reply = await askDrSmoothie(displayText + hiddenSuffix, history, user?.id, user?.token, lang);
+      const { text, recipe } = extractRecipeBlock(reply);
+      setMessages(m => [...m, { role: 'ai', text, recipe }]);
+    } catch {
+      setMessages(m => [...m, { role: 'ai', text: tui(lang, 'itChatError'), recipe: null }]);
+    }
+    setLoading(false);
   };
 
-  if (videos === null) {
-    return (
-      <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: IT.textSecondary }}>
-        {tui(lang, 'itVideosLoading')}
-      </div>
-    );
-  }
-
-  if (error || videos.length === 0) {
-    return (
-      <div style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8, padding: 20, textAlign: 'center' }}>
-        <div style={{ fontFamily: IT_FONT_HEAD, color: IT.goldLight, fontSize: 24, fontStyle: 'italic' }}>{tui(lang, 'itVideosEmptyTitle')}</div>
-        <div style={{ color: IT.textSecondary, fontSize: 13 }}>{tui(lang, 'itVideosEmptySub')}</div>
-      </div>
-    );
-  }
+  const handleChip = (id) => {
+    if (id === 'recipe') sendMessage(tui(lang, 'itChatChipRecipe'), RECIPE_INSTRUCTION);
+    else if (id === 'diagnosis') onNavigate?.('progreso');
+    else if (id === 'reminders') onNavigate?.('progreso');
+  };
 
   return (
-    <div className="it-snap-y it-scroll-hide" style={{ height: 'calc(100vh - 84px)', overflowY: 'auto' }}>
-      {videos.map(v => (
-        <VideoItem key={v.id} video={v} user={user} onLiked={bumpLikes} lang={lang} />
-      ))}
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      {/* Header */}
+      <div style={{ padding: '18px 20px 14px', display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ position: 'relative', flexShrink: 0 }}>
+          <img
+            src="/dr-smoothie-avatar.jpg"
+            alt="Dr. Smoothie AI"
+            style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', border: `2px solid ${IT.emerald}` }}
+          />
+          <div style={{
+            position: 'absolute', bottom: 0, right: 0, width: 10, height: 10,
+            borderRadius: '50%', background: IT.emerald, border: `2px solid ${IT.obsidian}`,
+          }} />
+        </div>
+        <div>
+          <div style={{ fontFamily: IT_FONT_HEAD, color: IT.goldLight, fontSize: 20, fontStyle: 'italic' }}>
+            Dr. Smoothie AI
+          </div>
+          <div style={{ fontSize: 11, color: IT.emerald, letterSpacing: '0.04em' }}>{tui(lang, 'itChatOnline')}</div>
+        </div>
+      </div>
+      <div className="it-divider" />
+
+      {/* Chips */}
+      <div style={{ display: 'flex', gap: 8, padding: '12px 16px', overflowX: 'auto' }} className="it-scroll-hide">
+        {CHIPS.map(c => (
+          <button
+            key={c.id}
+            onClick={() => handleChip(c.id)}
+            className="it-tap"
+            style={{
+              whiteSpace: 'nowrap', padding: '7px 14px', borderRadius: 20,
+              border: `1px solid ${IT.divider}`, background: 'transparent',
+              color: IT.cream, fontSize: 12, fontFamily: IT_FONT_BODY, cursor: 'pointer',
+            }}
+          >
+            {c.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Messages */}
+      <div style={{ flex: 1, padding: '4px 20px 16px', display: 'flex', flexDirection: 'column', gap: 4 }}>
+        {messages.map((m, i) => (
+          <div key={i} style={{ padding: '10px 0', borderTop: i === 0 ? 'none' : `1px solid ${IT.divider}` }}>
+            <div style={{
+              fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase',
+              color: IT.textSecondary, marginBottom: 4, textAlign: m.role === 'user' ? 'right' : 'left',
+            }}>
+              {m.role === 'user' ? tui(lang, 'itChatYou') : 'Dr. Smoothie AI'}
+            </div>
+            <div style={{
+              fontSize: 14, lineHeight: 1.65, whiteSpace: 'pre-wrap',
+              color: IT.cream, textAlign: m.role === 'user' ? 'right' : 'left',
+            }}>
+              {m.text}
+            </div>
+            {m.recipe && <RecipeBlock recipe={m.recipe} lang={lang} />}
+          </div>
+        ))}
+        {loading && (
+          <div style={{ padding: '10px 0', color: IT.textSecondary, fontSize: 13, fontStyle: 'italic' }}>
+            {tui(lang, 'itChatTyping')}
+          </div>
+        )}
+        <div ref={bottomRef} />
+      </div>
+
+      {/* Input bar */}
+      <div style={{
+        position: 'sticky', bottom: 0, padding: '10px 16px calc(10px + env(safe-area-inset-bottom))',
+        background: IT.obsidian, borderTop: `1px solid ${IT.divider}`,
+        display: 'flex', gap: 8,
+      }}>
+        <input
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && sendMessage()}
+          placeholder={tui(lang, 'itChatPlaceholder')}
+          style={{
+            flex: 1, background: 'transparent', border: 'none', borderBottom: `1px solid ${IT.divider}`,
+            color: IT.cream, fontSize: 14, fontFamily: IT_FONT_BODY, padding: '8px 2px', outline: 'none',
+          }}
+        />
+        <motion.button
+          onClick={() => sendMessage()}
+          disabled={loading || !input.trim()}
+          whileTap={{ scale: 0.96 }}
+          transition={{ duration: 0.12, ease: 'easeOut' }}
+          style={{
+            background: 'none', border: 'none', cursor: input.trim() ? 'pointer' : 'default',
+            color: input.trim() ? IT.goldLight : IT.textSecondary, fontSize: 18, fontFamily: IT_FONT_BODY,
+          }}
+        >
+          →
+        </motion.button>
+      </div>
     </div>
   );
 }
