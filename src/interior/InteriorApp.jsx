@@ -100,9 +100,9 @@ export default function InteriorApp({ user, hermes, goals, lang, onLangChange, o
 
   const tabs = {
     chat: <ChatTab user={user} hermes={hermes} lang={lang} onNavigate={setTab} />,
-    videos: <VideosTab user={user} hermes={hermes} />,
-    progreso: <ProgresoTab user={user} hermes={hermes} />,
-    club: <ClubTab user={user} hermes={hermes} />,
+    videos: <VideosTab user={user} hermes={hermes} lang={lang} />,
+    progreso: <ProgresoTab user={user} hermes={hermes} lang={lang} />,
+    club: <ClubTab user={user} hermes={hermes} lang={lang} />,
     perfil: <PerfilTab user={user} hermes={hermes} goals={goals} lang={lang} onLangChange={onLangChange} onSignOut={onSignOut} />,
   };
 
@@ -118,7 +118,7 @@ export default function InteriorApp({ user, hermes, goals, lang, onLangChange, o
         paddingBottom: 84,
       }}>
         {tabs[tab] || tabs.chat}
-        <BottomNavV2 active={tab} onNavigate={setTab} />
+        <BottomNavV2 active={tab} onNavigate={setTab} lang={lang} />
       </div>
     </MotionConfig>
   );
