@@ -15,7 +15,7 @@ const C = {
   obsidian: '#080B0A', deep: '#0D1210', surface: '#111815',
   surface2: '#162019', gold: '#C9A84C', gold2: '#E8C96A',
   cream: '#F4EFE6', cream2: '#E8E0D0', sage: '#4A7C59',
-  emerald: '#00C97B', muted: '#6B7E74',
+  emerald: '#2C9C6E', muted: '#6B7E74',
   border: 'rgba(201,168,76,0.15)', border2: 'rgba(201,168,76,0.08)',
 };
 
