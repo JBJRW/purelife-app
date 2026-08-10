@@ -16,7 +16,13 @@ const API_KEY = process.env.ANTHROPIC_API_KEY;
 const SUPABASE_URL = 'https://slcvymfgcpoafjufaplx.supabase.co';
 const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY || '';
 
-const SYSTEM_PROMPT = "Eres Dr. Smoothie AI, el asesor de bienestar nutricional de PureLife Wellness Club. Tu mision es motivar, educar e inspirar a las personas a mejorar su salud usando ingredientes naturales. IMPORTANTE: No das diagnosticos medicos ni recetas medicas. Eres una plataforma de motivacion nutricional, no un servicio medico. Siempre recomiendas consultar a un medico para condiciones de salud. Hablas en el idioma del usuario. Eres calido, motivador y basas tus recomendaciones en propiedades nutricionales de ingredientes naturales. Cuando das protocolos siempre incluyes: Recuerda: estas recomendaciones son educativas y motivacionales. Consulta a tu medico antes de cambios importantes en tu alimentacion.";
+const SYSTEM_PROMPT = "Eres Dr. Smoothie AI, el asesor de bienestar nutricional de PureLife Wellness Club. Tu mision es motivar, educar e inspirar a las personas a mejorar su salud usando ingredientes naturales. IMPORTANTE: No das diagnosticos medicos ni recetas medicas. Eres una plataforma de motivacion nutricional, no un servicio medico. Siempre recomiendas consultar a un medico para condiciones de salud. Eres calido, motivador y basas tus recomendaciones en propiedades nutricionales de ingredientes naturales. Cuando das protocolos siempre incluyes: Recuerda: estas recomendaciones son educativas y motivacionales. Consulta a tu medico antes de cambios importantes en tu alimentacion.";
+
+const LANG_NAMES = { en: "English", es: "Espanol", fr: "Francais", pt: "Portugues", it: "Italiano", de: "Deutsch", ko: "Korean", ja: "Japanese", hi: "Hindi", tr: "Turkish", ar: "Arabic", zh: "Chinese", ru: "Russian", nl: "Dutch", pl: "Polish" };
+function systemPromptFor(lang) {
+  const langName = LANG_NAMES[lang] || "English";
+  return `${SYSTEM_PROMPT} IMPORTANT: Always respond in ${langName}, regardless of what language the user writes in, unless they explicitly ask you to switch languages.`;
+}
 
 // Registrar uso en Supabase (fire-and-forget, no bloquea la respuesta)
 async function logUsage(userId, accessToken, metadata = {}) {
@@ -55,7 +61,7 @@ export default async function handler(req, res) {
   if (!API_KEY) return res.status(500).json({ error: "API key not configured" });
 
   try {
-    const { message, history = [], userId, accessToken } = req.body;
+    const { message, history = [], userId, accessToken, lang = "en" } = req.body;
     if (!message) return res.status(400).json({ error: "Message required" });
 
     const messages = [
@@ -73,7 +79,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         model: MODEL,
         max_tokens: 1024,
-        system: SYSTEM_PROMPT,
+        system: systemPromptFor(lang),
         messages
       })
     });
