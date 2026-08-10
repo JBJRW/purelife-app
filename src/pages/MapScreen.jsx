@@ -17,14 +17,79 @@ const FONT = "'Helvetica Neue', Arial, sans-serif";
 // <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 // <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-const FILTERS = [
-  { id: 'all', label: 'Todo', emoji: '🗺️', osm: null },
-  { id: 'organic', label: 'Orgánicos', emoji: '🌿', osm: 'organic' },
-  { id: 'juice', label: 'Juguerías', emoji: '🥤', osm: 'juice_bar' },
-  { id: 'market', label: 'Mercados', emoji: '🏪', osm: 'marketplace' },
-  { id: 'farm', label: 'Granjas', emoji: '🚜', osm: 'farm' },
-  { id: 'health', label: 'Salud', emoji: '🏥', osm: 'health_food' },
+const FILTER_META = [
+  { id: 'all', emoji: '🗺️', osm: null },
+  { id: 'organic', emoji: '🌿', osm: 'organic' },
+  { id: 'juice', emoji: '🥤', osm: 'juice_bar' },
+  { id: 'market', emoji: '🏪', osm: 'marketplace' },
+  { id: 'farm', emoji: '🚜', osm: 'farm' },
+  { id: 'health', emoji: '🏥', osm: 'health_food' },
 ];
+
+const MS = {
+  en: {
+    filterLabel: { all: 'All', organic: 'Organic', juice: 'Juice bars', market: 'Markets', farm: 'Farms', health: 'Health' },
+    title: '🗺️ Nearby Stores', placesFound: (n) => `✅ ${n} places found`, headerSub: 'Healthy food near you',
+    youAreHere: '📍 You are here', directions: '🗺️ Directions →',
+    findTitle: 'Find healthy stores', findBody: 'We use your location to find organic markets, juice bars and health stores near you.',
+    useLocation: '🎯 Use my location', useDemoLocation: 'Use demo location (Fort Lauderdale)',
+    searching: 'Searching for healthy stores...', searchingOSM: 'Searching OpenStreetMap...', searchingStores: 'Searching stores...',
+    noStoresCategory: 'No stores in this category nearby', viewAll: 'View all',
+    placesToTap: (n) => `${n} places · Tap to select`, searchRadius: (km) => `Search radius: ${km} km`, searchWithRadius: '🔍 Search with this radius',
+    leafletNotLoaded: 'Leaflet not loaded',
+    healthyStore: 'Healthy store', noAddress: 'No address', checkHours: 'Check hours',
+  },
+  es: {
+    filterLabel: { all: 'Todo', organic: 'Orgánicos', juice: 'Juguerías', market: 'Mercados', farm: 'Granjas', health: 'Salud' },
+    title: '🗺️ Tiendas Cercanas', placesFound: (n) => `✅ ${n} lugares encontrados`, headerSub: 'Alimentos saludables cerca de ti',
+    youAreHere: '📍 Tú estás aquí', directions: '🗺️ Cómo llegar →',
+    findTitle: 'Encuentra tiendas saludables', findBody: 'Usamos tu ubicación para encontrar mercados orgánicos, juguerías y tiendas de salud cerca de ti.',
+    useLocation: '🎯 Usar mi ubicación', useDemoLocation: 'Usar ubicación demo (Fort Lauderdale)',
+    searching: 'Buscando tiendas saludables...', searchingOSM: 'Buscando en OpenStreetMap...', searchingStores: 'Buscando tiendas...',
+    noStoresCategory: 'No hay tiendas en esta categoría cercanas', viewAll: 'Ver todas',
+    placesToTap: (n) => `${n} lugares · Toca para seleccionar`, searchRadius: (km) => `Radio de búsqueda: ${km} km`, searchWithRadius: '🔍 Buscar con este radio',
+    leafletNotLoaded: 'Leaflet no cargado',
+    healthyStore: 'Tienda saludable', noAddress: 'Sin dirección', checkHours: 'Consultar horario',
+  },
+  fr: {
+    filterLabel: { all: 'Tout', organic: 'Bio', juice: 'Bars à jus', market: 'Marchés', farm: 'Fermes', health: 'Santé' },
+    title: '🗺️ Magasins à proximité', placesFound: (n) => `✅ ${n} lieux trouvés`, headerSub: 'Aliments sains près de vous',
+    youAreHere: '📍 Vous êtes ici', directions: '🗺️ Itinéraire →',
+    findTitle: 'Trouvez des magasins sains', findBody: 'Nous utilisons votre position pour trouver des marchés bio, bars à jus et magasins santé près de vous.',
+    useLocation: '🎯 Utiliser ma position', useDemoLocation: 'Utiliser la position démo (Fort Lauderdale)',
+    searching: 'Recherche de magasins sains...', searchingOSM: 'Recherche sur OpenStreetMap...', searchingStores: 'Recherche de magasins...',
+    noStoresCategory: 'Aucun magasin dans cette catégorie à proximité', viewAll: 'Voir tout',
+    placesToTap: (n) => `${n} lieux · Touchez pour sélectionner`, searchRadius: (km) => `Rayon de recherche : ${km} km`, searchWithRadius: '🔍 Rechercher avec ce rayon',
+    leafletNotLoaded: 'Leaflet non chargé',
+    healthyStore: 'Magasin santé', noAddress: "Pas d'adresse", checkHours: 'Vérifier les horaires',
+  },
+  pt: {
+    filterLabel: { all: 'Tudo', organic: 'Orgânicos', juice: 'Sucos', market: 'Mercados', farm: 'Fazendas', health: 'Saúde' },
+    title: '🗺️ Lojas Próximas', placesFound: (n) => `✅ ${n} lugares encontrados`, headerSub: 'Alimentos saudáveis perto de você',
+    youAreHere: '📍 Você está aqui', directions: '🗺️ Como chegar →',
+    findTitle: 'Encontre lojas saudáveis', findBody: 'Usamos sua localização para encontrar mercados orgânicos, sucos e lojas de saúde perto de você.',
+    useLocation: '🎯 Usar minha localização', useDemoLocation: 'Usar localização demo (Fort Lauderdale)',
+    searching: 'Buscando lojas saudáveis...', searchingOSM: 'Buscando no OpenStreetMap...', searchingStores: 'Buscando lojas...',
+    noStoresCategory: 'Não há lojas nessa categoria por perto', viewAll: 'Ver todas',
+    placesToTap: (n) => `${n} lugares · Toque para selecionar`, searchRadius: (km) => `Raio de busca: ${km} km`, searchWithRadius: '🔍 Buscar com este raio',
+    leafletNotLoaded: 'Leaflet não carregado',
+    healthyStore: 'Loja saudável', noAddress: 'Sem endereço', checkHours: 'Consultar horário',
+  },
+  it: {
+    filterLabel: { all: 'Tutto', organic: 'Biologici', juice: 'Centrifughe', market: 'Mercati', farm: 'Fattorie', health: 'Salute' },
+    title: '🗺️ Negozi Vicini', placesFound: (n) => `✅ ${n} luoghi trovati`, headerSub: 'Cibo sano vicino a te',
+    youAreHere: '📍 Sei qui', directions: '🗺️ Indicazioni →',
+    findTitle: 'Trova negozi sani', findBody: 'Usiamo la tua posizione per trovare mercati biologici, centrifughe e negozi di salute vicino a te.',
+    useLocation: '🎯 Usa la mia posizione', useDemoLocation: 'Usa posizione demo (Fort Lauderdale)',
+    searching: 'Ricerca negozi sani...', searchingOSM: 'Ricerca su OpenStreetMap...', searchingStores: 'Ricerca negozi...',
+    noStoresCategory: 'Nessun negozio in questa categoria vicino', viewAll: 'Vedi tutti',
+    placesToTap: (n) => `${n} luoghi · Tocca per selezionare`, searchRadius: (km) => `Raggio di ricerca: ${km} km`, searchWithRadius: '🔍 Cerca con questo raggio',
+    leafletNotLoaded: 'Leaflet non caricato',
+    healthyStore: 'Negozio sano', noAddress: 'Nessun indirizzo', checkHours: 'Verifica orari',
+  },
+};
+const ms = (lang) => MS[lang] || MS.en;
+const getFilters = (lang='en') => FILTER_META.map(f => ({ ...f, label: ms(lang).filterLabel[f.id] }));
 
 // Mock stores para demo (si OSM falla o modo demo)
 function getMockStores(lat, lng) {
@@ -38,7 +103,7 @@ function getMockStores(lat, lng) {
 }
 
 // Buscar en Overpass API (OpenStreetMap) — tiendas reales cercanas
-async function searchOSMStores(lat, lng, radius = 1500) {
+async function searchOSMStores(lat, lng, radius = 1500, t = MS.en) {
   const query = `
     [out:json][timeout:15];
     (
@@ -59,12 +124,12 @@ async function searchOSMStores(lat, lng, radius = 1500) {
     const data = await res.json();
     return (data.elements || []).slice(0, 20).map((el, i) => ({
       id: el.id || i,
-      name: el.tags?.name || el.tags?.['name:es'] || 'Tienda saludable',
+      name: el.tags?.name || el.tags?.['name:es'] || t.healthyStore,
       type: el.tags?.shop || el.tags?.amenity || 'organic',
       lat: el.lat,
       lng: el.lon,
-      address: el.tags?.['addr:street'] ? `${el.tags['addr:street']} ${el.tags['addr:housenumber'] || ''}` : 'Sin dirección',
-      hours: el.tags?.opening_hours || 'Consultar horario',
+      address: el.tags?.['addr:street'] ? `${el.tags['addr:street']} ${el.tags['addr:housenumber'] || ''}` : t.noAddress,
+      hours: el.tags?.opening_hours || t.checkHours,
       rating: (4.0 + Math.random()).toFixed(1),
       distance: ((Math.sqrt(Math.pow(el.lat - lat, 2) + Math.pow(el.lon - lng, 2))) * 111).toFixed(1) + ' km',
       emoji: el.tags?.amenity === 'juice_bar' ? '🥤' : el.tags?.shop === 'organic' ? '🌿' : el.tags?.shop === 'farm' ? '🚜' : '🏪',
@@ -74,7 +139,7 @@ async function searchOSMStores(lat, lng, radius = 1500) {
   }
 }
 
-function StoreCard({ store, onNavigate, isActive, onClick }) {
+function StoreCard({ store, onNavigate, isActive, onClick, directions = '🗺️ Directions →' }) {
   return (
     <div onClick={onClick} style={{
       background: isActive ? `${C.mint}14` : C.glass,
@@ -104,14 +169,16 @@ function StoreCard({ store, onNavigate, isActive, onClick }) {
           background: `linear-gradient(135deg, ${C.mint}, ${C.green})`,
           color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: FONT,
         }}>
-          🗺️ Cómo llegar →
+          {directions}
         </button>
       )}
     </div>
   );
 }
 
-export default function MapScreen({ user }) {
+export default function MapScreen({ user, lang = 'en' }) {
+  const t = ms(lang);
+  const FILTERS = getFilters(lang);
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
   const markersRef = useRef([]);
@@ -127,7 +194,7 @@ export default function MapScreen({ user }) {
   // Inicializar mapa cuando tengamos ubicación
   useEffect(() => {
     if (!location || !mapRef.current || mapInstance.current) return;
-    if (!window.L) { console.warn('Leaflet no cargado'); return; }
+    if (!window.L) { console.warn(t.leafletNotLoaded); return; }
 
     mapInstance.current = window.L.map(mapRef.current, { zoomControl: false }).setView([location.lat, location.lng], 15);
     window.L.control.zoom({ position: 'bottomright' }).addTo(mapInstance.current);
@@ -144,7 +211,7 @@ export default function MapScreen({ user }) {
     });
     window.L.marker([location.lat, location.lng], { icon: userIcon })
       .addTo(mapInstance.current)
-      .bindPopup('<strong style="color:#0F1F17">📍 Tú estás aquí</strong>');
+      .bindPopup(`<strong style="color:#0F1F17">${t.youAreHere}</strong>`);
   }, [location]);
 
   // Agregar markers cuando cambien stores
@@ -200,7 +267,7 @@ export default function MapScreen({ user }) {
 
   const loadStores = async (lat, lng) => {
     setIsLoadingStores(true);
-    const osmStores = await searchOSMStores(lat, lng, searchRadius);
+    const osmStores = await searchOSMStores(lat, lng, searchRadius, t);
     const finalStores = osmStores.length > 0 ? osmStores : getMockStores(lat, lng);
     setStores(finalStores);
     setIsLoadingStores(false);
@@ -224,9 +291,9 @@ export default function MapScreen({ user }) {
       <div style={{ padding: '16px 20px 12px', flexShrink: 0 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
           <div>
-            <h2 style={{ fontFamily: FONT_HEAD, color: C.cream, fontSize: 22, margin: 0 }}>🗺️ Tiendas Cercanas</h2>
+            <h2 style={{ fontFamily: FONT_HEAD, color: C.cream, fontSize: 22, margin: 0 }}>{t.title}</h2>
             <p style={{ color: C.muted, fontSize: 12, margin: '2px 0 0' }}>
-              {locationStatus === 'success' ? `✅ ${stores.length} lugares encontrados` : 'Alimentos saludables cerca de ti'}
+              {locationStatus === 'success' ? t.placesFound(stores.length) : t.headerSub}
             </p>
           </div>
           <div style={{ display: 'flex', gap: 6 }}>
@@ -263,24 +330,24 @@ export default function MapScreen({ user }) {
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0 32px', textAlign: 'center' }}>
           <div style={{ fontSize: 64, marginBottom: 20 }}>📍</div>
           <h3 style={{ fontFamily: FONT_HEAD, color: C.cream, fontSize: 22, margin: '0 0 10px' }}>
-            Encuentra tiendas saludables
+            {t.findTitle}
           </h3>
           <p style={{ color: C.muted, fontSize: 14, lineHeight: 1.6, marginBottom: 28 }}>
-            Usamos tu ubicación para encontrar mercados orgánicos, juguerías y tiendas de salud cerca de ti.
+            {t.findBody}
           </p>
           <button onClick={getLocation} style={{
             width: '100%', padding: '15px', borderRadius: 14, border: 'none',
             background: `linear-gradient(135deg, ${C.mint}, ${C.green})`,
             color: '#fff', fontSize: 16, fontWeight: 700, cursor: 'pointer', fontFamily: FONT,
           }}>
-            🎯 Usar mi ubicación
+            {t.useLocation}
           </button>
           <button onClick={() => { const d = { lat: 26.1224, lng: -80.1373 }; setLocation(d); setLocationStatus('success'); loadStores(d.lat, d.lng); }} style={{
             marginTop: 10, width: '100%', padding: '12px', borderRadius: 14,
             border: `1px solid ${C.glassBorder}`, background: 'transparent',
             color: C.muted, fontSize: 13, cursor: 'pointer', fontFamily: FONT,
           }}>
-            Usar ubicación demo (Fort Lauderdale)
+            {t.useDemoLocation}
           </button>
         </div>
       )}
@@ -289,7 +356,7 @@ export default function MapScreen({ user }) {
       {locationStatus === 'loading' && (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ fontSize: 48, marginBottom: 16, animation: 'pulse 1s infinite' }}>🔍</div>
-          <p style={{ color: C.muted, fontSize: 14 }}>Buscando tiendas saludables...</p>
+          <p style={{ color: C.muted, fontSize: 14 }}>{t.searching}</p>
         </div>
       )}
 
@@ -307,7 +374,7 @@ export default function MapScreen({ user }) {
                   position: 'absolute', inset: 0, background: 'rgba(15,31,23,0.7)',
                   zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}>
-                  <div style={{ color: C.cream, fontSize: 14 }}>Buscando en OpenStreetMap...</div>
+                  <div style={{ color: C.cream, fontSize: 14 }}>{t.searchingOSM}</div>
                 </div>
               )}
             </div>
@@ -317,22 +384,22 @@ export default function MapScreen({ user }) {
           {(view === 'list' || view === 'split') && (
             <div style={{ flex: 1, overflowY: 'auto', padding: '12px 20px 16px' }}>
               {isLoadingStores ? (
-                <div style={{ textAlign: 'center', color: C.muted, padding: 20 }}>Buscando tiendas...</div>
+                <div style={{ textAlign: 'center', color: C.muted, padding: 20 }}>{t.searchingStores}</div>
               ) : filteredStores.length === 0 ? (
                 <div style={{ textAlign: 'center', color: C.muted, padding: 30 }}>
-                  <p>No hay tiendas en esta categoría cercanas</p>
+                  <p>{t.noStoresCategory}</p>
                   <button onClick={() => setActiveFilter('all')} style={{
                     marginTop: 10, padding: '8px 16px', borderRadius: 20,
                     border: `1px solid ${C.glassBorder}`, background: 'transparent',
                     color: C.light, fontSize: 12, cursor: 'pointer',
                   }}>
-                    Ver todas
+                    {t.viewAll}
                   </button>
                 </div>
               ) : (
                 <>
                   <p style={{ color: C.muted, fontSize: 12, margin: '0 0 10px' }}>
-                    {filteredStores.length} lugares · Toca para seleccionar
+                    {t.placesToTap(filteredStores.length)}
                   </p>
                   {filteredStores.map(store => (
                     <StoreCard
@@ -346,13 +413,14 @@ export default function MapScreen({ user }) {
                         }
                       }}
                       onNavigate={navigateTo}
+                      directions={t.directions}
                     />
                   ))}
 
                   {/* Radio control */}
                   <div style={{ background: C.glass, border: `1px solid ${C.glassBorder}`, borderRadius: 14, padding: '14px 16px', marginTop: 8 }}>
                     <p style={{ color: C.muted, fontSize: 12, margin: '0 0 8px' }}>
-                      Radio de búsqueda: {(searchRadius / 1000).toFixed(1)} km
+                      {t.searchRadius((searchRadius / 1000).toFixed(1))}
                     </p>
                     <input type="range" min={500} max={5000} step={250}
                       value={searchRadius}
@@ -363,7 +431,7 @@ export default function MapScreen({ user }) {
                       marginTop: 8, width: '100%', padding: '9px', borderRadius: 10, border: 'none',
                       background: `${C.mint}22`, color: C.light, fontSize: 12, cursor: 'pointer', fontFamily: FONT, fontWeight: 600,
                     }}>
-                      🔍 Buscar con este radio
+                      {t.searchWithRadius}
                     </button>
                   </div>
                 </>
