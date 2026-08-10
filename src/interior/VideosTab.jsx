@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase';
 import { IT, IT_FONT_HEAD, IT_FONT_BODY } from './tokens';
 import { tui } from '../i18n';
 
-function VideoItem({ video, user, onLiked, lang }) {
+function VideoItem({ video, user, onLiked, lang, isExpanded, onToggleExpand }) {
   const ref = useRef(null);
   const videoRef = useRef(null);
   const [liked, setLiked] = useState(false);
@@ -46,7 +46,11 @@ function VideoItem({ video, user, onLiked, lang }) {
     <section
       ref={ref}
       className="it-snap-item"
-      style={{
+      style={isExpanded ? {
+        position: 'fixed', inset: 0, zIndex: 500, width: '100vw', height: '100vh',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: '#000', overflow: 'hidden',
+      } : {
         position: 'relative', height: 'calc(100vh - 84px)', width: '100%',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         background: IT.obsidian, overflow: 'hidden',
@@ -64,6 +68,22 @@ function VideoItem({ video, user, onLiked, lang }) {
         style={{ width: '100%', height: '100%', objectFit: 'contain' }}
       />
       <div style={{ position: 'absolute', inset: 0, background: IT.scrim, pointerEvents: 'none' }} />
+
+      {/* Boton expandir / cerrar pantalla completa */}
+      <button
+        onClick={(e) => { e.stopPropagation(); onToggleExpand(video.id); }}
+        className="it-tap"
+        aria-label={isExpanded ? 'Cerrar pantalla completa' : 'Ver en pantalla completa'}
+        style={{
+          position: 'absolute', top: isExpanded ? 18 : 14, right: 14, zIndex: 5,
+          width: 36, height: 36, borderRadius: '50%',
+          background: 'rgba(11,15,13,.6)', backdropFilter: 'blur(6px)',
+          border: `1px solid ${IT.divider}`, color: IT.cream, fontSize: 16,
+          cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}
+      >
+        {isExpanded ? '\u2715' : '\u26F6'}
+      </button>
 
       {/* Caption + autor */}
       <div style={{ position: 'absolute', left: 16, right: 76, bottom: 20 }} className="it-scrim-text">
@@ -122,6 +142,8 @@ const actionLabelStyle = { fontSize: 10, color: IT.textSecondary, fontFamily: IT
 export default function VideosTab({ user, lang = 'en' }) {
   const [videos, setVideos] = useState(null);
   const [error, setError] = useState(false);
+  const [expandedId, setExpandedId] = useState(null);
+  const toggleExpand = (id) => setExpandedId(cur => (cur === id ? null : id));
 
   useEffect(() => {
     let cancelled = false;
@@ -162,7 +184,15 @@ export default function VideosTab({ user, lang = 'en' }) {
   return (
     <div className="it-snap-y it-scroll-hide" style={{ height: 'calc(100vh - 84px)', overflowY: 'auto' }}>
       {videos.map(v => (
-        <VideoItem key={v.id} video={v} user={user} onLiked={bumpLikes} lang={lang} />
+        <VideoItem
+          key={v.id}
+          video={v}
+          user={user}
+          onLiked={bumpLikes}
+          lang={lang}
+          isExpanded={expandedId === v.id}
+          onToggleExpand={toggleExpand}
+        />
       ))}
     </div>
   );
