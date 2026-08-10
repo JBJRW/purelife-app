@@ -102,16 +102,17 @@ const getPlans = (lang = 'en') => [
 const PLANS = getPlans();
 
 // ── GOALS ───────────────────────────────────────────────────
-const GOALS = [
-  { id: 'weight_loss', label: 'Bajar de peso', emoji: '⚖️' },
-  { id: 'detox', label: 'Detox & limpieza', emoji: '✨' },
-  { id: 'energy', label: 'Más energía', emoji: '⚡' },
-  { id: 'fitness', label: 'Fitness & músculo', emoji: '💪' },
-  { id: 'diabetic', label: 'Control glucosa', emoji: '🩺' },
-  { id: 'heart', label: 'Salud cardíaca', emoji: '❤️' },
-  { id: 'sleep', label: 'Mejor sueño', emoji: '🌙' },
-  { id: 'immunity', label: 'Inmunidad', emoji: '🛡️' },
+const GOAL_META = [
+  { id: 'weight_loss', emoji: '⚖️' },
+  { id: 'detox', emoji: '✨' },
+  { id: 'energy', emoji: '⚡' },
+  { id: 'fitness', emoji: '💪' },
+  { id: 'diabetic', emoji: '🩺' },
+  { id: 'heart', emoji: '❤️' },
+  { id: 'sleep', emoji: '🌙' },
+  { id: 'immunity', emoji: '🛡️' },
 ];
+const getGoals = (lang = 'en') => GOAL_META.map(g => ({ ...g, label: tui(lang, 'goals', g.id) }));
 
 // ── SHARED COMPONENTS ────────────────────────────────────────
 
@@ -213,7 +214,7 @@ function SplashScreen({ onContinue, lang = 'en' }) {
           <p style={{ color: C.muted, fontSize: 14 }}>Selecciona uno o más</p>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 32 }}>
-          {GOALS.map(g => (
+          {getGoals(lang).map(g => (
             <motion.button
               key={g.id}
               onClick={() => toggleGoal(g.id)}
@@ -1021,15 +1022,15 @@ export function PlansScreen({ hermes, user, lang = 'en' }) {
           fontSize: 11, color: C.gold, letterSpacing: '0.14em',
           textTransform: 'uppercase', fontWeight: 700, marginBottom: 10,
         }}>
-          Planes
+          {tui(lang,'plansExtra','kicker')}
         </p>
         {/* TASTE: headline = promesa, no "Elige tu plan" que es instrucción */}
         <h2 style={{ fontFamily: FONT_HEAD, color: C.cream, fontSize: 26, margin: '0 0 6px', fontWeight: 700 }}>
-          Tu cuerpo. Tu ritmo.
+          {tui(lang,'plansExtra','headline')}
         </h2>
         {/* TASTE: beneficio concreto + garantía — no "Cancela cuando quieras" genérico */}
         <p style={{ color: C.muted, fontSize: 13, lineHeight: 1.5 }}>
-          Resultados en 21 días — o te devolvemos tu dinero.
+          {tui(lang,'plansExtra','subheadline')}
         </p>
       </div>
 
@@ -1044,7 +1045,7 @@ export function PlansScreen({ hermes, user, lang = 'en' }) {
           <span style={{ fontSize: 13 }}>✓</span>
           {/* TASTE: información contextual, no repetición del nombre del plan */}
           <p style={{ fontSize: 12, color: C.gold, margin: 0 }}>
-            Tu plan actual: <strong style={{ textTransform: 'capitalize' }}>{activeTier}</strong>
+            {tui(lang,'plansExtra','currentPlanPrefix')} <strong style={{ textTransform: 'capitalize' }}>{activeTier}</strong>
           </p>
         </div>
       )}
@@ -1082,7 +1083,7 @@ export function PlansScreen({ hermes, user, lang = 'en' }) {
                   padding: '4px 12px', borderRadius: 99,
                   letterSpacing: '0.1em', fontFamily: FONT_BODY,
                 }}>
-                  MÁS POPULAR
+                  {tui(lang,'plansExtra','mostPopular')}
                 </div>
               )}
 
@@ -1102,7 +1103,7 @@ export function PlansScreen({ hermes, user, lang = 'en' }) {
                         padding: '2px 7px', borderRadius: 99,
                         letterSpacing: '0.08em', fontWeight: 700,
                       }}>
-                        ACTIVO
+                        {tui(lang,'plansExtra','active')}
                       </span>
                     )}
                   </div>
@@ -1158,9 +1159,9 @@ export function PlansScreen({ hermes, user, lang = 'en' }) {
           }}
         >
           {loading
-            ? 'Preparando checkout...'
+            ? tui(lang,'plansExtra','preparing')
             // TASTE: CTA = nombre del plan seleccionado + acción
-            : `Empezar con ${selectedPlan?.name} — ${selectedPlan?.price}/mo`
+            : `${tui(lang,'plansExtra','startWith')} ${selectedPlan?.name} — ${selectedPlan?.price}/mo`
           }
         </motion.button>
 
@@ -1169,7 +1170,7 @@ export function PlansScreen({ hermes, user, lang = 'en' }) {
           display: 'flex', justifyContent: 'center', gap: 16,
           marginTop: 10,
         }}>
-          {['🔒 Pago seguro vía Stripe', 'Sin contratos', '30 días garantía'].map(t => (
+          {[tui(lang,'plansExtra','securePayment'), tui(lang,'plansExtra','noContracts'), tui(lang,'plansExtra','moneyBack')].map(t => (
             <p key={t} style={{ color: C.muted, fontSize: 10, margin: 0 }}>{t}</p>
           ))}
         </div>
@@ -1183,12 +1184,12 @@ export function PlansScreen({ hermes, user, lang = 'en' }) {
         textAlign: 'center',
       }}>
         <p style={{ color: C.muted, fontSize: 12, margin: 0 }}>
-          ¿Prefieres pagar anual?{' '}
+          {tui(lang,'plansExtra','annualQuestion')}{' '}
           <span
             onClick={() => window.open('https://buy.stripe.com/eVa5nf7Iz6dI7Ly9AB', '_blank')}
             style={{ color: C.gold, cursor: 'pointer', fontWeight: 600 }}
           >
-            $182/año — ahorra 2 meses →
+            {tui(lang,'plansExtra','annualCTA')}
           </span>
         </p>
       </div>
@@ -1276,7 +1277,7 @@ function DashboardScreen({ user, hermes, lang = 'en' }) {
 }
 
 // ── SCREEN: LOGIN / REGISTRO ─────────────────────────────────
-function AuthScreen({ onAuth, signIn, signUp, resetPasswordForEmail }) {
+function AuthScreen({ onAuth, signIn, signUp, resetPasswordForEmail, lang = 'en' }) {
   const [mode, setMode] = useState('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -1286,35 +1287,35 @@ function AuthScreen({ onAuth, signIn, signUp, resetPasswordForEmail }) {
   const [resetSent, setResetSent] = useState(false);
 
   const handleAuth = async () => {
-    if (!email || !password) { setError('Completa todos los campos'); return; }
+    if (!email || !password) { setError(tui(lang,'authExtra','fieldsRequired')); return; }
     setLoading(true); setError('');
     try {
       const { data, error: authError } = mode === 'login'
         ? await signIn(email, password)
         : await signUp(email, password, name || email.split('@')[0]);
       if (authError) {
-        setError(authError.message || 'Error de autenticación');
+        setError(authError.message || tui(lang,'authExtra','authGenericError'));
       } else if (mode === 'signup' && !data?.session) {
         // Supabase puede requerir confirmación por email antes de crear sesión
-        setError('Cuenta creada. Revisa tu correo para confirmar antes de iniciar sesión.');
+        setError(tui(lang,'authExtra','accountCreatedConfirm'));
       } else {
         onAuth({ isNewAccount: mode === 'signup' });
       }
     } catch {
-      setError('Error de conexión. Verifica tu configuración de Supabase.');
+      setError(tui(lang,'authExtra','connectionErrorSupabase'));
     }
     setLoading(false);
   };
 
   const handleReset = async () => {
-    if (!email) { setError('Ingresa tu correo primero'); return; }
+    if (!email) { setError(tui(lang,'authExtra','emailFirst')); return; }
     setLoading(true); setError('');
     try {
       const { error: resetError } = await resetPasswordForEmail(email);
-      if (resetError) setError(resetError.message || 'No se pudo enviar el correo');
+      if (resetError) setError(resetError.message || tui(lang,'authExtra','sendFailed'));
       else setResetSent(true);
     } catch {
-      setError('Error de conexión. Intenta de nuevo.');
+      setError(tui(lang,'authExtra','connectionError'));
     }
     setLoading(false);
   };
@@ -1329,24 +1330,24 @@ function AuthScreen({ onAuth, signIn, signUp, resetPasswordForEmail }) {
         <div style={{ width: '100%', maxWidth: 380 }}>
           <div style={{ textAlign: 'center', marginBottom: 36 }}>
             <img src="/purelife-logo.png" alt="PureLife" style={{ width: 80, height: 80, borderRadius: '50%', objectFit: 'cover', marginBottom: 10, boxShadow: '0 0 32px rgba(201,168,76,0.3)' }} />
-            <h2 style={{ fontFamily: FONT_HEAD, color: C.cream, fontSize: 28, margin: '0 0 6px' }}>Recuperar contraseña</h2>
-            <p style={{ color: C.muted, fontSize: 14 }}>Te enviamos un enlace para restablecerla</p>
+            <h2 style={{ fontFamily: FONT_HEAD, color: C.cream, fontSize: 28, margin: '0 0 6px' }}>{tui(lang,'authExtra','forgotTitle')}</h2>
+            <p style={{ color: C.muted, fontSize: 14 }}>{tui(lang,'authExtra','forgotSubtitle')}</p>
           </div>
 
           {resetSent ? (
             <p style={{ color: C.light, fontSize: 14, textAlign: 'center' }}>
-              ✓ Listo. Revisa tu correo <strong>{email}</strong> y sigue el enlace para crear una contraseña nueva.
+              {tui(lang,'authExtra','forgotSentPrefix')} <strong>{email}</strong> {tui(lang,'authExtra','forgotSentSuffix')}
             </p>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <input value={email} onChange={e => setEmail(e.target.value)}
-                type="email" placeholder="Tu correo" style={inputStyle}
+                type="email" placeholder={tui(lang,'authExtra','yourEmail')} style={inputStyle}
                 onKeyDown={e => e.key === 'Enter' && handleReset()} />
               {error && (
                 <p style={{ color: '#FF6B6B', fontSize: 13, margin: 0, textAlign: 'center' }}>{error}</p>
               )}
               <Btn onClick={handleReset} disabled={loading} style={{ width: '100%', fontSize: 16, padding: '15px', marginTop: 4 }}>
-                {loading ? 'Enviando...' : 'Enviar enlace de recuperación'}
+                {loading ? tui(lang,'authExtra','sending') : tui(lang,'authExtra','sendResetLink')}
               </Btn>
             </div>
           )}
@@ -1361,7 +1362,7 @@ function AuthScreen({ onAuth, signIn, signUp, resetPasswordForEmail }) {
                 background: 'none', border: 'none', color: C.light,
                 cursor: 'pointer', fontWeight: 700, fontSize: 14,
               }}>
-              ← Volver a iniciar sesión
+              {tui(lang,'authExtra','backToLogin')}
             </motion.button>
           </p>
         </div>
@@ -1379,7 +1380,7 @@ function AuthScreen({ onAuth, signIn, signUp, resetPasswordForEmail }) {
         <div style={{ textAlign: 'center', marginBottom: 36 }}>
           <img src="/purelife-logo.png" alt="PureLife" style={{ width: 80, height: 80, borderRadius: '50%', objectFit: 'cover', marginBottom: 10, boxShadow: '0 0 32px rgba(201,168,76,0.3)' }} />
           <h2 style={{ fontFamily: FONT_HEAD, color: C.cream, fontSize: 28, margin: '0 0 6px' }}>
-            {mode === 'login' ? 'Bienvenido de vuelta' : 'Crear cuenta'}
+            {mode === 'login' ? tui(lang,'loginTitle') : tui(lang,'registerTitle')}
           </h2>
           <p style={{ color: C.muted, fontSize: 14 }}>PureLife Wellness Club</p>
         </div>
@@ -1387,12 +1388,12 @@ function AuthScreen({ onAuth, signIn, signUp, resetPasswordForEmail }) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {mode === 'signup' && (
             <input value={name} onChange={e => setName(e.target.value)}
-              placeholder="Tu nombre" style={inputStyle} />
+              placeholder={tui(lang,'name')} style={inputStyle} />
           )}
           <input value={email} onChange={e => setEmail(e.target.value)}
-            type="email" placeholder="Email" style={inputStyle} />
+            type="email" placeholder={tui(lang,'email')} style={inputStyle} />
           <input value={password} onChange={e => setPassword(e.target.value)}
-            type="password" placeholder="Contraseña" style={inputStyle}
+            type="password" placeholder={tui(lang,'password')} style={inputStyle}
             onKeyDown={e => e.key === 'Enter' && handleAuth()} />
 
           {mode === 'login' && (
@@ -1404,7 +1405,7 @@ function AuthScreen({ onAuth, signIn, signUp, resetPasswordForEmail }) {
                 background: 'none', border: 'none', color: C.muted,
                 cursor: 'pointer', fontSize: 13, textAlign: 'right', padding: 0,
               }}>
-              ¿Olvidaste tu contraseña?
+              {tui(lang,'authExtra','forgotPasswordLink')}
             </motion.button>
           )}
 
@@ -1413,12 +1414,12 @@ function AuthScreen({ onAuth, signIn, signUp, resetPasswordForEmail }) {
           )}
 
           <Btn onClick={handleAuth} disabled={loading} style={{ width: '100%', fontSize: 16, padding: '15px', marginTop: 4 }}>
-            {loading ? 'Procesando...' : mode === 'login' ? 'Iniciar sesión' : 'Crear cuenta'}
+            {loading ? tui(lang,'authExtra','processing') : mode === 'login' ? tui(lang,'loginBtn') : tui(lang,'registerBtn')}
           </Btn>
         </div>
 
         <p style={{ color: C.muted, fontSize: 14, textAlign: 'center', marginTop: 20 }}>
-          {mode === 'login' ? '¿No tienes cuenta? ' : '¿Ya tienes cuenta? '}
+          {mode === 'login' ? tui(lang,'authExtra','noAccountPrefix') : tui(lang,'authExtra','hasAccountPrefix')}
           <motion.button
             onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
             whileHover={{ scale: 1.05 }}
@@ -1428,7 +1429,7 @@ function AuthScreen({ onAuth, signIn, signUp, resetPasswordForEmail }) {
               background: 'none', border: 'none', color: C.light,
               cursor: 'pointer', fontWeight: 700, fontSize: 14,
             }}>
-            {mode === 'login' ? 'Regístrate gratis' : 'Inicia sesión'}
+            {mode === 'login' ? tui(lang,'authExtra','signUpFree') : tui(lang,'loginBtn')}
           </motion.button>
         </p>
       </div>
@@ -1436,22 +1437,22 @@ function AuthScreen({ onAuth, signIn, signUp, resetPasswordForEmail }) {
   );
 }
 
-function ResetPasswordScreen({ updatePassword, onDone }) {
+function ResetPasswordScreen({ updatePassword, onDone, lang = 'en' }) {
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const handleSubmit = async () => {
-    if (!password || password.length < 6) { setError('La contraseña debe tener al menos 6 caracteres'); return; }
-    if (password !== confirm) { setError('Las contraseñas no coinciden'); return; }
+    if (!password || password.length < 6) { setError(tui(lang,'authExtra','passwordMinError')); return; }
+    if (password !== confirm) { setError(tui(lang,'authExtra','passwordMismatchError')); return; }
     setLoading(true); setError('');
     try {
       const { error: updateError } = await updatePassword(password);
-      if (updateError) setError(updateError.message || 'No se pudo actualizar la contraseña');
+      if (updateError) setError(updateError.message || tui(lang,'authExtra','updateFailed'));
       else onDone();
     } catch {
-      setError('Error de conexión. Intenta de nuevo.');
+      setError(tui(lang,'authExtra','connectionError'));
     }
     setLoading(false);
   };
@@ -1465,20 +1466,20 @@ function ResetPasswordScreen({ updatePassword, onDone }) {
       <div style={{ width: '100%', maxWidth: 380 }}>
         <div style={{ textAlign: 'center', marginBottom: 36 }}>
           <img src="/purelife-logo.png" alt="PureLife" style={{ width: 80, height: 80, borderRadius: '50%', objectFit: 'cover', marginBottom: 10, boxShadow: '0 0 32px rgba(201,168,76,0.3)' }} />
-          <h2 style={{ fontFamily: FONT_HEAD, color: C.cream, fontSize: 28, margin: '0 0 6px' }}>Nueva contraseña</h2>
-          <p style={{ color: C.muted, fontSize: 14 }}>Elige tu nueva contraseña</p>
+          <h2 style={{ fontFamily: FONT_HEAD, color: C.cream, fontSize: 28, margin: '0 0 6px' }}>{tui(lang,'authExtra','resetTitle')}</h2>
+          <p style={{ color: C.muted, fontSize: 14 }}>{tui(lang,'authExtra','resetSubtitle')}</p>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <input value={password} onChange={e => setPassword(e.target.value)}
-            type="password" placeholder="Contraseña nueva" style={inputStyle} />
+            type="password" placeholder={tui(lang,'authExtra','newPasswordPlaceholder')} style={inputStyle} />
           <input value={confirm} onChange={e => setConfirm(e.target.value)}
-            type="password" placeholder="Confirmar contraseña" style={inputStyle}
+            type="password" placeholder={tui(lang,'authExtra','confirmPasswordPlaceholder')} style={inputStyle}
             onKeyDown={e => e.key === 'Enter' && handleSubmit()} />
           {error && (
             <p style={{ color: '#FF6B6B', fontSize: 13, margin: 0, textAlign: 'center' }}>{error}</p>
           )}
           <Btn onClick={handleSubmit} disabled={loading} style={{ width: '100%', fontSize: 16, padding: '15px', marginTop: 4 }}>
-            {loading ? 'Guardando...' : 'Guardar contraseña'}
+            {loading ? tui(lang,'authExtra','saving') : tui(lang,'authExtra','savePassword')}
           </Btn>
         </div>
       </div>
@@ -1557,7 +1558,7 @@ export default function App() {
   if (isPasswordRecovery) {
     return (
       <div style={{ background: C.dark, minHeight: '100vh', fontFamily: FONT_BODY }}>
-        <ResetPasswordScreen updatePassword={updatePassword} onDone={() => setScreen('app')} />
+        <ResetPasswordScreen updatePassword={updatePassword} onDone={() => setScreen('app')} lang={lang} />
       </div>
     );
   }
