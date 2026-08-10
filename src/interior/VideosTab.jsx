@@ -1,9 +1,94 @@
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { supabase } from '../lib/supabase';
 import { IT, IT_FONT_HEAD, IT_FONT_BODY } from './tokens';
 import { tui } from '../i18n';
 
-function VideoItem({ video, user, onLiked, lang, isExpanded, onToggleExpand }) {
+function FullscreenPlayer({ video, lang, onClose, liked, onLike }) {
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    // Bloquea el scroll de fondo mientras el reproductor esta abierto
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = prevOverflow; };
+  }, []);
+
+  useEffect(() => {
+    const el = videoRef.current;
+    if (!el) return;
+    el.muted = false;
+    const p = el.play();
+    if (p?.catch) p.catch(() => {});
+  }, [video?.id]);
+
+  if (!video) return null;
+
+  return createPortal(
+    <div
+      style={{
+        position: 'fixed', inset: 0, zIndex: 2000,
+        width: '100vw', height: '100dvh',
+        background: '#000',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        overflow: 'hidden',
+      }}
+    >
+      <video
+        ref={videoRef}
+        src={video.video_url}
+        poster={video.thumbnail_url || undefined}
+        controls
+        playsInline
+        loop
+        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+      />
+      <div style={{ position: 'absolute', inset: 0, background: IT.scrim, pointerEvents: 'none' }} />
+
+      <button
+        onClick={onClose}
+        className="it-tap"
+        aria-label="Cerrar"
+        style={{
+          position: 'absolute', top: 'max(18px, env(safe-area-inset-top))', right: 16, zIndex: 5,
+          width: 40, height: 40, borderRadius: '50%',
+          background: 'rgba(11,15,13,.7)', backdropFilter: 'blur(6px)',
+          border: `1px solid ${IT.divider}`, color: IT.cream, fontSize: 18,
+          cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}
+      >
+        ✕
+      </button>
+
+      <div style={{ position: 'absolute', left: 16, right: 76, bottom: 'max(20px, env(safe-area-inset-bottom))' }} className="it-scrim-text">
+        {video.title && (
+          <div style={{ fontFamily: IT_FONT_HEAD, color: IT.goldLight, fontSize: 19, fontStyle: 'italic', marginBottom: 4 }}>
+            {video.title}
+          </div>
+        )}
+        {video.description && (
+          <div style={{ fontSize: 13, color: IT.cream, lineHeight: 1.5, marginBottom: 6 }}>{video.description}</div>
+        )}
+        {video.author_name && (
+          <div style={{ fontSize: 11, color: IT.textSecondary }}>@{video.author_name}</div>
+        )}
+      </div>
+
+      <div style={{
+        position: 'absolute', right: 12, bottom: 'max(24px, env(safe-area-inset-bottom))',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20,
+      }}>
+        <button onClick={onLike} className="it-tap" style={actionBtnStyle}>
+          <span style={{ fontSize: 22, color: liked ? IT.emerald : IT.cream }}>{liked ? '♥' : '♡'}</span>
+          <span style={actionLabelStyle}>{(video.likes_count || 0) + (liked ? 1 : 0)}</span>
+        </button>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
+function VideoItem({ video, user, onLiked, lang, onExpand }) {
   const ref = useRef(null);
   const videoRef = useRef(null);
   const [liked, setLiked] = useState(false);
@@ -46,14 +131,11 @@ function VideoItem({ video, user, onLiked, lang, isExpanded, onToggleExpand }) {
     <section
       ref={ref}
       className="it-snap-item"
-      style={isExpanded ? {
-        position: 'fixed', inset: 0, zIndex: 500, width: '100vw', height: '100vh',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: '#000', overflow: 'hidden',
-      } : {
+      onClick={() => onExpand(video.id)}
+      style={{
         position: 'relative', height: 'calc(100vh - 84px)', width: '100%',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: IT.obsidian, overflow: 'hidden',
+        background: IT.obsidian, overflow: 'hidden', cursor: 'pointer',
       }}
     >
       <video
@@ -64,25 +146,24 @@ function VideoItem({ video, user, onLiked, lang, isExpanded, onToggleExpand }) {
         loop
         playsInline
         preload="metadata"
-        controls
         style={{ width: '100%', height: '100%', objectFit: 'contain' }}
       />
       <div style={{ position: 'absolute', inset: 0, background: IT.scrim, pointerEvents: 'none' }} />
 
-      {/* Boton expandir / cerrar pantalla completa */}
+      {/* Boton expandir a pantalla completa (con audio) */}
       <button
-        onClick={(e) => { e.stopPropagation(); onToggleExpand(video.id); }}
+        onClick={(e) => { e.stopPropagation(); onExpand(video.id); }}
         className="it-tap"
-        aria-label={isExpanded ? 'Cerrar pantalla completa' : 'Ver en pantalla completa'}
+        aria-label="Ver en pantalla completa"
         style={{
-          position: 'absolute', top: isExpanded ? 18 : 14, right: 14, zIndex: 5,
+          position: 'absolute', top: 14, right: 14, zIndex: 5,
           width: 36, height: 36, borderRadius: '50%',
           background: 'rgba(11,15,13,.6)', backdropFilter: 'blur(6px)',
           border: `1px solid ${IT.divider}`, color: IT.cream, fontSize: 16,
           cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}
       >
-        {isExpanded ? '\u2715' : '\u26F6'}
+        ⛶
       </button>
 
       {/* Caption + autor */}
@@ -105,15 +186,15 @@ function VideoItem({ video, user, onLiked, lang, isExpanded, onToggleExpand }) {
         position: 'absolute', right: 12, bottom: 24,
         display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20,
       }}>
-        <button onClick={handleLike} className="it-tap" style={actionBtnStyle}>
+        <button onClick={(e) => { e.stopPropagation(); handleLike(); }} className="it-tap" style={actionBtnStyle}>
           <span style={{ fontSize: 22, color: liked ? IT.emerald : IT.cream }}>{liked ? '♥' : '♡'}</span>
           <span style={actionLabelStyle}>{(video.likes_count || 0) + (liked ? 1 : 0)}</span>
         </button>
-        <button onClick={() => showToast(tui(lang, 'itVideosCommentToast'))} className="it-tap" style={actionBtnStyle}>
+        <button onClick={(e) => { e.stopPropagation(); showToast(tui(lang, 'itVideosCommentToast')); }} className="it-tap" style={actionBtnStyle}>
           <span style={{ fontSize: 20, color: IT.cream }}>💬</span>
           <span style={actionLabelStyle}>{tui(lang, 'itVideosComment')}</span>
         </button>
-        <button onClick={() => showToast(tui(lang, 'itVideosSaveToast'))} className="it-tap" style={actionBtnStyle}>
+        <button onClick={(e) => { e.stopPropagation(); showToast(tui(lang, 'itVideosSaveToast')); }} className="it-tap" style={actionBtnStyle}>
           <span style={{ fontSize: 20, color: IT.cream }}>⬇</span>
           <span style={actionLabelStyle}>{tui(lang, 'itVideosSave')}</span>
         </button>
@@ -143,7 +224,7 @@ export default function VideosTab({ user, lang = 'en' }) {
   const [videos, setVideos] = useState(null);
   const [error, setError] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
-  const toggleExpand = (id) => setExpandedId(cur => (cur === id ? null : id));
+  const [expandedLiked, setExpandedLiked] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -164,6 +245,21 @@ export default function VideosTab({ user, lang = 'en' }) {
     setVideos(vs => vs.map(v => v.id === id ? { ...v, likes_count: (v.likes_count || 0) + 1 } : v));
   };
 
+  const expandedVideo = videos?.find(v => v.id === expandedId) || null;
+
+  const handleExpandedLike = async () => {
+    if (expandedLiked || !user?.token || !expandedVideo) return;
+    setExpandedLiked(true);
+    bumpLikes(expandedVideo.id);
+    try {
+      await fetch('/api/video-like', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ videoId: expandedVideo.id, accessToken: user.token }),
+      });
+    } catch {}
+  };
+
   if (videos === null) {
     return (
       <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: IT.textSecondary }}>
@@ -182,18 +278,28 @@ export default function VideosTab({ user, lang = 'en' }) {
   }
 
   return (
-    <div className="it-snap-y it-scroll-hide" style={{ height: 'calc(100vh - 84px)', overflowY: 'auto' }}>
-      {videos.map(v => (
-        <VideoItem
-          key={v.id}
-          video={v}
-          user={user}
-          onLiked={bumpLikes}
+    <>
+      <div className="it-snap-y it-scroll-hide" style={{ height: 'calc(100vh - 84px)', overflowY: 'auto' }}>
+        {videos.map(v => (
+          <VideoItem
+            key={v.id}
+            video={v}
+            user={user}
+            onLiked={bumpLikes}
+            lang={lang}
+            onExpand={(id) => { setExpandedId(id); setExpandedLiked(false); }}
+          />
+        ))}
+      </div>
+      {expandedVideo && (
+        <FullscreenPlayer
+          video={expandedVideo}
           lang={lang}
-          isExpanded={expandedId === v.id}
-          onToggleExpand={toggleExpand}
+          liked={expandedLiked}
+          onLike={handleExpandedLike}
+          onClose={() => setExpandedId(null)}
         />
-      ))}
-    </div>
+      )}
+    </>
   );
 }
