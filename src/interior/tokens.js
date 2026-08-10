@@ -6,7 +6,7 @@ export const IT = {
   gold: '#C9A84C',
   goldLight: '#E8C96A',
   sage: '#4A7C59',
-  emerald: '#00C97B',
+  emerald: '#2C9C6E',
   cream: '#F4EFE6',
   textSecondary: '#9BA69F',
   navActive: '#E8C96A',
