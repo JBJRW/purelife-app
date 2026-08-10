@@ -7,7 +7,7 @@
 // ================================================================
 
 import { useState, useEffect, useRef } from 'react';
-import { FLOW_I18N, FALLBACK_REPLIES_I18N, UI_I18N } from './onboardingFlow';
+import { FLOW_I18N, FALLBACK_REPLIES_I18N, UI_I18N } from '../onboardingFlow';
 
 const AVATAR = '/dr-smoothie-avatar.jpg';
 
