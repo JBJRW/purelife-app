@@ -32,45 +32,135 @@ async function sbFetch(path, token, opts = {}) {
 }
 
 // Categorías de recetas por objetivo
-const CATEGORIES = [
-  { id: 'all', label: 'Todas', emoji: '✨' },
-  { id: 'detox', label: 'Detox', emoji: '🌿' },
-  { id: 'energy', label: 'Energía', emoji: '⚡' },
-  { id: 'weight', label: 'Peso', emoji: '⚖️' },
-  { id: 'immunity', label: 'Inmunidad', emoji: '🛡️' },
-  { id: 'sleep', label: 'Sueño', emoji: '🌙' },
+const CATEGORY_META = [
+  { id: 'all', emoji: '✨' },
+  { id: 'detox', emoji: '🌿' },
+  { id: 'energy', emoji: '⚡' },
+  { id: 'weight', emoji: '⚖️' },
+  { id: 'immunity', emoji: '🛡️' },
+  { id: 'sleep', emoji: '🌙' },
 ];
 
-// Recetas starter que se muestran si el usuario no tiene ninguna
-const STARTER_RECIPES = [
-  {
-    id: 'starter-1', name: 'Verde Renovación', category: 'detox',
-    emoji: '💚', prep_time: 5, servings: 1,
-    ingredients: ['2 tazas espinaca fresca', '1 taza piña en trozos', '1 manzana verde', '1 cm jengibre', '1 taza agua de coco'],
-    instructions: 'Licúa todos los ingredientes hasta obtener una mezcla suave. Sirve inmediatamente con hielo.',
-    benefits: 'Depura el hígado, alcaliniza el cuerpo, mejora digestión',
-    calories: 180, is_starter: true,
-  },
-  {
-    id: 'starter-2', name: 'Poder Matutino', category: 'energy',
-    emoji: '⚡', prep_time: 3, servings: 1,
-    ingredients: ['1 plátano maduro', '1 taza mango', '1 naranja (jugo)', '1 cdta cúrcuma', '1 cdta miel', '½ taza leche de almendras'],
-    instructions: 'Mezcla todos en licuadora. Añade hielo al gusto. Consume en los primeros 30 minutos del día.',
-    benefits: 'Energía sostenida, antiinflamatorio, vitamina C natural',
-    calories: 240, is_starter: true,
-  },
-  {
-    id: 'starter-3', name: 'Escudo Morado', category: 'immunity',
-    emoji: '🛡️', prep_time: 5, servings: 1,
-    ingredients: ['1 taza arándanos', '½ taza frambuesas', '1 taza leche de coco', '1 cdta spirulina', '1 cdta miel de Manuka'],
-    instructions: 'Licúa arándanos y frambuesas con leche de coco. Añade spirulina y miel. Mezcla bien.',
-    benefits: 'Alto en antioxidantes, vitamina C, fortalece sistema inmune',
-    calories: 200, is_starter: true,
-  },
+const STARTER_META = [
+  { id: 'starter-1', category: 'detox', emoji: '💚', prep_time: 5, servings: 1, calories: 180 },
+  { id: 'starter-2', category: 'energy', emoji: '⚡', prep_time: 3, servings: 1, calories: 240 },
+  { id: 'starter-3', category: 'immunity', emoji: '🛡️', prep_time: 5, servings: 1, calories: 200 },
 ];
+
+const RS = {
+  en: {
+    categoryLabel: { all: 'All', detox: 'Detox', energy: 'Energy', weight: 'Weight', immunity: 'Immunity', sleep: 'Sleep' },
+    starter: {
+      'starter-1': { name: 'Green Renewal', ingredients: ['2 cups fresh spinach', '1 cup pineapple chunks', '1 green apple', '1 cm ginger', '1 cup coconut water'], instructions: 'Blend all ingredients until smooth. Serve immediately with ice.', benefits: 'Cleanses the liver, alkalizes the body, improves digestion' },
+      'starter-2': { name: 'Morning Power', ingredients: ['1 ripe banana', '1 cup mango', '1 orange (juiced)', '1 tsp turmeric', '1 tsp honey', '½ cup almond milk'], instructions: 'Blend everything together. Add ice to taste. Drink within the first 30 minutes of the day.', benefits: 'Sustained energy, anti-inflammatory, natural vitamin C' },
+      'starter-3': { name: 'Purple Shield', ingredients: ['1 cup blueberries', '½ cup raspberries', '1 cup coconut milk', '1 tsp spirulina', '1 tsp Manuka honey'], instructions: 'Blend blueberries and raspberries with coconut milk. Add spirulina and honey. Mix well.', benefits: 'High in antioxidants, vitamin C, strengthens immune system' },
+    },
+    starterBadge: 'STARTER', servingUnit: 'serving', viewRecipe: 'View recipe →', addToList: '🛒 Add to list',
+    benefitsLabel: 'Benefits:', ingredientsTitle: 'Ingredients', instructionsTitle: 'Preparation', addIngredientsBtn: '🛒 Add ingredients to my list',
+    aiPromptTemplate: (name, category) => `Create a smoothie/juice recipe called "${name}" for the ${category} category. Respond ONLY in JSON with this exact format: {"ingredients":["ingredient 1","ingredient 2"],"instructions":"instructions in 2-3 steps","benefits":"benefits in 1 line","emoji":"relevant emoji","calories":number,"prep_time":number}`,
+    newRecipeTitle: '✨ New Recipe', namePlaceholder: 'Smoothie or juice name...', aiCreating: '🤖 Dr. Smoothie creating recipe...', aiGenerate: '🤖 Generate with Dr. Smoothie AI',
+    ingredientsPlaceholder: 'Ingredients (one per line):\nEg: 2 cups spinach\n1 banana', instructionsPlaceholder: 'Preparation instructions...',
+    cancel: 'Cancel', saving: 'Saving...', saveRecipe: '💾 Save Recipe',
+    myRecipesTitle: '🍽️ My Recipes', myRecipesSub: 'Created with Dr. Smoothie AI · Saved in your profile',
+    tabRecipes: '🥤 Recipes', tabList: '🛒 List', newRecipeBtn: '✨ New recipe with Dr. Smoothie AI',
+    loadingRecipes: 'Loading recipes...', noRecipesCategory: 'No recipes in this category',
+    ingredientsPending: (n) => `${n} ingredients pending`, clearList: 'Clear list', listEmpty: 'Your list is empty',
+    addFromRecipes: 'Add ingredients from your recipes', viewRecipesBtn: 'View recipes →', tapToCheck: 'tap to ✓',
+    myListShareTitle: 'My PureLife list', listCopied: '📋 List copied to clipboard', shareListBtn: '📤 Share shopping list',
+    general: 'General',
+  },
+  es: {
+    categoryLabel: { all: 'Todas', detox: 'Detox', energy: 'Energía', weight: 'Peso', immunity: 'Inmunidad', sleep: 'Sueño' },
+    starter: {
+      'starter-1': { name: 'Verde Renovación', ingredients: ['2 tazas espinaca fresca', '1 taza piña en trozos', '1 manzana verde', '1 cm jengibre', '1 taza agua de coco'], instructions: 'Licúa todos los ingredientes hasta obtener una mezcla suave. Sirve inmediatamente con hielo.', benefits: 'Depura el hígado, alcaliniza el cuerpo, mejora digestión' },
+      'starter-2': { name: 'Poder Matutino', ingredients: ['1 plátano maduro', '1 taza mango', '1 naranja (jugo)', '1 cdta cúrcuma', '1 cdta miel', '½ taza leche de almendras'], instructions: 'Mezcla todos en licuadora. Añade hielo al gusto. Consume en los primeros 30 minutos del día.', benefits: 'Energía sostenida, antiinflamatorio, vitamina C natural' },
+      'starter-3': { name: 'Escudo Morado', ingredients: ['1 taza arándanos', '½ taza frambuesas', '1 taza leche de coco', '1 cdta spirulina', '1 cdta miel de Manuka'], instructions: 'Licúa arándanos y frambuesas con leche de coco. Añade spirulina y miel. Mezcla bien.', benefits: 'Alto en antioxidantes, vitamina C, fortalece sistema inmune' },
+    },
+    starterBadge: 'STARTER', servingUnit: 'porción', viewRecipe: 'Ver receta →', addToList: '🛒 Añadir a lista',
+    benefitsLabel: 'Beneficios:', ingredientsTitle: 'Ingredientes', instructionsTitle: 'Preparación', addIngredientsBtn: '🛒 Agregar ingredientes a mi lista',
+    aiPromptTemplate: (name, category) => `Crea una receta de smoothie/jugo llamada "${name}" para la categoría ${category}. Responde SOLO en JSON con este formato exacto: {"ingredients":["ingrediente 1","ingrediente 2"],"instructions":"instrucciones en 2-3 pasos","benefits":"beneficios en 1 línea","emoji":"emoji relevante","calories":numero,"prep_time":numero}`,
+    newRecipeTitle: '✨ Nueva Receta', namePlaceholder: 'Nombre del smoothie o jugo...', aiCreating: '🤖 Dr. Smoothie creando receta...', aiGenerate: '🤖 Generar con Dr. Smoothie AI',
+    ingredientsPlaceholder: 'Ingredientes (uno por línea):\nEj: 2 tazas espinaca\n1 plátano', instructionsPlaceholder: 'Instrucciones de preparación...',
+    cancel: 'Cancelar', saving: 'Guardando...', saveRecipe: '💾 Guardar Receta',
+    myRecipesTitle: '🍽️ Mis Recetas', myRecipesSub: 'Creadas con Dr. Smoothie AI · Guardadas en tu perfil',
+    tabRecipes: '🥤 Recetas', tabList: '🛒 Lista', newRecipeBtn: '✨ Nueva receta con Dr. Smoothie AI',
+    loadingRecipes: 'Cargando recetas...', noRecipesCategory: 'No hay recetas en esta categoría',
+    ingredientsPending: (n) => `${n} ingredientes pendientes`, clearList: 'Limpiar lista', listEmpty: 'Tu lista está vacía',
+    addFromRecipes: 'Añade ingredientes desde tus recetas', viewRecipesBtn: 'Ver recetas →', tapToCheck: 'tap para ✓',
+    myListShareTitle: 'Mi lista PureLife', listCopied: '📋 Lista copiada al portapapeles', shareListBtn: '📤 Compartir lista de compra',
+    general: 'General',
+  },
+  fr: {
+    categoryLabel: { all: 'Toutes', detox: 'Détox', energy: 'Énergie', weight: 'Poids', immunity: 'Immunité', sleep: 'Sommeil' },
+    starter: {
+      'starter-1': { name: 'Renouveau Vert', ingredients: ['2 tasses d\'épinards frais', '1 tasse d\'ananas en morceaux', '1 pomme verte', '1 cm de gingembre', '1 tasse d\'eau de coco'], instructions: 'Mixez tous les ingrédients jusqu\'à obtenir un mélange lisse. Servez immédiatement avec de la glace.', benefits: 'Purifie le foie, alcalinise le corps, améliore la digestion' },
+      'starter-2': { name: 'Puissance Matinale', ingredients: ['1 banane mûre', '1 tasse de mangue', '1 orange (jus)', '1 c.à.c curcuma', '1 c.à.c miel', '½ tasse de lait d\'amande'], instructions: 'Mixez le tout ensemble. Ajoutez de la glace selon votre goût. À consommer dans les 30 premières minutes de la journée.', benefits: 'Énergie durable, anti-inflammatoire, vitamine C naturelle' },
+      'starter-3': { name: 'Bouclier Violet', ingredients: ['1 tasse de myrtilles', '½ tasse de framboises', '1 tasse de lait de coco', '1 c.à.c spiruline', '1 c.à.c miel de Manuka'], instructions: 'Mixez myrtilles et framboises avec le lait de coco. Ajoutez spiruline et miel. Bien mélanger.', benefits: 'Riche en antioxydants, vitamine C, renforce le système immunitaire' },
+    },
+    starterBadge: 'STARTER', servingUnit: 'portion', viewRecipe: 'Voir la recette →', addToList: '🛒 Ajouter à la liste',
+    benefitsLabel: 'Bienfaits :', ingredientsTitle: 'Ingrédients', instructionsTitle: 'Préparation', addIngredientsBtn: '🛒 Ajouter les ingrédients à ma liste',
+    aiPromptTemplate: (name, category) => `Créez une recette de smoothie/jus appelée "${name}" pour la catégorie ${category}. Répondez UNIQUEMENT en JSON avec ce format exact : {"ingredients":["ingrédient 1","ingrédient 2"],"instructions":"instructions en 2-3 étapes","benefits":"bienfaits en 1 ligne","emoji":"emoji pertinent","calories":nombre,"prep_time":nombre}`,
+    newRecipeTitle: '✨ Nouvelle Recette', namePlaceholder: 'Nom du smoothie ou jus...', aiCreating: '🤖 Dr. Smoothie crée la recette...', aiGenerate: '🤖 Générer avec Dr. Smoothie AI',
+    ingredientsPlaceholder: 'Ingrédients (un par ligne) :\nEx : 2 tasses d\'épinards\n1 banane', instructionsPlaceholder: 'Instructions de préparation...',
+    cancel: 'Annuler', saving: 'Enregistrement...', saveRecipe: '💾 Enregistrer la recette',
+    myRecipesTitle: '🍽️ Mes Recettes', myRecipesSub: 'Créées avec Dr. Smoothie AI · Enregistrées dans votre profil',
+    tabRecipes: '🥤 Recettes', tabList: '🛒 Liste', newRecipeBtn: '✨ Nouvelle recette avec Dr. Smoothie AI',
+    loadingRecipes: 'Chargement des recettes...', noRecipesCategory: 'Aucune recette dans cette catégorie',
+    ingredientsPending: (n) => `${n} ingrédients en attente`, clearList: 'Vider la liste', listEmpty: 'Votre liste est vide',
+    addFromRecipes: 'Ajoutez des ingrédients depuis vos recettes', viewRecipesBtn: 'Voir les recettes →', tapToCheck: 'toucher pour ✓',
+    myListShareTitle: 'Ma liste PureLife', listCopied: '📋 Liste copiée dans le presse-papiers', shareListBtn: '📤 Partager la liste de courses',
+    general: 'Général',
+  },
+  pt: {
+    categoryLabel: { all: 'Todas', detox: 'Detox', energy: 'Energia', weight: 'Peso', immunity: 'Imunidade', sleep: 'Sono' },
+    starter: {
+      'starter-1': { name: 'Verde Renovação', ingredients: ['2 xícaras de espinafre fresco', '1 xícara de abacaxi em pedaços', '1 maçã verde', '1 cm de gengibre', '1 xícara de água de coco'], instructions: 'Bata todos os ingredientes até obter uma mistura homogênea. Sirva imediatamente com gelo.', benefits: 'Depura o fígado, alcaliniza o corpo, melhora a digestão' },
+      'starter-2': { name: 'Poder Matinal', ingredients: ['1 banana madura', '1 xícara de manga', '1 laranja (suco)', '1 colher chá cúrcuma', '1 colher chá mel', '½ xícara de leite de amêndoas'], instructions: 'Misture tudo no liquidificador. Adicione gelo a gosto. Consuma nos primeiros 30 minutos do dia.', benefits: 'Energia sustentada, anti-inflamatório, vitamina C natural' },
+      'starter-3': { name: 'Escudo Roxo', ingredients: ['1 xícara de mirtilos', '½ xícara de framboesas', '1 xícara de leite de coco', '1 colher chá spirulina', '1 colher chá mel de Manuka'], instructions: 'Bata mirtilos e framboesas com leite de coco. Adicione spirulina e mel. Misture bem.', benefits: 'Alto em antioxidantes, vitamina C, fortalece o sistema imunológico' },
+    },
+    starterBadge: 'STARTER', servingUnit: 'porção', viewRecipe: 'Ver receita →', addToList: '🛒 Adicionar à lista',
+    benefitsLabel: 'Benefícios:', ingredientsTitle: 'Ingredientes', instructionsTitle: 'Preparo', addIngredientsBtn: '🛒 Adicionar ingredientes à minha lista',
+    aiPromptTemplate: (name, category) => `Crie uma receita de smoothie/suco chamada "${name}" para a categoria ${category}. Responda APENAS em JSON com este formato exato: {"ingredients":["ingrediente 1","ingrediente 2"],"instructions":"instruções em 2-3 passos","benefits":"benefícios em 1 linha","emoji":"emoji relevante","calories":numero,"prep_time":numero}`,
+    newRecipeTitle: '✨ Nova Receita', namePlaceholder: 'Nome do smoothie ou suco...', aiCreating: '🤖 Dr. Smoothie criando receita...', aiGenerate: '🤖 Gerar com Dr. Smoothie AI',
+    ingredientsPlaceholder: 'Ingredientes (um por linha):\nEx: 2 xícaras de espinafre\n1 banana', instructionsPlaceholder: 'Instruções de preparo...',
+    cancel: 'Cancelar', saving: 'Salvando...', saveRecipe: '💾 Salvar Receita',
+    myRecipesTitle: '🍽️ Minhas Receitas', myRecipesSub: 'Criadas com Dr. Smoothie AI · Salvas no seu perfil',
+    tabRecipes: '🥤 Receitas', tabList: '🛒 Lista', newRecipeBtn: '✨ Nova receita com Dr. Smoothie AI',
+    loadingRecipes: 'Carregando receitas...', noRecipesCategory: 'Não há receitas nesta categoria',
+    ingredientsPending: (n) => `${n} ingredientes pendentes`, clearList: 'Limpar lista', listEmpty: 'Sua lista está vazia',
+    addFromRecipes: 'Adicione ingredientes das suas receitas', viewRecipesBtn: 'Ver receitas →', tapToCheck: 'toque para ✓',
+    myListShareTitle: 'Minha lista PureLife', listCopied: '📋 Lista copiada para a área de transferência', shareListBtn: '📤 Compartilhar lista de compras',
+    general: 'Geral',
+  },
+  it: {
+    categoryLabel: { all: 'Tutte', detox: 'Detox', energy: 'Energia', weight: 'Peso', immunity: 'Immunità', sleep: 'Sonno' },
+    starter: {
+      'starter-1': { name: 'Verde Rinnovamento', ingredients: ['2 tazze di spinaci freschi', '1 tazza di ananas a pezzi', '1 mela verde', '1 cm di zenzero', '1 tazza di acqua di cocco'], instructions: 'Frulla tutti gli ingredienti fino a ottenere un composto liscio. Servi subito con ghiaccio.', benefits: 'Depura il fegato, alcalinizza il corpo, migliora la digestione' },
+      'starter-2': { name: 'Potere Mattutino', ingredients: ['1 banana matura', '1 tazza di mango', '1 arancia (succo)', '1 cucchiaino di curcuma', '1 cucchiaino di miele', '½ tazza di latte di mandorla'], instructions: "Frulla il tutto insieme. Aggiungi ghiaccio a piacere. Consuma nei primi 30 minuti della giornata.", benefits: 'Energia prolungata, anti-infiammatorio, vitamina C naturale' },
+      'starter-3': { name: 'Scudo Viola', ingredients: ['1 tazza di mirtilli', '½ tazza di lamponi', '1 tazza di latte di cocco', '1 cucchiaino di spirulina', '1 cucchiaino di miele di Manuka'], instructions: 'Frulla mirtilli e lamponi con il latte di cocco. Aggiungi spirulina e miele. Mescola bene.', benefits: 'Ricco di antiossidanti, vitamina C, rafforza il sistema immunitario' },
+    },
+    starterBadge: 'STARTER', servingUnit: 'porzione', viewRecipe: 'Vedi ricetta →', addToList: '🛒 Aggiungi alla lista',
+    benefitsLabel: 'Benefici:', ingredientsTitle: 'Ingredienti', instructionsTitle: 'Preparazione', addIngredientsBtn: '🛒 Aggiungi ingredienti alla mia lista',
+    aiPromptTemplate: (name, category) => `Crea una ricetta di smoothie/succo chiamata "${name}" per la categoria ${category}. Rispondi SOLO in JSON con questo formato esatto: {"ingredients":["ingrediente 1","ingrediente 2"],"instructions":"istruzioni in 2-3 passi","benefits":"benefici in 1 riga","emoji":"emoji pertinente","calories":numero,"prep_time":numero}`,
+    newRecipeTitle: '✨ Nuova Ricetta', namePlaceholder: 'Nome dello smoothie o succo...', aiCreating: '🤖 Dr. Smoothie sta creando la ricetta...', aiGenerate: '🤖 Genera con Dr. Smoothie AI',
+    ingredientsPlaceholder: 'Ingredienti (uno per riga):\nEs: 2 tazze di spinaci\n1 banana', instructionsPlaceholder: 'Istruzioni di preparazione...',
+    cancel: 'Annulla', saving: 'Salvataggio...', saveRecipe: '💾 Salva Ricetta',
+    myRecipesTitle: '🍽️ Le Mie Ricette', myRecipesSub: 'Create con Dr. Smoothie AI · Salvate nel tuo profilo',
+    tabRecipes: '🥤 Ricette', tabList: '🛒 Lista', newRecipeBtn: '✨ Nuova ricetta con Dr. Smoothie AI',
+    loadingRecipes: 'Caricamento ricette...', noRecipesCategory: 'Nessuna ricetta in questa categoria',
+    ingredientsPending: (n) => `${n} ingredienti in sospeso`, clearList: 'Svuota lista', listEmpty: 'La tua lista è vuota',
+    addFromRecipes: 'Aggiungi ingredienti dalle tue ricette', viewRecipesBtn: 'Vedi ricette →', tapToCheck: 'tocca per ✓',
+    myListShareTitle: 'La mia lista PureLife', listCopied: '📋 Lista copiata negli appunti', shareListBtn: '📤 Condividi lista della spesa',
+    general: 'Generale',
+  },
+};
+const rs = (lang) => RS[lang] || RS.en;
+const getCategories = (lang='en') => CATEGORY_META.map(c => ({ ...c, label: rs(lang).categoryLabel[c.id] }));
+const getStarterRecipes = (lang='en') => STARTER_META.map(s => ({ ...s, ...rs(lang).starter[s.id], is_starter: true }));
 
 // Card de receta individual
-function RecipeCard({ recipe, onViewDetail, onAddToShopping, onDelete, isOwn }) {
+function RecipeCard({ recipe, onViewDetail, onAddToShopping, onDelete, isOwn, lang = 'en' }) {
+  const t = rs(lang);
   return (
     <div style={{
       background: C.glass, border: `1px solid ${C.glassBorder}`,
@@ -86,13 +176,13 @@ function RecipeCard({ recipe, onViewDetail, onAddToShopping, onDelete, isOwn }) 
             </span>
             {recipe.is_starter && (
               <span style={{ background: `${C.mint}33`, color: C.light, fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20 }}>
-                STARTER
+                {t.starterBadge}
               </span>
             )}
           </div>
           <div style={{ display: 'flex', gap: 12, marginTop: 4 }}>
             <span style={{ color: C.muted, fontSize: 12 }}>⏱ {recipe.prep_time} min</span>
-            <span style={{ color: C.muted, fontSize: 12 }}>🍽 {recipe.servings} porción</span>
+            <span style={{ color: C.muted, fontSize: 12 }}>🍽 {recipe.servings} {t.servingUnit}</span>
             <span style={{ color: C.muted, fontSize: 12 }}>🔥 {recipe.calories} kcal</span>
           </div>
         </div>
@@ -110,14 +200,14 @@ function RecipeCard({ recipe, onViewDetail, onAddToShopping, onDelete, isOwn }) 
           border: `1px solid ${C.glassBorder}`, background: C.glass,
           color: C.cream, fontSize: 12, cursor: 'pointer', fontFamily: FONT,
         }}>
-          Ver receta →
+          {t.viewRecipe}
         </button>
         <button onClick={() => onAddToShopping(recipe)} style={{
           padding: '8px 16px', borderRadius: 20,
           border: `1px solid ${C.mint}44`, background: `${C.mint}14`,
           color: C.light, fontSize: 12, cursor: 'pointer', fontFamily: FONT, fontWeight: 600,
         }}>
-          🛒 Añadir a lista
+          {t.addToList}
         </button>
         {isOwn && (
           <button onClick={() => onDelete(recipe.id)} style={{
@@ -134,7 +224,8 @@ function RecipeCard({ recipe, onViewDetail, onAddToShopping, onDelete, isOwn }) 
 }
 
 // Modal de detalle de receta
-function RecipeDetail({ recipe, onClose, onAddToShopping }) {
+function RecipeDetail({ recipe, onClose, onAddToShopping, lang = 'en' }) {
+  const t = rs(lang);
   if (!recipe) return null;
   return (
     <div style={{
@@ -156,19 +247,19 @@ function RecipeDetail({ recipe, onClose, onAddToShopping }) {
           <div style={{ display: 'flex', justifyContent: 'center', gap: 16 }}>
             <span style={{ color: C.muted, fontSize: 13 }}>⏱ {recipe.prep_time} min</span>
             <span style={{ color: C.muted, fontSize: 13 }}>🔥 {recipe.calories} kcal</span>
-            <span style={{ color: C.muted, fontSize: 13 }}>🍽 {recipe.servings} porción</span>
+            <span style={{ color: C.muted, fontSize: 13 }}>🍽 {recipe.servings} {t.servingUnit}</span>
           </div>
         </div>
 
         {recipe.benefits && (
           <div style={{ background: `${C.mint}14`, border: `1px solid ${C.mint}33`, borderRadius: 14, padding: '12px 16px', marginBottom: 20 }}>
             <p style={{ color: C.light, fontSize: 13, margin: 0, lineHeight: 1.6 }}>
-              ✨ <strong>Beneficios:</strong> {recipe.benefits}
+              ✨ <strong>{t.benefitsLabel}</strong> {recipe.benefits}
             </p>
           </div>
         )}
 
-        <h3 style={{ color: C.goldL, fontSize: 15, fontWeight: 700, marginBottom: 10 }}>Ingredientes</h3>
+        <h3 style={{ color: C.goldL, fontSize: 15, fontWeight: 700, marginBottom: 10 }}>{t.ingredientsTitle}</h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 20 }}>
           {(recipe.ingredients || []).map((ing, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, color: C.cream, fontSize: 14 }}>
@@ -178,7 +269,7 @@ function RecipeDetail({ recipe, onClose, onAddToShopping }) {
           ))}
         </div>
 
-        <h3 style={{ color: C.goldL, fontSize: 15, fontWeight: 700, marginBottom: 10 }}>Preparación</h3>
+        <h3 style={{ color: C.goldL, fontSize: 15, fontWeight: 700, marginBottom: 10 }}>{t.instructionsTitle}</h3>
         <p style={{ color: C.cream, fontSize: 14, lineHeight: 1.7, marginBottom: 24 }}>
           {recipe.instructions}
         </p>
@@ -188,7 +279,7 @@ function RecipeDetail({ recipe, onClose, onAddToShopping }) {
           background: `linear-gradient(135deg, ${C.mint}, ${C.green})`,
           color: '#fff', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: FONT,
         }}>
-          🛒 Agregar ingredientes a mi lista
+          {t.addIngredientsBtn}
         </button>
       </div>
     </div>
@@ -196,7 +287,9 @@ function RecipeDetail({ recipe, onClose, onAddToShopping }) {
 }
 
 // Formulario nueva receta con Claude AI
-function NewRecipeForm({ user, onSave, onClose }) {
+function NewRecipeForm({ user, onSave, onClose, lang = 'en' }) {
+  const t = rs(lang);
+  const CATEGORIES = getCategories(lang);
   const [name, setName] = useState('');
   const [ingredients, setIngredients] = useState('');
   const [instructions, setInstructions] = useState('');
@@ -213,10 +306,10 @@ function NewRecipeForm({ user, onSave, onClose }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          message: `Crea una receta de smoothie/jugo llamada "${name}" para la categoría ${category}. Responde SOLO en JSON con este formato exacto: {"ingredients":["ingrediente 1","ingrediente 2"],"instructions":"instrucciones en 2-3 pasos","benefits":"beneficios en 1 línea","emoji":"emoji relevante","calories":numero,"prep_time":numero}`,
+          message: t.aiPromptTemplate(name, category),
           history: [],
           userId: user?.id || 'anon',
-          lang: 'es',
+          lang,
         }),
       });
       const d = await r.json();
@@ -257,10 +350,10 @@ function NewRecipeForm({ user, onSave, onClose }) {
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.88)', zIndex: 200, display: 'flex', alignItems: 'flex-end', backdropFilter: 'blur(8px)' }}>
       <div style={{ width: '100%', maxWidth: 480, margin: '0 auto', background: C.dark, borderRadius: '28px 28px 0 0', padding: '28px 24px 40px', maxHeight: '90vh', overflowY: 'auto', border: `1px solid ${C.glassBorder}` }}>
-        <h2 style={{ fontFamily: FONT_HEAD, color: C.cream, fontSize: 22, margin: '0 0 20px' }}>✨ Nueva Receta</h2>
+        <h2 style={{ fontFamily: FONT_HEAD, color: C.cream, fontSize: 22, margin: '0 0 20px' }}>{t.newRecipeTitle}</h2>
 
         <input value={name} onChange={e => setName(e.target.value)}
-          placeholder="Nombre del smoothie o jugo..." style={inputSt} />
+          placeholder={t.namePlaceholder} style={inputSt} />
 
         <select value={category} onChange={e => setCategory(e.target.value)} style={inputSt}>
           {CATEGORIES.filter(c => c.id !== 'all').map(c => (
@@ -274,29 +367,29 @@ function NewRecipeForm({ user, onSave, onClose }) {
           color: loadingAI ? C.muted : C.dark, fontSize: 14, fontWeight: 700,
           cursor: 'pointer', marginBottom: 12, fontFamily: FONT,
         }}>
-          {loadingAI ? '🤖 Dr. Smoothie creando receta...' : '🤖 Generar con Dr. Smoothie AI'}
+          {loadingAI ? t.aiCreating : t.aiGenerate}
         </button>
 
         <textarea value={ingredients} onChange={e => setIngredients(e.target.value)}
-          placeholder={'Ingredientes (uno por línea):\nEj: 2 tazas espinaca\n1 plátano'}
+          placeholder={t.ingredientsPlaceholder}
           rows={5} style={{ ...inputSt, borderRadius: 14 }} />
 
         <textarea value={instructions} onChange={e => setInstructions(e.target.value)}
-          placeholder="Instrucciones de preparación..."
+          placeholder={t.instructionsPlaceholder}
           rows={3} style={{ ...inputSt, borderRadius: 14 }} />
 
         <div style={{ display: 'flex', gap: 10 }}>
           <button onClick={onClose} style={{
             flex: 1, padding: '13px', borderRadius: 12, border: `1px solid ${C.glassBorder}`,
             background: 'transparent', color: C.muted, fontSize: 14, cursor: 'pointer', fontFamily: FONT,
-          }}>Cancelar</button>
+          }}>{t.cancel}</button>
           <button onClick={save} disabled={!name || !ingredients || loading} style={{
             flex: 2, padding: '13px', borderRadius: 12, border: 'none',
             background: `linear-gradient(135deg, ${C.mint}, ${C.green})`,
             color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: FONT,
             opacity: (!name || !ingredients || loading) ? 0.6 : 1,
           }}>
-            {loading ? 'Guardando...' : '💾 Guardar Receta'}
+            {loading ? t.saving : t.saveRecipe}
           </button>
         </div>
       </div>
@@ -312,7 +405,10 @@ const inputSt = {
 };
 
 // ── COMPONENTE PRINCIPAL ───────────────────────────────────────
-export default function RecipesScreen({ user }) {
+export default function RecipesScreen({ user, lang = 'en' }) {
+  const t = rs(lang);
+  const CATEGORIES = getCategories(lang);
+  const STARTER_RECIPES = getStarterRecipes(lang);
   const [recipes, setRecipes] = useState([]);
   const [shopping, setShopping] = useState([]);
   const [activeCategory, setActiveCategory] = useState('all');
@@ -450,16 +546,16 @@ export default function RecipesScreen({ user }) {
       {/* Header */}
       <div style={{ marginBottom: 20 }}>
         <h2 style={{ fontFamily: FONT_HEAD, color: C.cream, fontSize: 26, margin: '0 0 4px' }}>
-          🍽️ Mis Recetas
+          {t.myRecipesTitle}
         </h2>
-        <p style={{ color: C.muted, fontSize: 13 }}>Creadas con Dr. Smoothie AI · Guardadas en tu perfil</p>
+        <p style={{ color: C.muted, fontSize: 13 }}>{t.myRecipesSub}</p>
       </div>
 
       {/* Tabs Recetas / Lista */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 20, background: 'rgba(255,255,255,0.05)', padding: 4, borderRadius: 14 }}>
         {[
-          { id: 'recipes', label: '🥤 Recetas', count: recipes.length },
-          { id: 'shopping', label: '🛒 Lista', count: shopping.length },
+          { id: 'recipes', label: t.tabRecipes, count: recipes.length },
+          { id: 'shopping', label: t.tabList, count: shopping.length },
         ].map(t => (
           <button key={t.id} onClick={() => setActiveTab(t.id)} style={{
             flex: 1, padding: '10px', borderRadius: 10, border: 'none',
@@ -497,15 +593,15 @@ export default function RecipesScreen({ user }) {
             border: `1.5px dashed ${C.mint}66`, background: `${C.mint}08`,
             color: C.light, fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: FONT,
           }}>
-            ✨ Nueva receta con Dr. Smoothie AI
+            {t.newRecipeBtn}
           </button>
 
           {loading ? (
-            <div style={{ textAlign: 'center', color: C.muted, padding: 40 }}>Cargando recetas...</div>
+            <div style={{ textAlign: 'center', color: C.muted, padding: 40 }}>{t.loadingRecipes}</div>
           ) : filtered.length === 0 ? (
             <div style={{ textAlign: 'center', color: C.muted, padding: 40 }}>
               <div style={{ fontSize: 48, marginBottom: 12 }}>🌿</div>
-              <p>No hay recetas en esta categoría</p>
+              <p>{t.noRecipesCategory}</p>
             </div>
           ) : (
             filtered.map(recipe => (
@@ -516,6 +612,7 @@ export default function RecipesScreen({ user }) {
                 onAddToShopping={addToShopping}
                 onDelete={deleteRecipe}
                 isOwn={!recipe.is_starter}
+                lang={lang}
               />
             ))
           )}
@@ -527,14 +624,14 @@ export default function RecipesScreen({ user }) {
         <>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
             <p style={{ color: C.muted, fontSize: 13, margin: 0 }}>
-              {shopping.length} ingredientes pendientes
+              {t.ingredientsPending(shopping.length)}
             </p>
             {shopping.length > 0 && (
               <button onClick={clearShopping} style={{
                 padding: '6px 14px', borderRadius: 20, border: `1px solid ${C.red}44`,
                 background: 'transparent', color: C.red, fontSize: 12, cursor: 'pointer', fontFamily: FONT,
               }}>
-                Limpiar lista
+                {t.clearList}
               </button>
             )}
           </div>
@@ -542,16 +639,16 @@ export default function RecipesScreen({ user }) {
           {shopping.length === 0 ? (
             <div style={{ textAlign: 'center', padding: 48 }}>
               <div style={{ fontSize: 56, marginBottom: 16 }}>🛒</div>
-              <p style={{ color: C.muted, fontSize: 14 }}>Tu lista está vacía</p>
+              <p style={{ color: C.muted, fontSize: 14 }}>{t.listEmpty}</p>
               <p style={{ color: C.muted, fontSize: 12, marginTop: 6 }}>
-                Añade ingredientes desde tus recetas
+                {t.addFromRecipes}
               </p>
               <button onClick={() => setActiveTab('recipes')} style={{
                 marginTop: 16, padding: '10px 20px', borderRadius: 20,
                 border: `1px solid ${C.mint}`, background: 'transparent',
                 color: C.light, fontSize: 13, cursor: 'pointer', fontFamily: FONT,
               }}>
-                Ver recetas →
+                {t.viewRecipesBtn}
               </button>
             </div>
           ) : (
@@ -559,7 +656,7 @@ export default function RecipesScreen({ user }) {
               {/* Agrupar por receta */}
               {Object.entries(
                 shopping.reduce((acc, item) => {
-                  const key = item.recipe_name || 'General';
+                  const key = item.recipe_name || t.general;
                   if (!acc[key]) acc[key] = [];
                   acc[key].push(item);
                   return acc;
@@ -584,7 +681,7 @@ export default function RecipesScreen({ user }) {
                         <div style={{ width: 10, height: 10, borderRadius: '50%', background: C.mint }} />
                       </div>
                       <span style={{ color: C.cream, fontSize: 14, flex: 1 }}>{item.ingredient}</span>
-                      <span style={{ color: C.muted, fontSize: 11 }}>tap para ✓</span>
+                      <span style={{ color: C.muted, fontSize: 11 }}>{t.tapToCheck}</span>
                     </div>
                   ))}
                 </div>
@@ -593,17 +690,17 @@ export default function RecipesScreen({ user }) {
               <button onClick={() => {
                 const text = shopping.map(s => `• ${s.ingredient} (${s.recipe_name})`).join('\n');
                 if (navigator.share) {
-                  navigator.share({ title: 'Mi lista PureLife', text });
+                  navigator.share({ title: t.myListShareTitle, text });
                 } else {
                   navigator.clipboard?.writeText(text);
-                  toast('📋 Lista copiada al portapapeles');
+                  toast(t.listCopied);
                 }
               }} style={{
                 width: '100%', padding: '13px', borderRadius: 14, border: 'none',
                 background: `linear-gradient(135deg, ${C.goldL}, ${C.gold})`,
                 color: C.dark, fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: FONT,
               }}>
-                📤 Compartir lista de compra
+                {t.shareListBtn}
               </button>
             </>
           )}
@@ -616,6 +713,7 @@ export default function RecipesScreen({ user }) {
           recipe={detailRecipe}
           onClose={() => setDetailRecipe(null)}
           onAddToShopping={(r) => { addToShopping(r); setDetailRecipe(null); }}
+          lang={lang}
         />
       )}
       {showNewForm && (
@@ -623,6 +721,7 @@ export default function RecipesScreen({ user }) {
           user={user}
           onSave={saveRecipe}
           onClose={() => setShowNewForm(false)}
+          lang={lang}
         />
       )}
     </div>
