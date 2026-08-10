@@ -14,8 +14,8 @@ const FULL_UI_LANGS = ['en', 'es', 'fr', 'pt', 'it'];
 
 function SubView({ id, user, hermes, lang, onBack }) {
   const content = {
-    recipes: <RecipesScreen user={user} />,
-    map: <MapScreen user={user} />,
+    recipes: <RecipesScreen user={user} lang={lang} />,
+    map: <MapScreen user={user} lang={lang} />,
     video: <VideoAgent user={user} hermes={hermes} lang={lang} />,
     news: <NewsSection />,
     plans: <PlansScreen hermes={hermes} user={user} lang={lang} />,
