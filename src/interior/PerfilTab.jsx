@@ -6,6 +6,7 @@ import MapScreen from '../pages/MapScreen';
 import NewsSection from '../components/NewsSection';
 import VideoAgent from '../pages/VideoAgent';
 import HealthProfileModule from '../components/HealthProfileModule';
+import NutritionLabelScanner from '../components/NutritionLabelScanner';
 import { PlansScreen } from '../App';
 import { tui } from '../i18n';
 
@@ -20,6 +21,7 @@ function SubView({ id, user, hermes, lang, onBack }) {
     video: <VideoAgent user={user} hermes={hermes} lang={lang} />,
     diagnosis: <HealthProfileModule onClose={onBack} />,
     news: <NewsSection lang={lang} />,
+    label: <NutritionLabelScanner lang={lang} />,
     plans: <PlansScreen hermes={hermes} user={user} lang={lang} />,
   }[id];
 
@@ -48,6 +50,7 @@ export default function PerfilTab({ user, hermes, goals, lang = 'en', onLangChan
     { id: 'map', label: tui(lang, 'itPerfilNearMe') },
     { id: 'video', label: tui(lang, 'itPerfilVideoAI') },
     { id: 'diagnosis', label: tui(lang, 'itPerfilDiagnosis') },
+    { id: 'label', label: tui(lang, 'itPerfilLabelScanner') },
     { id: 'news', label: tui(lang, 'itPerfilNews') },
     { id: 'plans', label: tui(lang, 'itPerfilPlans') },
   ];
