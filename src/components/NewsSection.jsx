@@ -1,28 +1,41 @@
 // /src/components/NewsSection.jsx
 import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase'; // ajustar path según tu proyecto
+import { supabase } from '../lib/supabase';
+import { tui } from '../i18n';
 
 const CATEGORIES = [
-  { key: 'todas', label: 'Todas' },
-  { key: 'frutas', label: 'Frutas' },
-  { key: 'vegetales', label: 'Vegetales' },
-  { key: 'estudios', label: 'Estudios' },
-  { key: 'tendencias', label: 'Tendencias' },
-  { key: 'salud_preventiva', label: 'Salud Preventiva' }
+  { key: 'todas', labelKey: 'newsCatAll' },
+  { key: 'nutrition', labelKey: 'newsCatNutrition' },
+  { key: 'fitness', labelKey: 'newsCatFitness' },
 ];
 
-function relativeDate(dateStr) {
+function relativeDate(dateStr, lang) {
   if (!dateStr) return '';
   const date = new Date(dateStr);
   const diffDays = Math.floor((Date.now() - date.getTime()) / (1000 * 60 * 60 * 24));
-  if (diffDays === 0) return 'Hoy';
-  if (diffDays === 1) return 'Ayer';
-  if (diffDays < 7) return `Hace ${diffDays} días`;
-  if (diffDays < 30) return `Hace ${Math.floor(diffDays / 7)} semana(s)`;
-  return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+  if (diffDays === 0) return tui(lang, 'newsDateToday');
+  if (diffDays === 1) return tui(lang, 'newsDateYesterday');
+  if (diffDays < 7) {
+    const suffix = tui(lang, 'newsDateDaysAgo');
+    if (lang === 'es') return `Hace ${diffDays} ${suffix}`;
+    if (lang === 'fr') return `il y a ${diffDays} ${suffix}`;
+    if (lang === 'pt') return `há ${diffDays} ${suffix}`;
+    return `${diffDays} ${suffix}`; // en / it ya llevan el sufijo con el verbo incluido
+  }
+  if (diffDays < 30) return `${Math.floor(diffDays / 7)} ${tui(lang, 'newsDateWeeksAgo')}`;
+  const localeMap = { en: 'en-US', es: 'es-ES', fr: 'fr-FR', pt: 'pt-PT', it: 'it-IT' };
+  return date.toLocaleDateString(localeMap[lang] || 'en-US', { day: 'numeric', month: 'short' });
 }
 
-export default function NewsSection() {
+function sourceDomain(url) {
+  try {
+    return new URL(url).hostname.replace(/^www\./, '');
+  } catch {
+    return '';
+  }
+}
+
+export default function NewsSection({ lang = 'en' }) {
   const [activeCategory, setActiveCategory] = useState('todas');
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -31,15 +44,16 @@ export default function NewsSection() {
 
   useEffect(() => {
     setPage(0);
-    fetchArticles(0, activeCategory);
-  }, [activeCategory]);
+    fetchArticles(0, activeCategory, lang);
+  }, [activeCategory, lang]);
 
-  async function fetchArticles(pageNum, category) {
+  async function fetchArticles(pageNum, category, currentLang) {
     setLoading(true);
     let query = supabase
       .from('news_articles')
       .select('*')
-      .order('published_date', { ascending: false, nullsFirst: false })
+      .eq('language', currentLang)
+      .order('published_at', { ascending: false, nullsFirst: false })
       .order('created_at', { ascending: false })
       .range(pageNum * PAGE_SIZE, pageNum * PAGE_SIZE + PAGE_SIZE - 1);
 
@@ -70,7 +84,7 @@ export default function NewsSection() {
             marginBottom: '0.5rem'
           }}
         >
-          Noticias Wellness
+          {tui(lang, 'newsTitle')}
         </h2>
         <p
           style={{
@@ -81,7 +95,7 @@ export default function NewsSection() {
             fontSize: '0.95rem'
           }}
         >
-          Frutas, vegetales y estudios — actualizado a diario
+          {tui(lang, 'newsSubtitle')}
         </p>
 
         {/* Tabs de categoría */}
@@ -110,17 +124,17 @@ export default function NewsSection() {
                 transition: 'all 0.2s ease'
               }}
             >
-              {cat.label}
+              {tui(lang, cat.labelKey)}
             </button>
           ))}
         </div>
 
         {/* Grid de noticias */}
         {loading ? (
-          <p style={{ color: '#a8b5ad', textAlign: 'center' }}>Cargando noticias...</p>
+          <p style={{ color: '#a8b5ad', textAlign: 'center' }}>{tui(lang, 'newsLoading')}</p>
         ) : articles.length === 0 ? (
           <p style={{ color: '#a8b5ad', textAlign: 'center' }}>
-            Aún no hay noticias en esta categoría. Vuelve pronto.
+            {tui(lang, 'newsEmpty')}
           </p>
         ) : (
           <div
@@ -157,7 +171,7 @@ export default function NewsSection() {
                     letterSpacing: '0.05em'
                   }}
                 >
-                  {article.category.replace('_', ' ')}
+                  {(article.category || '').replace('_', ' ')}
                 </span>
                 <h3
                   style={{
@@ -188,8 +202,8 @@ export default function NewsSection() {
                     color: '#6b7a72'
                   }}
                 >
-                  <span>{article.source_name}</span>
-                  <span>{relativeDate(article.published_date)}</span>
+                  <span>{sourceDomain(article.source_url)}</span>
+                  <span>{relativeDate(article.published_at, lang)}</span>
                 </div>
               </a>
             ))}

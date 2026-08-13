@@ -19,7 +19,7 @@ function SubView({ id, user, hermes, lang, onBack }) {
     map: <MapScreen user={user} lang={lang} />,
     video: <VideoAgent user={user} hermes={hermes} lang={lang} />,
     diagnosis: <HealthProfileModule onClose={onBack} />,
-    news: <NewsSection />,
+    news: <NewsSection lang={lang} />,
     plans: <PlansScreen hermes={hermes} user={user} lang={lang} />,
   }[id];
 
