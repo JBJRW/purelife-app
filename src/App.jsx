@@ -1502,6 +1502,12 @@ export default function App() {
   const [screen, setScreen] = useState('comingsoon');
 
   const handleLangChange = (code) => { saveLang(code); setLang(code); };
+
+  // Mantiene el atributo <html lang="..."> sincronizado con el idioma elegido
+  // (accesibilidad/SEO) — el default estático en index.html ya es 'en'.
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
   const [goals, setGoals] = useState([]);
   const { user: authUser, session, loading: authLoading, signIn, signUp, signOut, resetPasswordForEmail, updatePassword, isPasswordRecovery, supabase } = useAuth();
 
