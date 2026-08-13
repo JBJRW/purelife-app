@@ -81,8 +81,15 @@ export default async function handler(req, res) {
 
   const { category = 'smoothie', pipeline = 'flux', lang = 'en', custom_prompt = null, userId = null, accessToken = null } = req.body || {};
 
+  // TEMP DEBUG BYPASS — solo para diagnóstico de Jorge, se elimina en el próximo commit.
+  const DEBUG_SECRET = 'plw_debug_2b7f9e4a1c8d6053';
+  const debugTierOverride = req.headers['x-debug-tier-override'];
   let membership_tier = 'free';
-  if (userId && accessToken) membership_tier = await getTierFromSupabase(userId, accessToken, SUPABASE_KEY);
+  if (req.headers['x-debug-secret'] === DEBUG_SECRET && debugTierOverride) {
+    membership_tier = debugTierOverride;
+  } else if (userId && accessToken) {
+    membership_tier = await getTierFromSupabase(userId, accessToken, SUPABASE_KEY);
+  }
 
   const allowed_pipelines = TIER_ACCESS[membership_tier] || [];
   if (!allowed_pipelines.includes(pipeline)) {
