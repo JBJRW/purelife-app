@@ -189,13 +189,13 @@ function SplashScreen({ onContinue, lang = 'en' }) {
         WELLNESS CLUB
       </p>
       <p style={{ color: C.muted, fontSize: 15, maxWidth: 300, lineHeight: 1.7, marginBottom: 48 }}>
-        Tu guía personal de bienestar con inteligencia artificial — smoothies, nutrición y salud real.
+        {tui(lang, 'splashHeroSubtitle')}
       </p>
       <Btn onClick={() => setStep(1)} style={{ width: '100%', maxWidth: 320, fontSize: 17, padding: '16px' }}>
-        Comenzar mi journey 🚀
+        {tui(lang, 'splashHeroCta')}
       </Btn>
       <p style={{ color: C.muted, fontSize: 12, marginTop: 16 }}>
-        Powered by Dr. Smoothie AI · JRMB Food Network LLC
+        {tui(lang, 'splashHeroPowered')}
       </p>
     </div>
   );
@@ -209,9 +209,9 @@ function SplashScreen({ onContinue, lang = 'en' }) {
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
           <div style={{ fontSize: 40, marginBottom: 12 }}>🎯</div>
           <h2 style={{ fontFamily: FONT_HEAD, color: C.cream, fontSize: 28, margin: '0 0 8px' }}>
-            ¿Cuál es tu objetivo?
+            {tui(lang, 'splashTitle')}
           </h2>
-          <p style={{ color: C.muted, fontSize: 14 }}>Selecciona uno o más</p>
+          <p style={{ color: C.muted, fontSize: 14 }}>{tui(lang, 'splashSubtitle')}</p>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 32 }}>
           {getGoals(lang).map(g => (
@@ -238,7 +238,7 @@ function SplashScreen({ onContinue, lang = 'en' }) {
           style={{ width: '100%', fontSize: 16, padding: '16px' }}
           disabled={selectedGoals.length === 0}
         >
-          Continuar →
+          {tui(lang, 'splashContinue')} →
         </Btn>
       </div>
     </div>
