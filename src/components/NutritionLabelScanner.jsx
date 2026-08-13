@@ -62,7 +62,8 @@ export default function NutritionLabelScanner({ lang = 'en' }) {
       });
       const data = await res.json();
       if (!res.ok || data.error) throw new Error(data.error || tui(lang, 'labelError'));
-      if (!data.product_name) throw new Error(data.recommendation || tui(lang, 'labelError'));
+      const hasUsefulData = data.calories || data.ingredients?.length > 0 || data.protein || data.carbs;
+      if (!hasUsefulData) throw new Error(data.recommendation || tui(lang, 'labelError'));
       setResult(data);
     } catch (e) {
       setError(e.message || tui(lang, 'labelError'));
@@ -156,7 +157,7 @@ export default function NutritionLabelScanner({ lang = 'en' }) {
         <div style={{ marginTop: 8 }}>
           <div style={{ textAlign: 'center', marginBottom: 16 }}>
             <div style={{ fontFamily: IT_FONT_HEAD, color: IT.goldLight, fontSize: 20, fontStyle: 'italic' }}>
-              {result.product_name}
+              {result.product_name || tui(lang, 'labelTitle')}
             </div>
             {result.serving_size && (
               <div style={{ color: IT.textSecondary, fontSize: 12, fontFamily: IT_FONT_BODY, marginTop: 2 }}>
