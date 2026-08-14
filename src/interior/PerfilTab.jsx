@@ -8,6 +8,7 @@ import VideoAgent from '../pages/VideoAgent';
 import HealthProfileModule from '../components/HealthProfileModule';
 import NutritionLabelScanner from '../components/NutritionLabelScanner';
 import VideoScriptWriter from '../components/VideoScriptWriter';
+import RestSanctuary from '../components/RestSanctuary';
 import { PlansScreen } from '../App';
 import { tui } from '../i18n';
 
@@ -24,6 +25,7 @@ function SubView({ id, user, hermes, lang, onBack }) {
     news: <NewsSection lang={lang} />,
     label: <NutritionLabelScanner lang={lang} />,
     script: <VideoScriptWriter lang={lang} />,
+    rest: <RestSanctuary lang={lang} />,
     plans: <PlansScreen hermes={hermes} user={user} lang={lang} />,
   }[id];
 
@@ -53,6 +55,7 @@ export default function PerfilTab({ user, hermes, goals, lang = 'en', onLangChan
     { id: 'video', label: tui(lang, 'itPerfilVideoAI') },
     { id: 'script', label: tui(lang, 'itPerfilScriptWriter') },
     { id: 'diagnosis', label: tui(lang, 'itPerfilDiagnosis') },
+    { id: 'rest', label: tui(lang, 'itPerfilRest') },
     { id: 'label', label: tui(lang, 'itPerfilLabelScanner') },
     { id: 'news', label: tui(lang, 'itPerfilNews') },
     { id: 'plans', label: tui(lang, 'itPerfilPlans') },
