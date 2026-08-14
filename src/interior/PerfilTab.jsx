@@ -22,7 +22,7 @@ function SubView({ id, user, hermes, lang, onBack }) {
     recipes: <RecipesScreen user={user} lang={lang} />,
     map: <MapScreen user={user} lang={lang} />,
     video: <VideoAgent user={user} hermes={hermes} lang={lang} />,
-    diagnosis: <HealthProfileModule onClose={onBack} />,
+    diagnosis: <HealthProfileModule />,
     news: <NewsSection lang={lang} />,
     label: <NutritionLabelScanner lang={lang} />,
     script: <VideoScriptWriter lang={lang} />,
