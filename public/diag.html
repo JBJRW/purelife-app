@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Diagnóstico PureLife</title>
+<style>
+  body { font-family: monospace; background: #0a0a0a; color: #E8C96A; padding: 20px; font-size: 14px; line-height: 1.8; }
+  h1 { font-family: sans-serif; color: #fff; font-size: 18px; }
+  .row { display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding: 6px 0; }
+  .label { color: #9BA69F; }
+  .val { color: #2C9C6E; font-weight: bold; text-align: right; }
+  .box { border: 2px solid #2C9C6E; padding: 20px; margin-top: 20px; background: rgba(44,156,110,0.1); }
+  button { background: #2C9C6E; color: #000; border: none; padding: 14px 20px; border-radius: 8px; font-size: 16px; margin-top: 20px; width: 100%; }
+</style>
+</head>
+<body>
+<h1>🔍 Diagnóstico de pantalla</h1>
+<div id="results"></div>
+<div class="box">
+  <div style="text-align:center; font-size:16px; color:#fff;">Toca este botón — su ancho real debería ser igual al de la pantalla menos 40px</div>
+</div>
+<button id="btn">BOTÓN DE PRUEBA</button>
+<div id="btnResult" style="margin-top:12px;"></div>
+
+<script>
+  const r = document.getElementById('results');
+  const add = (label, val) => {
+    const div = document.createElement('div');
+    div.className = 'row';
+    div.innerHTML = `<span class="label">${label}</span><span class="val">${val}</span>`;
+    r.appendChild(div);
+  };
+
+  add('window.innerWidth', window.innerWidth + 'px');
+  add('window.innerHeight', window.innerHeight + 'px');
+  add('window.outerWidth', window.outerWidth + 'px');
+  add('screen.width', screen.width + 'px');
+  add('screen.height', screen.height + 'px');
+  add('devicePixelRatio', window.devicePixelRatio);
+  add('visualViewport.width', window.visualViewport ? window.visualViewport.width + 'px' : 'N/A');
+  add('visualViewport.scale', window.visualViewport ? window.visualViewport.scale : 'N/A');
+  add('document.documentElement.clientWidth', document.documentElement.clientWidth + 'px');
+  add('document.body.scrollWidth', document.body.scrollWidth + 'px');
+  add('body font-size', getComputedStyle(document.body).fontSize);
+  add('¿Hay scroll horizontal?', document.documentElement.scrollWidth > window.innerWidth ? '⚠️ SÍ' : '✓ No');
+
+  const ua = navigator.userAgent;
+  const uaDiv = document.createElement('div');
+  uaDiv.style.marginTop = '16px';
+  uaDiv.style.fontSize = '11px';
+  uaDiv.style.color = '#9BA69F';
+  uaDiv.style.wordBreak = 'break-all';
+  uaDiv.textContent = 'User-Agent: ' + ua;
+  r.appendChild(uaDiv);
+
+  const btn = document.getElementById('btn');
+  const btnResult = document.getElementById('btnResult');
+  function measureBtn() {
+    const rect = btn.getBoundingClientRect();
+    btnResult.innerHTML = `<span class="label">Ancho real del botón:</span> <span class="val">${Math.round(rect.width)}px</span> (pantalla: ${window.innerWidth}px)`;
+  }
+  measureBtn();
+  window.addEventListener('resize', measureBtn);
+</script>
+</body>
+</html>
