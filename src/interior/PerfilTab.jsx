@@ -10,7 +10,7 @@ import NutritionLabelScanner from '../components/NutritionLabelScanner';
 import VideoScriptWriter from '../components/VideoScriptWriter';
 import RestSanctuary from '../components/RestSanctuary';
 import { PlansScreen } from '../App';
-import { tui } from '../i18n';
+import { tui, LANGUAGES } from '../i18n';
 
 const TIER_LABELS = { seed: 'Seed 🌱', bloom: 'Bloom 🌸', canopy: 'Canopy 🌿' };
 // Idiomas con traducción completa de la UI (deben coincidir con LANGS_WITH_FULL_UI en i18n.js)
@@ -152,21 +152,28 @@ export default function PerfilTab({ user, hermes, goals, lang = 'en', onLangChan
       <div className="it-divider" style={{ margin: '20px 0 14px' }} />
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
-        {FULL_UI_LANGS.map(code => (
-          <button
-            key={code}
-            onClick={() => onLangChange?.(code)}
-            className="it-tap"
-            style={{
-              padding: '6px 14px', borderRadius: 20, cursor: 'pointer',
-              border: `1px solid ${lang === code ? IT.goldLight : IT.divider}`,
-              background: 'transparent', color: lang === code ? IT.goldLight : IT.textSecondary,
-              fontSize: 12, fontFamily: IT_FONT_BODY,
-            }}
-          >
-            {code.toUpperCase()}
-          </button>
-        ))}
+        {FULL_UI_LANGS.map(code => {
+          const langInfo = LANGUAGES.find(l => l.code === code);
+          const active = lang === code;
+          return (
+            <button
+              key={code}
+              onClick={() => onLangChange?.(code)}
+              className="it-tap"
+              style={{
+                display: 'flex', alignItems: 'center', gap: 6,
+                padding: '6px 14px 6px 10px', borderRadius: 20, cursor: 'pointer',
+                border: `1px solid ${active ? IT.goldLight : IT.divider}`,
+                background: active ? `${IT.gold}18` : 'transparent',
+                color: active ? IT.goldLight : IT.textSecondary,
+                fontSize: 12, fontFamily: IT_FONT_BODY, fontWeight: active ? 700 : 500,
+              }}
+            >
+              <span style={{ fontSize: 15, lineHeight: 1 }}>{langInfo?.flag}</span>
+              {code.toUpperCase()}
+            </button>
+          );
+        })}
       </div>
 
       <button

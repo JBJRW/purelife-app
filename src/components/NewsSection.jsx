@@ -129,7 +129,7 @@ export default function NewsSection({ lang = 'en' }) {
           ))}
         </div>
 
-        {/* Grid de noticias */}
+        {/* Feed de noticias — tarjetas grandes estilo feed inmersivo */}
         {loading ? (
           <p style={{ color: '#a8b5ad', textAlign: 'center' }}>{tui(lang, 'newsLoading')}</p>
         ) : articles.length === 0 ? (
@@ -137,13 +137,7 @@ export default function NewsSection({ lang = 'en' }) {
             {tui(lang, 'newsEmpty')}
           </p>
         ) : (
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-              gap: '1.5rem'
-            }}
-          >
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', maxWidth: 480, margin: '0 auto' }}>
             {articles.map(article => (
               <a
                 key={article.id}
@@ -151,24 +145,31 @@ export default function NewsSection({ lang = 'en' }) {
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
-                  display: 'block',
-                  background: '#101d17',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'flex-end',
+                  minHeight: 280,
+                  background: 'radial-gradient(circle at 20% 0%, rgba(232,201,106,0.10), transparent 55%), #101d17',
                   border: '1px solid #1f2b24',
-                  borderRadius: '14px',
-                  padding: '1.4rem',
+                  borderRadius: '20px',
+                  padding: '1.6rem',
                   textDecoration: 'none',
-                  transition: 'border-color 0.2s ease'
+                  position: 'relative',
+                  overflow: 'hidden',
+                  transition: 'border-color 0.2s ease, transform 0.2s ease',
                 }}
-                onMouseEnter={e => (e.currentTarget.style.borderColor = '#e8c76a')}
-                onMouseLeave={e => (e.currentTarget.style.borderColor = '#1f2b24')}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = '#e8c76a'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = '#1f2b24'; e.currentTarget.style.transform = 'translateY(0)'; }}
               >
                 <span
                   style={{
                     fontFamily: "'DM Sans', sans-serif",
                     fontSize: '0.7rem',
+                    fontWeight: 700,
                     color: '#e8c76a',
                     textTransform: 'uppercase',
-                    letterSpacing: '0.05em'
+                    letterSpacing: '0.15em',
+                    marginBottom: '0.5rem',
                   }}
                 >
                   {(article.category || '').replace('_', ' ')}
@@ -177,8 +178,9 @@ export default function NewsSection({ lang = 'en' }) {
                   style={{
                     fontFamily: "'Cormorant Garamond', serif",
                     color: '#f3eee2',
-                    fontSize: '1.25rem',
-                    margin: '0.5rem 0 0.6rem'
+                    fontSize: '1.7rem',
+                    lineHeight: 1.15,
+                    margin: '0 0 0.7rem',
                   }}
                 >
                   {article.title}
@@ -186,10 +188,11 @@ export default function NewsSection({ lang = 'en' }) {
                 <p
                   style={{
                     fontFamily: "'DM Sans', sans-serif",
-                    color: '#a8b5ad',
-                    fontSize: '0.88rem',
+                    color: 'rgba(243,238,226,0.85)',
+                    fontSize: '0.95rem',
+                    fontWeight: 500,
                     lineHeight: '1.5',
-                    marginBottom: '0.9rem'
+                    marginBottom: '1.1rem',
                   }}
                 >
                   {article.summary}
@@ -199,7 +202,9 @@ export default function NewsSection({ lang = 'en' }) {
                     display: 'flex',
                     justifyContent: 'space-between',
                     fontSize: '0.75rem',
-                    color: '#6b7a72'
+                    color: '#8a978f',
+                    borderTop: '1px solid rgba(255,255,255,0.08)',
+                    paddingTop: '0.8rem',
                   }}
                 >
                   <span>{sourceDomain(article.source_url)}</span>
