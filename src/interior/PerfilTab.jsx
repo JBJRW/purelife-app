@@ -9,6 +9,7 @@ import HealthProfileModule from '../components/HealthProfileModule';
 import NutritionLabelScanner from '../components/NutritionLabelScanner';
 import VideoScriptWriter from '../components/VideoScriptWriter';
 import RestSanctuary from '../components/RestSanctuary';
+import ContentCreatorAgent from '../components/ContentCreatorAgent';
 import { PlansScreen } from '../App';
 import { tui, LANGUAGES } from '../i18n';
 
@@ -26,6 +27,7 @@ function SubView({ id, user, hermes, lang, onBack }) {
     label: <NutritionLabelScanner lang={lang} />,
     script: <VideoScriptWriter lang={lang} />,
     rest: <RestSanctuary lang={lang} />,
+    content: <ContentCreatorAgent lang={lang} user={user} />,
     plans: <PlansScreen hermes={hermes} user={user} lang={lang} />,
   }[id];
 
@@ -56,6 +58,7 @@ export default function PerfilTab({ user, hermes, goals, lang = 'en', onLangChan
     { id: 'script', label: tui(lang, 'itPerfilScriptWriter') },
     { id: 'diagnosis', label: tui(lang, 'itPerfilDiagnosis') },
     { id: 'rest', label: tui(lang, 'itPerfilRest') },
+    { id: 'content', label: tui(lang, 'itPerfilContentAgent') },
     { id: 'label', label: tui(lang, 'itPerfilLabelScanner') },
     { id: 'news', label: tui(lang, 'itPerfilNews') },
     { id: 'plans', label: tui(lang, 'itPerfilPlans') },
