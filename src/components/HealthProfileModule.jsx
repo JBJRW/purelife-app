@@ -473,14 +473,14 @@ function WizardScreen({ onComplete }) {
           </div>
 
           {/* Nav */}
-          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:18 }}>
-            <button className="btn-ghost" onClick={back} disabled={flat===0} style={{ opacity:flat===0?0.3:1 }}>← Anterior</button>
-            <div style={{ display:"flex", gap:3 }}>
+          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:18, gap:8 }}>
+            <button className="btn-ghost" onClick={back} disabled={flat===0} style={{ opacity:flat===0?0.3:1, flexShrink:0 }}>← Anterior</button>
+            <div style={{ display:"flex", gap:3, flex:1, minWidth:0, overflow:"hidden", justifyContent:"center" }}>
               {allQ.map((_,i)=>(
-                <div key={i} style={{ width:i===flat?18:5, height:5, borderRadius:3, background:i<flat?C.green:i===flat?C.green:"rgba(26,44,34,0.1)", transition:"all 0.3s", opacity:i===flat?1:0.6 }} />
+                <div key={i} style={{ width:i===flat?18:5, height:5, borderRadius:3, flexShrink:0, background:i<flat?C.green:i===flat?C.green:"rgba(26,44,34,0.1)", transition:"all 0.3s", opacity:i===flat?1:0.6 }} />
               ))}
             </div>
-            <button className="btn-p" onClick={next} disabled={!canNext()} style={{ opacity:canNext()?1:0.4 }}>
+            <button className="btn-p" onClick={next} disabled={!canNext()} style={{ opacity:canNext()?1:0.4, flexShrink:0 }}>
               {flat===total-1?"Analizar mi perfil 🤖":"Siguiente →"}
             </button>
           </div>
