@@ -33,7 +33,10 @@ export function saveLang(code) {
   try { localStorage.setItem('pl_lang', code); } catch(_) {}
 }
 export function loadLang() {
-  try { return localStorage.getItem('pl_lang') || detectBrowserLang(); } catch(_) { return 'en'; }
+  // Regla de producto: la entrada SIEMPRE es en inglés por defecto.
+  // Nunca se autodetecta el idioma del navegador — solo se usa lo que
+  // el usuario eligió explícitamente antes (guardado en localStorage).
+  try { return localStorage.getItem('pl_lang') || 'en'; } catch(_) { return 'en'; }
 }
 
 // Traducciones UI completas
