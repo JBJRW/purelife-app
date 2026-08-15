@@ -3,9 +3,16 @@ import { createPortal } from 'react-dom';
 import { supabase } from '../lib/supabase';
 import { IT, IT_FONT_HEAD, IT_FONT_BODY } from './tokens';
 import { tui } from '../i18n';
+import UploadVideoModal from './UploadVideoModal';
 
 function FullscreenPlayer({ video, lang, onClose, liked, onLike }) {
   const videoRef = useRef(null);
+  const [toast, setToast] = useState('');
+
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(''), 1800);
+  };
 
   useEffect(() => {
     // Bloquea el scroll de fondo mientras el reproductor esta abierto
@@ -82,7 +89,22 @@ function FullscreenPlayer({ video, lang, onClose, liked, onLike }) {
           <span style={{ fontSize: 22, color: liked ? IT.emerald : IT.cream }}>{liked ? '♥' : '♡'}</span>
           <span style={actionLabelStyle}>{(video.likes_count || 0) + (liked ? 1 : 0)}</span>
         </button>
+        <button onClick={() => downloadVideo(video, () => showToast(tui(lang, 'downloadStarted')), () => showToast(tui(lang, 'uploadError')))} className="it-tap" style={actionBtnStyle}>
+          <span style={{ fontSize: 20, color: IT.cream }}>⬇</span>
+          <span style={actionLabelStyle}>{tui(lang, 'itVideosSave')}</span>
+        </button>
       </div>
+
+      {toast && (
+        <div style={{
+          position: 'absolute', top: 'max(20px, env(safe-area-inset-top))', left: '50%', transform: 'translateX(-50%)',
+          background: 'rgba(11,15,13,.9)', border: `1px solid ${IT.divider}`,
+          borderRadius: 20, padding: '8px 16px', fontSize: 12, color: IT.cream,
+          fontFamily: IT_FONT_BODY, zIndex: 10,
+        }}>
+          {toast}
+        </div>
+      )}
     </div>,
     document.body
   );
@@ -194,7 +216,10 @@ function VideoItem({ video, user, onLiked, lang, onExpand }) {
           <span style={{ fontSize: 20, color: IT.cream }}>💬</span>
           <span style={actionLabelStyle}>{tui(lang, 'itVideosComment')}</span>
         </button>
-        <button onClick={(e) => { e.stopPropagation(); showToast(tui(lang, 'itVideosSaveToast')); }} className="it-tap" style={actionBtnStyle}>
+        <button onClick={(e) => {
+          e.stopPropagation();
+          downloadVideo(video, () => showToast(tui(lang, 'downloadStarted')), () => showToast(tui(lang, 'uploadError')));
+        }} className="it-tap" style={actionBtnStyle}>
           <span style={{ fontSize: 20, color: IT.cream }}>⬇</span>
           <span style={actionLabelStyle}>{tui(lang, 'itVideosSave')}</span>
         </button>
@@ -220,11 +245,38 @@ const actionBtnStyle = {
 };
 const actionLabelStyle = { fontSize: 10, color: IT.textSecondary, fontFamily: IT_FONT_BODY };
 
+// Descarga real del archivo de video (antes esto era un toast falso
+// de "próximamente"). Usamos fetch + blob en vez de un <a download>
+// directo porque video_url apunta a Supabase Storage en otro origen,
+// y un <a download> simple hacia un origen externo abre el video en
+// una pestaña nueva en vez de descargarlo en varios navegadores.
+async function downloadVideo(video, onStart, onError) {
+  try {
+    const res = await fetch(video.video_url);
+    if (!res.ok) throw new Error(`download_failed_${res.status}`);
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const safeTitle = (video.title || 'purelife-video').replace(/[^a-z0-9\-_]+/gi, '-').slice(0, 60);
+    a.download = `${safeTitle}.mp4`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+    onStart?.();
+  } catch (e) {
+    console.error('[VideosTab] download failed:', e);
+    onError?.();
+  }
+}
+
 export default function VideosTab({ user, lang = 'en' }) {
   const [videos, setVideos] = useState(null);
   const [error, setError] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
   const [expandedLiked, setExpandedLiked] = useState(false);
+  const [showUpload, setShowUpload] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -273,6 +325,23 @@ export default function VideosTab({ user, lang = 'en' }) {
       <div style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8, padding: 20, textAlign: 'center' }}>
         <div style={{ fontFamily: IT_FONT_HEAD, color: IT.goldLight, fontSize: 24, fontStyle: 'italic' }}>{tui(lang, 'itVideosEmptyTitle')}</div>
         <div style={{ color: IT.textSecondary, fontSize: 13 }}>{tui(lang, 'itVideosEmptySub')}</div>
+        {user?.id && (
+          <button onClick={() => setShowUpload(true)} className="it-tap" style={{
+            marginTop: 16, padding: '12px 24px', borderRadius: 20, cursor: 'pointer',
+            border: `1.5px solid ${IT.emerald}`, background: `${IT.emerald}18`,
+            color: IT.cream, fontSize: 14, fontWeight: 700, fontFamily: IT_FONT_BODY,
+          }}>
+            {tui(lang, 'itVideosUpload')}
+          </button>
+        )}
+        {showUpload && (
+          <UploadVideoModal
+            user={user}
+            lang={lang}
+            onClose={() => setShowUpload(false)}
+            onUploaded={(newVideo) => setVideos((vs) => [newVideo, ...(vs || [])])}
+          />
+        )}
       </div>
     );
   }
@@ -291,6 +360,34 @@ export default function VideosTab({ user, lang = 'en' }) {
           />
         ))}
       </div>
+
+      {user?.id && (
+        <button
+          onClick={() => setShowUpload(true)}
+          className="it-tap"
+          aria-label={tui(lang, 'itVideosUpload')}
+          style={{
+            position: 'fixed', right: 16, bottom: 'calc(100px + env(safe-area-inset-bottom))', zIndex: 15,
+            width: 52, height: 52, borderRadius: '50%',
+            background: `linear-gradient(135deg, ${IT.emerald}, #1A5C3A)`,
+            border: 'none', color: '#fff', fontSize: 24,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
+          }}
+        >
+          ➕
+        </button>
+      )}
+
+      {showUpload && (
+        <UploadVideoModal
+          user={user}
+          lang={lang}
+          onClose={() => setShowUpload(false)}
+          onUploaded={(newVideo) => setVideos((vs) => [newVideo, ...(vs || [])])}
+        />
+      )}
+
       {expandedVideo && (
         <FullscreenPlayer
           video={expandedVideo}
