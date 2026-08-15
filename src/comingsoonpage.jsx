@@ -583,8 +583,12 @@ export default function ComingSoonPage({ onEnterApp, lang = 'en', onLangChange }
   const [loading, setLoading]       = useState(false);
   const [error, setError]           = useState('');
   const [freeResult, setFreeResult] = useState(null);
-  const [counter, setCounter]       = useState({ total: 0, remaining: 100, percentFull: 0, isFull: false });
-  const [counterLoaded, setCounterLoaded] = useState(false);
+  // Programa "100 Founding Members gratis" descontinuado (agosto 2026).
+  // Se fija isFull:true desde el inicio para que la UI use directamente
+  // las cadenas ya traducidas de "cupos agotados, únete al plan anual"
+  // (slotsFull/ctaPaid/proofPaid) en los 15 idiomas, sin reescribir copy.
+  const [counter, setCounter]       = useState({ total: 100, remaining: 0, percentFull: 100, isFull: true });
+  const [counterLoaded, setCounterLoaded] = useState(true);
   const [diagnosticDone, setDiagnosticDone] = useState(
     () => localStorage.getItem('pl_diagnostic_done') === 'true'
   );
@@ -597,14 +601,6 @@ export default function ComingSoonPage({ onEnterApp, lang = 'en', onLangChange }
       document.head.appendChild(el);
     }
     return () => { const el = document.getElementById(id); if (el) el.remove(); };
-  }, []);
-
-  useEffect(() => {
-    fetch('/api/subscriber-count')
-      .then(r => r.ok ? r.json() : null)
-      .then(d => { if (d) setCounter(d); })
-      .catch(() => {})
-      .finally(() => setCounterLoaded(true));
   }, []);
 
   const handleSubmit = async () => {

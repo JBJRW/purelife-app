@@ -1,7 +1,13 @@
-// api/stripe-checkout.js — PureLife Stripe Checkout + 100 Founding Members
+// api/stripe-checkout.js — PureLife Stripe Checkout
 // JRMB Food Network LLC — purelifewellnessclub.org
-
-import { createClient } from '@supabase/supabase-js';
+//
+// El programa "primeros 100 Founding Members gratis" quedó
+// descontinuado (decisión de negocio, agosto 2026). Además, esa rama
+// dependía de una tabla `subscribers` que nunca existió en Supabase,
+// lo cual causaba que TODAS las peticiones cayeran en la rama "gratis"
+// (currentCount siempre 0 por error) y el checkout de pago real nunca
+// se ejecutaba — es decir, nadie podía pagar por esta vía desde que
+// se desplegó. Este endpoint ahora siempre crea una sesión de pago real.
 
 const ALLOWED_ORIGINS = [
   "https://purelifewellnessclub.org",
@@ -14,9 +20,6 @@ const ALLOWED_ORIGINS = [
 
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
 const PRICE_ID = process.env.STRIPE_PRICE_ID_ANNUAL || "price_1TVbUd2d05WpkcPe9HUVy3eK";
-const SUPABASE_URL = process.env.SUPABASE_URL || "https://slcvymfgcpoafjufaplx.supabase.co";
-const SUPABASE_SRK = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const FOUNDING_LIMIT = 100;
 
 export default async function handler(req, res) {
   const origin = req.headers.origin || "";
@@ -31,51 +34,9 @@ export default async function handler(req, res) {
   if (!STRIPE_SECRET_KEY) return res.status(500).json({ error: "Stripe not configured" });
 
   try {
-    const { email, name } = req.body;
+    const { email, name } = req.body || {};
     if (!email) return res.status(400).json({ error: "Email requerido" });
 
-    // Contar founding members actuales
-    const supabase = createClient(SUPABASE_URL, SUPABASE_SRK);
-    const { count, error: countError } = await supabase
-      .from('subscribers')
-      .select('*', { count: 'exact', head: true })
-      .eq('status', 'active');
-
-    if (countError) {
-      console.error('Supabase count error:', countError);
-    }
-
-    const currentCount = count || 0;
-    const isFree = currentCount < FOUNDING_LIMIT;
-
-    // --- FOUNDING MEMBER GRATIS ---
-    if (isFree) {
-      const position = currentCount + 1;
-
-      const { error: insertError } = await supabase
-        .from('subscribers')
-        .upsert({
-          email,
-          status: 'active',
-          tier: 'founding_member',
-          is_free: true,
-          position,
-          created_at: new Date().toISOString()
-        }, { onConflict: 'email' });
-
-      if (insertError && insertError.code !== '23505') {
-        console.error('Insert error:', insertError);
-      }
-
-      return res.status(200).json({
-        free: true,
-        position,
-        remaining: FOUNDING_LIMIT - position,
-        message: `Eres el Founding Member #${position} de PureLife.`
-      });
-    }
-
-    // --- PAGO DESDE MIEMBRO #101 ---
     const baseUrl = origin || "https://purelifewellnessclub.org";
 
     const params = new URLSearchParams({
@@ -88,12 +49,11 @@ export default async function handler(req, res) {
       "billing_address_collection": "auto",
     });
 
-    if (email) params.append("customer_email", email);
+    params.append("customer_email", email);
     if (name) params.append("custom_text[submit][message]", `Bienvenido ${name} a PureLife Wellness Club`);
 
     params.append("metadata[plan]", "annual_182");
     params.append("metadata[platform]", "purelifewellnessclub.org");
-    params.append("metadata[position]", String(currentCount + 1));
 
     const stripeRes = await fetch("https://api.stripe.com/v1/checkout/sessions", {
       method: "POST",
@@ -111,7 +71,7 @@ export default async function handler(req, res) {
     }
 
     const session = await stripeRes.json();
-    return res.status(200).json({ url: session.url, sessionId: session.id, free: false });
+    return res.status(200).json({ url: session.url, sessionId: session.id });
 
   } catch (err) {
     console.error("Checkout error:", err);
