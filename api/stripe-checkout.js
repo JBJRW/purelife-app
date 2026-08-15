@@ -25,7 +25,6 @@ const ALLOWED_ORIGINS = [
 ];
 
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
-const ANNUAL_PRICE_ID = process.env.STRIPE_PRICE_ID_ANNUAL || "price_1TVbUd2d05WpkcPe9HUVy3eK";
 
 // Planes mensuales reales (creados en Stripe agosto 2026). Whitelist —
 // nunca se acepta un priceId arbitrario del cliente sin validar.
@@ -34,6 +33,15 @@ const TIER_PRICES = {
   bloom:  "price_1U4YMc2d05WpkcPeqtKpCBQG",
   canopy: "price_1U4YMc2d05WpkcPeybHCxVaJ",
 };
+
+// El plan anual histórico ("price_1TVbUd2d...") quedó INACTIVO en Stripe
+// (producto desactivado), lo que rompía el checkout para cualquier
+// petición sin tier explícito (ej. el flujo de /join en la landing).
+// Ahora el fallback usa un precio real y activo (Bloom) en vez de un
+// ID hardcodeado que ya no existe. STRIPE_PRICE_ID_ANNUAL sigue
+// disponible como override opcional si Jorge define un plan anual
+// nuevo en Stripe más adelante.
+const ANNUAL_PRICE_ID = process.env.STRIPE_PRICE_ID_ANNUAL || TIER_PRICES.bloom;
 
 export default async function handler(req, res) {
   const origin = req.headers.origin || "";
