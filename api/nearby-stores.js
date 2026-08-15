@@ -67,7 +67,14 @@ async function callOverpass(url, query) {
   try {
     return await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        // Overpass rechaza con 406 las peticiones sin un User-Agent
+        // identificable (medida anti-bot de su lado) — sin esto,
+        // fetch de Node/Vercel no manda ninguno por defecto.
+        'User-Agent': 'PureLifeWellnessClub/1.0 (+https://purelifewellnessclub.org)',
+        'Accept': 'application/json',
+      },
       body: `data=${encodeURIComponent(query)}`,
       signal: controller.signal,
     });
