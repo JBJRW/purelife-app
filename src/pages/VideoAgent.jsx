@@ -6,13 +6,16 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 // ⚠️ fal.ai account está bloqueada por falta de saldo ("User is locked.
-// Reason: TOP_UP") — esto afecta a TODOS los pipelines (flux, recraft,
-// kling, veo3), no solo a los premium, porque el bloqueo es a nivel de
-// cuenta. En vez de dejar que los usuarios (incluyendo pagantes) gasten
-// intentos en algo que sabemos que va a fallar, deshabilitamos el botón
-// de generar y mostramos un aviso claro. Cambiar a `false` en cuanto
-// Jorge deposite saldo en fal.ai/dashboard/billing.
-const AI_GENERATION_DISABLED = true;
+// Reason: TOP_UP"). Mientras tanto:
+// - Imágenes (flux/recraft): sustituidas por Pollinations.ai (Flux),
+//   gratis, sin clave, sin límite — ver api/generate-image-free.js.
+//   Disponibles para TODOS los tiers mientras dure este modo gratis,
+//   ya que no tiene sentido cobrar límite de tier por algo gratis.
+// - Video real (kling/veo3): sigue pausado — no existe un equivalente
+//   gratis de calidad comparable. Cambiar VIDEO_GENERATION_DISABLED a
+//   false en cuanto Jorge deposite saldo en fal.ai/dashboard/billing.
+const FREE_IMAGE_MODE = true;
+const VIDEO_GENERATION_DISABLED = true;
 
 const C = {
   dark: '#0F1F17', green: '#1A3C2E', mint: '#4ADE80',
@@ -49,8 +52,9 @@ const VA = {
     animateNeedsBloom: '🌸 Animate requires Bloom+', upscaleNeedsSeed: '🌱 4K Upscale requires Seed+', enhanceFailed: 'Enhancement failed', enhanceError: 'Processing error',
     animated: '🎬 Animated', scaling: '⏳ Scaling...', upscale4k: '⬆️ Upscale 4K', animating: '⏳ Animating...', animate: '🎬 Animate',
     generated: 'Generated', threeDEffect: '↔ 3D effect',
-    serviceUnavailableTitle: '⏸️ Video AI temporarily paused',
-    serviceUnavailableBody: "We're topping up credits for our image/video engines. Generation will be back soon — thanks for your patience.",
+    serviceUnavailableTitle: '⏸️ Video generation paused',
+    serviceUnavailableBody: "Real AI video (Kling/Veo3) is paused while we top up credits — but images (Flux) are running free for everyone right now!",
+    freeImageBadge: '🎁 Free right now',
   },
   es: {
     pipelineDesc: { flux: 'Imágenes alta fidelidad', recraft: 'Ilustración ultra-HD', kling: 'Animaciones wellness', veo3: 'Video cinematográfico' },
@@ -62,8 +66,9 @@ const VA = {
     animateNeedsBloom: '🌸 Animar requiere Bloom+', upscaleNeedsSeed: '🌱 Upscale 4K requiere Seed+', enhanceFailed: 'Enhancement failed', enhanceError: 'Error al procesar',
     animated: '🎬 Animado', scaling: '⏳ Escalando...', upscale4k: '⬆️ Upscale 4K', animating: '⏳ Animando...', animate: '🎬 Animar',
     generated: 'Generado', threeDEffect: '↔ efecto 3D',
-    serviceUnavailableTitle: '⏸️ Video AI pausado temporalmente',
-    serviceUnavailableBody: 'Estamos recargando saldo para nuestros motores de imagen/video. La generación vuelve pronto — gracias por tu paciencia.',
+    serviceUnavailableTitle: '⏸️ Generación de video pausada',
+    serviceUnavailableBody: '¡El video real con IA (Kling/Veo3) está pausado mientras recargamos saldo — pero las imágenes (Flux) están gratis para todos ahora mismo!',
+    freeImageBadge: '🎁 Gratis ahora mismo',
   },
   fr: {
     pipelineDesc: { flux: 'Images haute fidélité', recraft: 'Illustration ultra-HD', kling: 'Animations bien-être', veo3: 'Vidéo cinématographique' },
@@ -75,8 +80,9 @@ const VA = {
     animateNeedsBloom: '🌸 Animer nécessite Bloom+', upscaleNeedsSeed: '🌱 Upscale 4K nécessite Seed+', enhanceFailed: "Échec de l'amélioration", enhanceError: 'Erreur de traitement',
     animated: '🎬 Animé', scaling: '⏳ Mise à l\'échelle...', upscale4k: '⬆️ Upscale 4K', animating: '⏳ Animation...', animate: '🎬 Animer',
     generated: 'Généré', threeDEffect: '↔ effet 3D',
-    serviceUnavailableTitle: '⏸️ Vidéo IA temporairement en pause',
-    serviceUnavailableBody: 'Nous rechargeons les crédits de nos moteurs image/vidéo. La génération reviendra bientôt — merci de votre patience.',
+    serviceUnavailableTitle: '⏸️ Génération vidéo en pause',
+    serviceUnavailableBody: 'La vraie vidéo IA (Kling/Veo3) est en pause pendant la recharge des crédits — mais les images (Flux) sont gratuites pour tous en ce moment !',
+    freeImageBadge: '🎁 Gratuit en ce moment',
   },
   pt: {
     pipelineDesc: { flux: 'Imagens de alta fidelidade', recraft: 'Ilustração ultra-HD', kling: 'Animações wellness', veo3: 'Vídeo cinematográfico' },
@@ -88,8 +94,9 @@ const VA = {
     animateNeedsBloom: '🌸 Animar requer Bloom+', upscaleNeedsSeed: '🌱 Upscale 4K requer Seed+', enhanceFailed: 'Falha no aprimoramento', enhanceError: 'Erro ao processar',
     animated: '🎬 Animado', scaling: '⏳ Ampliando...', upscale4k: '⬆️ Upscale 4K', animating: '⏳ Animando...', animate: '🎬 Animar',
     generated: 'Gerado', threeDEffect: '↔ efeito 3D',
-    serviceUnavailableTitle: '⏸️ Vídeo IA pausado temporariamente',
-    serviceUnavailableBody: 'Estamos recarregando créditos para nossos motores de imagem/vídeo. A geração volta em breve — obrigado pela paciência.',
+    serviceUnavailableTitle: '⏸️ Geração de vídeo pausada',
+    serviceUnavailableBody: 'O vídeo real com IA (Kling/Veo3) está pausado enquanto recarregamos os créditos — mas as imagens (Flux) estão grátis para todos agora!',
+    freeImageBadge: '🎁 Grátis agora',
   },
   it: {
     pipelineDesc: { flux: 'Immagini alta fedeltà', recraft: 'Illustrazione ultra-HD', kling: 'Animazioni benessere', veo3: 'Video cinematografico' },
@@ -101,8 +108,9 @@ const VA = {
     animateNeedsBloom: '🌸 Animare richiede Bloom+', upscaleNeedsSeed: '🌱 Upscale 4K richiede Seed+', enhanceFailed: 'Miglioramento fallito', enhanceError: 'Errore di elaborazione',
     animated: '🎬 Animato', scaling: '⏳ Scalando...', upscale4k: '⬆️ Upscale 4K', animating: '⏳ Animando...', animate: '🎬 Anima',
     generated: 'Generato', threeDEffect: '↔ effetto 3D',
-    serviceUnavailableTitle: '⏸️ Video IA temporaneamente in pausa',
-    serviceUnavailableBody: 'Stiamo ricaricando i crediti per i nostri motori immagine/video. La generazione tornerà presto — grazie per la pazienza.',
+    serviceUnavailableTitle: '⏸️ Generazione video in pausa',
+    serviceUnavailableBody: 'Il video reale con IA (Kling/Veo3) è in pausa mentre ricarichiamo i crediti — ma le immagini (Flux) sono gratuite per tutti in questo momento!',
+    freeImageBadge: '🎁 Gratis ora',
   },
 };
 const va = (lang) => VA[lang] || VA.en;
@@ -195,22 +203,28 @@ export default function VideoAgent({ user, hermes, lang = 'en' }) {
   }, [user?.id]);
 
   const handleGenerate = async () => {
-    if (AI_GENERATION_DISABLED) return;
     if (!prompt.trim()) return;
     const sel   = PIPELINES.find(p => p.id === pipeline);
-    const limit = TIER_LIMITS[userTier] || 0;
-    if (!canUsePipeline(sel)) { setError(t.needsPlan(sel.tier, sel.label)); return; }
-    if (usageCount !== null && usageCount >= limit) { setError(t.monthlyLimit(limit, userTier)); return; }
+    const isVideoPipeline = pipeline === 'kling' || pipeline === 'veo3';
+    const isFreeImage = FREE_IMAGE_MODE && (pipeline === 'flux' || pipeline === 'recraft');
+
+    if (isVideoPipeline && VIDEO_GENERATION_DISABLED) return;
+    if (!isFreeImage) {
+      const limit = TIER_LIMITS[userTier] || 0;
+      if (!canUsePipeline(sel)) { setError(t.needsPlan(sel.tier, sel.label)); return; }
+      if (usageCount !== null && usageCount >= limit) { setError(t.monthlyLimit(limit, userTier)); return; }
+    }
     setLoading(true); setError(''); setResult(null); setEnhancedResult(null); setEnhanceError('');
     try {
-      const res  = await fetch('/api/video', {
+      const endpoint = isFreeImage ? '/api/generate-image-free' : '/api/video';
+      const res  = await fetch(endpoint, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pipeline, category, custom_prompt: prompt, membership_tier: userTier, userId: user?.id, accessToken: user?.token }),
+        body: JSON.stringify({ pipeline, category, custom_prompt: prompt, lang, membership_tier: userTier, userId: user?.id, accessToken: user?.token }),
       });
       const data = await res.json();
-      if (data.error) throw new Error(data.error);
+      if (data.error) throw new Error(data.detail || data.error);
       setResult(data);
-      if (usageCount !== null) setUsageCount(c => c + 1);
+      if (!isFreeImage && usageCount !== null) setUsageCount(c => c + 1);
     } catch (e) { setError(e.message || t.genericGenError); }
     finally { setLoading(false); }
   };
@@ -260,7 +274,7 @@ export default function VideoAgent({ user, hermes, lang = 'en' }) {
         </div>
       </div>
 
-      {AI_GENERATION_DISABLED && (
+      {VIDEO_GENERATION_DISABLED && (
         <div style={{
           marginBottom: 20, padding: '14px 16px', borderRadius: 14,
           background: `${C.gold}14`, border: `1px solid ${C.gold}44`,
@@ -278,7 +292,10 @@ export default function VideoAgent({ user, hermes, lang = 'en' }) {
       <h3 style={{ color: C.cream, fontSize: 14, fontWeight: 700, marginBottom: 10 }}>{t.engine}</h3>
       <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
         {PIPELINES.map(p => {
-          const unlocked = canUsePipeline(p) && !AI_GENERATION_DISABLED;
+          const isVideoPipeline = p.id === 'kling' || p.id === 'veo3';
+          const isFreeImage = FREE_IMAGE_MODE && (p.id === 'flux' || p.id === 'recraft');
+          const unlocked = isFreeImage ? true : (canUsePipeline(p) && !isVideoPipeline);
+          const blocked = isVideoPipeline && VIDEO_GENERATION_DISABLED;
           return (
             <button key={p.id} onClick={() => unlocked && setPipeline(p.id)}
               style={{ padding: '10px 14px', borderRadius: 12, cursor: unlocked ? 'pointer' : 'not-allowed',
@@ -286,7 +303,9 @@ export default function VideoAgent({ user, hermes, lang = 'en' }) {
                 background: pipeline === p.id ? `${C.mint}18` : C.card,
                 color: unlocked ? C.cream : C.muted, fontSize: 13, opacity: unlocked ? 1 : 0.5, transition: 'all 0.15s' }}>
               {p.emoji} {p.label}
-              {!unlocked && !AI_GENERATION_DISABLED && <span style={{ fontSize: 10, marginLeft: 4 }}>🔒 {p.tier}</span>}
+              {isFreeImage && <span style={{ fontSize: 10, marginLeft: 4, color: C.mint }}>{t.freeImageBadge}</span>}
+              {blocked && <span style={{ fontSize: 10, marginLeft: 4 }}>⏸️</span>}
+              {!unlocked && !blocked && <span style={{ fontSize: 10, marginLeft: 4 }}>🔒 {p.tier}</span>}
             </button>
           );
         })}
@@ -322,12 +341,12 @@ export default function VideoAgent({ user, hermes, lang = 'en' }) {
         </div>
       )}
 
-      <button onClick={handleGenerate} disabled={loading || !prompt.trim() || remaining <= 0 || AI_GENERATION_DISABLED}
+      <button onClick={handleGenerate} disabled={loading || !prompt.trim() || (remaining <= 0 && !(FREE_IMAGE_MODE && (pipeline === 'flux' || pipeline === 'recraft'))) || ((pipeline === 'kling' || pipeline === 'veo3') && VIDEO_GENERATION_DISABLED)}
         style={{ width: '100%', marginTop: 16, padding: '14px',
-          background: (loading || remaining <= 0 || AI_GENERATION_DISABLED) ? C.muted : `linear-gradient(135deg, ${C.mint}, #22c55e)`,
+          background: (loading || ((pipeline === 'kling' || pipeline === 'veo3') && VIDEO_GENERATION_DISABLED)) ? C.muted : `linear-gradient(135deg, ${C.mint}, #22c55e)`,
           border: 'none', borderRadius: 14, color: C.dark, fontSize: 15, fontWeight: 700,
-          cursor: (loading || remaining <= 0 || AI_GENERATION_DISABLED) ? 'not-allowed' : 'pointer', transition: 'all 0.2s' }}>
-        {AI_GENERATION_DISABLED ? t.serviceUnavailableTitle : (loading ? t.generating : t.generate)}
+          cursor: (loading || ((pipeline === 'kling' || pipeline === 'veo3') && VIDEO_GENERATION_DISABLED)) ? 'not-allowed' : 'pointer', transition: 'all 0.2s' }}>
+        {(pipeline === 'kling' || pipeline === 'veo3') && VIDEO_GENERATION_DISABLED ? t.serviceUnavailableTitle : (loading ? t.generating : t.generate)}
       </button>
 
       {/* Resultado */}
