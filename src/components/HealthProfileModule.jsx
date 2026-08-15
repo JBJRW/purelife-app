@@ -97,15 +97,13 @@ body{background:${C.bg0};color:${C.white};font-family:'DM Sans',sans-serif;overf
    CLAUDE API  (text + vision)
 ═══════════════════════════════════════ */
 async function askClaude(system, content, tokens = 1500) {
-  const r = await fetch("https://api.anthropic.com/v1/messages", {
+  // Antes esto llamaba a api.anthropic.com directo desde el navegador sin
+  // ninguna API key, así que siempre fallaba en silencio. Ahora pasa por
+  // api/health-diagnosis.js, que guarda la key del lado del servidor.
+  const r = await fetch("/api/health-diagnosis", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: tokens,
-      system,
-      messages: [{ role: "user", content }],
-    }),
+    body: JSON.stringify({ system, content, tokens }),
   });
   if (!r.ok) throw new Error(r.status);
   const d = await r.json();
