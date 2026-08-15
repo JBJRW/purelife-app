@@ -38,6 +38,7 @@ const MS = {
     placesToTap: (n) => `${n} places · Tap to select`, searchRadius: (km) => `Search radius: ${km} km`, searchWithRadius: '🔍 Search with this radius',
     leafletNotLoaded: 'Leaflet not loaded',
     healthyStore: 'Healthy store', noAddress: 'No address', checkHours: 'Check hours',
+    loadError: "We couldn't load nearby stores. Please try again.", retry: '🔄 Try again',
   },
   es: {
     filterLabel: { all: 'Todo', organic: 'Orgánicos', juice: 'Juguerías', market: 'Mercados', farm: 'Granjas', health: 'Salud' },
@@ -50,6 +51,7 @@ const MS = {
     placesToTap: (n) => `${n} lugares · Toca para seleccionar`, searchRadius: (km) => `Radio de búsqueda: ${km} km`, searchWithRadius: '🔍 Buscar con este radio',
     leafletNotLoaded: 'Leaflet no cargado',
     healthyStore: 'Tienda saludable', noAddress: 'Sin dirección', checkHours: 'Consultar horario',
+    loadError: 'No pudimos cargar tiendas cercanas. Intenta de nuevo.', retry: '🔄 Intentar de nuevo',
   },
   fr: {
     filterLabel: { all: 'Tout', organic: 'Bio', juice: 'Bars à jus', market: 'Marchés', farm: 'Fermes', health: 'Santé' },
@@ -62,6 +64,7 @@ const MS = {
     placesToTap: (n) => `${n} lieux · Touchez pour sélectionner`, searchRadius: (km) => `Rayon de recherche : ${km} km`, searchWithRadius: '🔍 Rechercher avec ce rayon',
     leafletNotLoaded: 'Leaflet non chargé',
     healthyStore: 'Magasin santé', noAddress: "Pas d'adresse", checkHours: 'Vérifier les horaires',
+    loadError: "Impossible de charger les magasins à proximité. Réessayez.", retry: '🔄 Réessayer',
   },
   pt: {
     filterLabel: { all: 'Tudo', organic: 'Orgânicos', juice: 'Sucos', market: 'Mercados', farm: 'Fazendas', health: 'Saúde' },
@@ -74,6 +77,7 @@ const MS = {
     placesToTap: (n) => `${n} lugares · Toque para selecionar`, searchRadius: (km) => `Raio de busca: ${km} km`, searchWithRadius: '🔍 Buscar com este raio',
     leafletNotLoaded: 'Leaflet não carregado',
     healthyStore: 'Loja saudável', noAddress: 'Sem endereço', checkHours: 'Consultar horário',
+    loadError: 'Não foi possível carregar as lojas próximas. Tente novamente.', retry: '🔄 Tentar novamente',
   },
   it: {
     filterLabel: { all: 'Tutto', organic: 'Biologici', juice: 'Centrifughe', market: 'Mercati', farm: 'Fattorie', health: 'Salute' },
@@ -86,57 +90,30 @@ const MS = {
     placesToTap: (n) => `${n} luoghi · Tocca per selezionare`, searchRadius: (km) => `Raggio di ricerca: ${km} km`, searchWithRadius: '🔍 Cerca con questo raggio',
     leafletNotLoaded: 'Leaflet non caricato',
     healthyStore: 'Negozio sano', noAddress: 'Nessun indirizzo', checkHours: 'Verifica orari',
+    loadError: 'Impossibile caricare i negozi vicini. Riprova.', retry: '🔄 Riprova',
   },
 };
 const ms = (lang) => MS[lang] || MS.en;
 const getFilters = (lang='en') => FILTER_META.map(f => ({ ...f, label: ms(lang).filterLabel[f.id] }));
 
-// Mock stores para demo (si OSM falla o modo demo)
-function getMockStores(lat, lng) {
-  return [
-    { id: 1, name: 'Organic Fresh Market', type: 'organic', distance: '0.3 km', rating: 4.8, lat: lat + 0.002, lng: lng + 0.001, address: 'Calle Verde 12', emoji: '🌿', hours: '8am - 8pm' },
-    { id: 2, name: 'Green Juice Bar', type: 'juice', distance: '0.5 km', rating: 4.6, lat: lat - 0.001, lng: lng + 0.002, address: 'Av. Salud 45', emoji: '🥤', hours: '7am - 9pm' },
-    { id: 3, name: 'Mercado Agroecológico', type: 'market', distance: '0.8 km', rating: 4.9, lat: lat + 0.001, lng: lng - 0.002, address: 'Plaza Mayor s/n', emoji: '🏪', hours: 'Sáb-Dom 8am-2pm' },
-    { id: 4, name: 'Finca Ecológica La Paz', type: 'farm', distance: '1.2 km', rating: 5.0, lat: lat - 0.002, lng: lng - 0.001, address: 'Camino Rural 3', emoji: '🚜', hours: 'L-V 9am - 5pm' },
-    { id: 5, name: 'Natural Health Shop', type: 'health', distance: '0.6 km', rating: 4.5, lat: lat + 0.003, lng: lng + 0.003, address: 'Centro Comercial Vida', emoji: '🏥', hours: '9am - 9pm' },
-  ];
-}
-
-// Buscar en Overpass API (OpenStreetMap) — tiendas reales cercanas
-async function searchOSMStores(lat, lng, radius = 1500, t = MS.en) {
-  const query = `
-    [out:json][timeout:15];
-    (
-      node["shop"="organic"](around:${radius},${lat},${lng});
-      node["amenity"="juice_bar"](around:${radius},${lat},${lng});
-      node["shop"="health_food"](around:${radius},${lat},${lng});
-      node["amenity"="marketplace"](around:${radius},${lat},${lng});
-      node["shop"="farm"](around:${radius},${lat},${lng});
-      node["shop"="greengrocer"](around:${radius},${lat},${lng});
-    );
-    out body;
-  `;
-  try {
-    const res = await fetch('https://overpass-api.de/api/interpreter', {
-      method: 'POST',
-      body: `data=${encodeURIComponent(query)}`,
-    });
-    const data = await res.json();
-    return (data.elements || []).slice(0, 20).map((el, i) => ({
-      id: el.id || i,
-      name: el.tags?.name || el.tags?.['name:es'] || t.healthyStore,
-      type: el.tags?.shop || el.tags?.amenity || 'organic',
-      lat: el.lat,
-      lng: el.lon,
-      address: el.tags?.['addr:street'] ? `${el.tags['addr:street']} ${el.tags['addr:housenumber'] || ''}` : t.noAddress,
-      hours: el.tags?.opening_hours || t.checkHours,
-      rating: (4.0 + Math.random()).toFixed(1),
-      distance: ((Math.sqrt(Math.pow(el.lat - lat, 2) + Math.pow(el.lon - lng, 2))) * 111).toFixed(1) + ' km',
-      emoji: el.tags?.amenity === 'juice_bar' ? '🥤' : el.tags?.shop === 'organic' ? '🌿' : el.tags?.shop === 'farm' ? '🚜' : '🏪',
-    }));
-  } catch {
-    return [];
+// Buscar tiendas reales cercanas vía nuestro endpoint server-side
+// (api/nearby-stores.js), que a su vez consulta Overpass/OSM con
+// reintentos. Antes esto se llamaba directo desde el navegador y
+// caía en silencio a datos de ejemplo (mock) cuando fallaba — ya
+// no hay fallback silencioso: si falla, se muestra un error real.
+async function searchNearbyStores(lat, lng, radius = 1500, t = MS.en) {
+  const res = await fetch(`/api/nearby-stores?lat=${lat}&lng=${lng}&radius=${radius}`);
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data?.detail || data?.error || 'stores_unavailable');
   }
+  return (data.stores || []).map((s) => ({
+    ...s,
+    name: s.name || t.healthyStore,
+    address: s.address || t.noAddress,
+    hours: s.hours || t.checkHours,
+    rating: (4.0 + Math.random()).toFixed(1),
+  }));
 }
 
 function StoreCard({ store, onNavigate, isActive, onClick, directions = '🗺️ Directions →' }) {
@@ -190,6 +167,7 @@ export default function MapScreen({ user, lang = 'en' }) {
   const [view, setView] = useState('split'); // map | list | split
   const [searchRadius, setSearchRadius] = useState(1500);
   const [isLoadingStores, setIsLoadingStores] = useState(false);
+  const [loadError, setLoadError] = useState(null);
 
   // Inicializar mapa cuando tengamos ubicación
   useEffect(() => {
@@ -267,10 +245,17 @@ export default function MapScreen({ user, lang = 'en' }) {
 
   const loadStores = async (lat, lng) => {
     setIsLoadingStores(true);
-    const osmStores = await searchOSMStores(lat, lng, searchRadius, t);
-    const finalStores = osmStores.length > 0 ? osmStores : getMockStores(lat, lng);
-    setStores(finalStores);
-    setIsLoadingStores(false);
+    setLoadError(null);
+    try {
+      const realStores = await searchNearbyStores(lat, lng, searchRadius, t);
+      setStores(realStores);
+    } catch (err) {
+      console.error('[MapScreen] loadStores failed:', err.message);
+      setStores([]);
+      setLoadError(t.loadError);
+    } finally {
+      setIsLoadingStores(false);
+    }
   };
 
   const navigateTo = (store) => {
@@ -385,6 +370,18 @@ export default function MapScreen({ user, lang = 'en' }) {
             <div style={{ flex: 1, overflowY: 'auto', padding: '12px 20px 16px' }}>
               {isLoadingStores ? (
                 <div style={{ textAlign: 'center', color: C.muted, padding: 20 }}>{t.searchingStores}</div>
+              ) : loadError ? (
+                <div style={{ textAlign: 'center', color: C.muted, padding: 30 }}>
+                  <div style={{ fontSize: 32, marginBottom: 10 }}>⚠️</div>
+                  <p style={{ color: C.cream }}>{loadError}</p>
+                  <button onClick={() => loadStores(location.lat, location.lng)} style={{
+                    marginTop: 14, padding: '9px 18px', borderRadius: 20, border: 'none',
+                    background: `linear-gradient(135deg, ${C.mint}, ${C.green})`,
+                    color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: FONT,
+                  }}>
+                    {t.retry}
+                  </button>
+                </div>
               ) : filteredStores.length === 0 ? (
                 <div style={{ textAlign: 'center', color: C.muted, padding: 30 }}>
                   <p>{t.noStoresCategory}</p>
