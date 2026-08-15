@@ -66,8 +66,8 @@ export default async function handler(req, res) {
 
   const langName = LANG_NAMES[lang] || LANG_NAMES.en;
 
-  try {
-    const geminiRes = await fetch(`${GEMINI_URL}?key=${GEMINI_KEY}`, {
+  async function callGemini() {
+    return fetch(`${GEMINI_URL}?key=${GEMINI_KEY}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -75,12 +75,28 @@ export default async function handler(req, res) {
         generationConfig: { temperature: 0.8 },
       }),
     });
+  }
+
+  try {
+    // Gemini free-tier a veces devuelve 503 "high demand" de forma
+    // intermitente (conocido y documentado del lado de Google). Reintentamos
+    // hasta 2 veces con backoff creciente antes de rendirnos — mismo patrón
+    // que generate-content.js, pero con un intento extra porque este endpoint
+    // ha mostrado rachas de 503 consecutivos.
+    let geminiRes = await callGemini();
+    for (let attempt = 0; geminiRes.status === 503 && attempt < 2; attempt++) {
+      await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
+      geminiRes = await callGemini();
+    }
 
     if (!geminiRes.ok) {
       const errText = await geminiRes.text();
       console.error('[generate-video-script] Gemini error:', geminiRes.status, errText);
       if (geminiRes.status === 429) {
         return res.status(429).json({ error: 'rate_limited', detail: 'Free tier quota reached, try again shortly.' });
+      }
+      if (geminiRes.status === 503) {
+        return res.status(503).json({ error: 'high_demand', detail: 'Gemini is at high demand right now, try again in a moment.' });
       }
       return res.status(502).json({ error: 'Script generation failed', detail: errText.slice(0, 300) });
     }

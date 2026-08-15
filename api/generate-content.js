@@ -87,10 +87,11 @@ export default async function handler(req, res) {
   try {
     // Gemini a veces devuelve 503 "high demand" de forma intermitente
     // (problema conocido y documentado del lado de Google, no nuestro).
-    // Reintentamos una vez con una pequeña espera antes de rendirnos.
+    // Reintentamos hasta 2 veces con backoff creciente antes de rendirnos
+    // (antes solo reintentaba una vez, y se vieron rachas de 2 503 seguidos).
     let geminiRes = await callGemini();
-    if (geminiRes.status === 503) {
-      await new Promise((r) => setTimeout(r, 1500));
+    for (let attempt = 0; geminiRes.status === 503 && attempt < 2; attempt++) {
+      await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
       geminiRes = await callGemini();
     }
 
