@@ -9,10 +9,17 @@
 // a datos de ejemplo (mock) sin avisar al usuario.
 // ============================================================
 
-const OVERPASS_URL = 'https://overpass-api.de/api/interpreter';
-const MAX_RETRIES = 2;
-const BACKOFF_MS = [1500, 3000];
-const FETCH_TIMEOUT_MS = 12000;
+// Varios espejos (mirrors) públicos de Overpass. El principal
+// (overpass-api.de) a veces cae por completo, no solo se pone lento —
+// en vez de reintentar contra el mismo servidor caído, rotamos entre
+// instancias independientes.
+const OVERPASS_MIRRORS = [
+  'https://overpass-api.de/api/interpreter',
+  'https://overpass.kumi.systems/api/interpreter',
+  'https://overpass.openstreetmap.ru/api/interpreter',
+];
+const BACKOFF_MS = [1000, 2000];
+const FETCH_TIMEOUT_MS = 9000;
 
 function buildQuery(lat, lng, radius) {
   return `
@@ -54,11 +61,11 @@ function mapElement(el, i, lat, lng) {
   };
 }
 
-async function callOverpass(query) {
+async function callOverpass(url, query) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
   try {
-    return await fetch(OVERPASS_URL, {
+    return await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: `data=${encodeURIComponent(query)}`,
@@ -97,29 +104,30 @@ export default async function handler(req, res) {
   const query = buildQuery(latNum, lngNum, radiusNum);
   let lastError = null;
 
-  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+  for (let i = 0; i < OVERPASS_MIRRORS.length; i++) {
+    const mirrorUrl = OVERPASS_MIRRORS[i];
     try {
-      const response = await callOverpass(query);
+      const response = await callOverpass(mirrorUrl, query);
 
       if (!response.ok) {
-        throw new Error(`Overpass respondió con status ${response.status}`);
+        throw new Error(`${mirrorUrl} respondió con status ${response.status}`);
       }
 
       const data = await response.json();
       const elements = data.elements || [];
-      const stores = elements.slice(0, 20).map((el, i) => mapElement(el, i, latNum, lngNum));
+      const stores = elements.slice(0, 20).map((el, idx) => mapElement(el, idx, latNum, lngNum));
 
-      return res.status(200).json({ stores, source: 'osm' });
+      return res.status(200).json({ stores, source: 'osm', mirror: mirrorUrl });
     } catch (err) {
       lastError = err;
-      console.error(`[nearby-stores] intento ${attempt + 1} falló:`, err.message);
-      if (attempt < MAX_RETRIES) {
-        await new Promise((r) => setTimeout(r, BACKOFF_MS[attempt]));
+      console.error(`[nearby-stores] mirror ${i + 1}/${OVERPASS_MIRRORS.length} falló (${mirrorUrl}):`, err.message);
+      if (i < OVERPASS_MIRRORS.length - 1) {
+        await new Promise((r) => setTimeout(r, BACKOFF_MS[i] || 1000));
       }
     }
   }
 
-  console.error('[nearby-stores] Overpass falló tras todos los reintentos:', lastError?.message);
+  console.error('[nearby-stores] Todos los espejos de Overpass fallaron:', lastError?.message);
   return res.status(502).json({
     error: 'stores_unavailable',
     detail: 'No pudimos cargar tiendas cercanas en este momento. Intenta de nuevo.',
