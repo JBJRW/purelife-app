@@ -13,11 +13,18 @@ const ALLOWED_ORIGINS = [
 ];
 
 // Mapa Price IDs → tiers de PureLife
+// FIX (ago 2026): antes las claves de este objeto eran
+// process.env.STRIPE_PRICE_SEED_MONTHLY etc., pero esas variables nunca
+// se configuraron en Vercel. Una clave computada con valor undefined se
+// convierte en la clave literal "undefined" en JS, así que las 4 entradas
+// colapsaban en una sola y cualquier pago exitoso caía siempre en el
+// tier por defecto (Seed), sin importar lo que se hubiera pagado.
+// Ahora se usan directamente los price IDs reales creados en Stripe.
 const PRICE_TO_TIER = {
-  [process.env.STRIPE_PRICE_SEED_MONTHLY]:   { tier: 'seed',   chatLimit: 5,   label: 'Seed 🌱'   },
-  [process.env.STRIPE_PRICE_BLOOM_MONTHLY]:  { tier: 'bloom',  chatLimit: 50,  label: 'Bloom 🌸'  },
-  [process.env.STRIPE_PRICE_CANOPY_MONTHLY]: { tier: 'canopy', chatLimit: 999, label: 'Canopy 🌿' },
-  [process.env.STRIPE_PRICE_ANNUAL]:         { tier: 'canopy', chatLimit: 999, label: 'Annual 🏆' },
+  'price_1U4YMb2d05WpkcPecWbOfHH1': { tier: 'seed',   chatLimit: 5,   label: 'Seed 🌱'   },
+  'price_1U4YMc2d05WpkcPeqtKpCBQG': { tier: 'bloom',  chatLimit: 50,  label: 'Bloom 🌸'  },
+  'price_1U4YMc2d05WpkcPeybHCxVaJ': { tier: 'canopy', chatLimit: 999, label: 'Canopy 🌿' },
+  'price_1TVbUd2d05WpkcPe9HUVy3eK': { tier: 'canopy', chatLimit: 999, label: 'Annual 🏆' },
 };
 
 // ── Supabase helper ──────────────────────────────────────────────────────────
@@ -136,7 +143,7 @@ export default async function handler(req, res) {
           expires_at: expiresAt,
         });
         await sbUpdate('profiles', `id=eq.${userId}`, {
-          tier: tierInfo.tier,
+          membership_tier: tierInfo.tier,
           updated_at: new Date().toISOString(),
         });
         console.log(`[stripe-webhook] ✅ Activado: ${userId} → ${tierInfo.tier}`);

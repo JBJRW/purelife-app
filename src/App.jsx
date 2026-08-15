@@ -83,6 +83,7 @@ const getPlans = (lang = 'en') => [
     tagline: PLAN_TAGLINES.seed[lang] || PLAN_TAGLINES.seed.en,
     features: tui(lang,'features','seed'),
     stripe: 'https://buy.stripe.com/eVa5nf7Iz6dI7Ly9AB',
+    priceId: 'price_1U4YMb2d05WpkcPecWbOfHH1',
   },
   {
     id: 'bloom', name: 'Bloom', emoji: '🌸', price: '$49',
@@ -90,6 +91,7 @@ const getPlans = (lang = 'en') => [
     tagline: PLAN_TAGLINES.bloom[lang] || PLAN_TAGLINES.bloom.en,
     features: tui(lang,'features','bloom'),
     stripe: 'https://buy.stripe.com/eVa5nf7Iz6dI7Ly9AB',
+    priceId: 'price_1U4YMc2d05WpkcPeqtKpCBQG',
   },
   {
     id: 'canopy', name: 'Canopy', emoji: '🌿', price: '$79',
@@ -97,6 +99,7 @@ const getPlans = (lang = 'en') => [
     tagline: PLAN_TAGLINES.canopy[lang] || PLAN_TAGLINES.canopy.en,
     features: tui(lang,'features','canopy'),
     stripe: 'https://buy.stripe.com/eVa5nf7Iz6dI7Ly9AB',
+    priceId: 'price_1U4YMc2d05WpkcPeybHCxVaJ',
   },
 ];
 const PLANS = getPlans();
@@ -987,13 +990,16 @@ export function PlansScreen({ hermes, user, lang = 'en' }) {
     if (!plan) return;
     setLoading(true);
     try {
-      // Intentar checkout via API (plan anual $182 — mejor valor)
+      // Checkout via API — cobra el precio real del plan elegido (Seed/Bloom/Canopy)
       const res = await fetch('/api/stripe-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: user?.email || '',
           name: user?.name || '',
+          priceId: plan.priceId,
+          tier: plan.id,
+          userId: user?.id || '',
         }),
       });
       const data = await res.json();

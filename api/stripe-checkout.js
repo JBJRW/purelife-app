@@ -8,6 +8,12 @@
 // (currentCount siempre 0 por error) y el checkout de pago real nunca
 // se ejecutaba — es decir, nadie podía pagar por esta vía desde que
 // se desplegó. Este endpoint ahora siempre crea una sesión de pago real.
+//
+// Acepta un `priceId` opcional (Seed/Bloom/Canopy, planes mensuales
+// reales creados en Stripe en agosto 2026) para cobrar el plan que el
+// usuario eligió en PlansScreen. Si no llega priceId (ej. el flujo de
+// /join en la landing, que no elige plan), cae al plan anual histórico
+// como default.
 
 const ALLOWED_ORIGINS = [
   "https://purelifewellnessclub.org",
@@ -19,7 +25,15 @@ const ALLOWED_ORIGINS = [
 ];
 
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
-const PRICE_ID = process.env.STRIPE_PRICE_ID_ANNUAL || "price_1TVbUd2d05WpkcPe9HUVy3eK";
+const ANNUAL_PRICE_ID = process.env.STRIPE_PRICE_ID_ANNUAL || "price_1TVbUd2d05WpkcPe9HUVy3eK";
+
+// Planes mensuales reales (creados en Stripe agosto 2026). Whitelist —
+// nunca se acepta un priceId arbitrario del cliente sin validar.
+const TIER_PRICES = {
+  seed:   "price_1U4YMb2d05WpkcPecWbOfHH1",
+  bloom:  "price_1U4YMc2d05WpkcPeqtKpCBQG",
+  canopy: "price_1U4YMc2d05WpkcPeybHCxVaJ",
+};
 
 export default async function handler(req, res) {
   const origin = req.headers.origin || "";
@@ -34,14 +48,19 @@ export default async function handler(req, res) {
   if (!STRIPE_SECRET_KEY) return res.status(500).json({ error: "Stripe not configured" });
 
   try {
-    const { email, name } = req.body || {};
+    const { email, name, tier, userId } = req.body || {};
     if (!email) return res.status(400).json({ error: "Email requerido" });
+
+    // Solo aceptamos un priceId si viene de nuestra whitelist por tier;
+    // nunca confiamos en un priceId arbitrario enviado por el cliente.
+    const resolvedTier = TIER_PRICES[tier] ? tier : null;
+    const priceId = resolvedTier ? TIER_PRICES[resolvedTier] : ANNUAL_PRICE_ID;
 
     const baseUrl = origin || "https://purelifewellnessclub.org";
 
     const params = new URLSearchParams({
       "mode": "subscription",
-      "line_items[0][price]": PRICE_ID,
+      "line_items[0][price]": priceId,
       "line_items[0][quantity]": "1",
       "success_url": `${baseUrl}/?success=true&session_id={CHECKOUT_SESSION_ID}`,
       "cancel_url": `${baseUrl}/join`,
@@ -51,8 +70,12 @@ export default async function handler(req, res) {
 
     params.append("customer_email", email);
     if (name) params.append("custom_text[submit][message]", `Bienvenido ${name} a PureLife Wellness Club`);
+    if (userId) {
+      params.append("client_reference_id", userId);
+      params.append("metadata[userId]", userId);
+    }
 
-    params.append("metadata[plan]", "annual_182");
+    params.append("metadata[plan]", resolvedTier || "annual_182");
     params.append("metadata[platform]", "purelifewellnessclub.org");
 
     const stripeRes = await fetch("https://api.stripe.com/v1/checkout/sessions", {
