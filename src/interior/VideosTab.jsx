@@ -4,8 +4,9 @@ import { supabase } from '../lib/supabase';
 import { IT, IT_FONT_HEAD, IT_FONT_BODY } from './tokens';
 import { tui } from '../i18n';
 import UploadVideoModal from './UploadVideoModal';
+import ModerationPanel from './ModerationPanel';
 
-function FullscreenPlayer({ video, lang, onClose, liked, onLike }) {
+function FullscreenPlayer({ video, lang, onClose, liked, onLike, reporterId }) {
   const videoRef = useRef(null);
   const [toast, setToast] = useState('');
 
@@ -92,6 +93,19 @@ function FullscreenPlayer({ video, lang, onClose, liked, onLike }) {
         <button onClick={() => downloadVideo(video, () => showToast(tui(lang, 'downloadStarted')), () => showToast(tui(lang, 'uploadError')))} className="it-tap" style={actionBtnStyle}>
           <span style={{ fontSize: 20, color: IT.cream }}>⬇</span>
           <span style={actionLabelStyle}>{tui(lang, 'itVideosSave')}</span>
+        </button>
+        <button onClick={() => {
+          if (!reporterId) return;
+          if (!window.confirm(tui(lang, 'reportConfirm'))) return;
+          reportVideo(
+            video.id, reporterId,
+            () => showToast(tui(lang, 'reportSent')),
+            () => showToast(tui(lang, 'reportAlready')),
+            () => showToast(tui(lang, 'uploadError')),
+          );
+        }} className="it-tap" style={actionBtnStyle}>
+          <span style={{ fontSize: 20, color: IT.cream }}>🚩</span>
+          <span style={actionLabelStyle}>{tui(lang, 'itVideosReport')}</span>
         </button>
       </div>
 
@@ -223,6 +237,20 @@ function VideoItem({ video, user, onLiked, lang, onExpand }) {
           <span style={{ fontSize: 20, color: IT.cream }}>⬇</span>
           <span style={actionLabelStyle}>{tui(lang, 'itVideosSave')}</span>
         </button>
+        <button onClick={(e) => {
+          e.stopPropagation();
+          if (!user?.id) return;
+          if (!window.confirm(tui(lang, 'reportConfirm'))) return;
+          reportVideo(
+            video.id, user.id,
+            () => showToast(tui(lang, 'reportSent')),
+            () => showToast(tui(lang, 'reportAlready')),
+            () => showToast(tui(lang, 'uploadError')),
+          );
+        }} className="it-tap" style={actionBtnStyle}>
+          <span style={{ fontSize: 20, color: IT.cream }}>🚩</span>
+          <span style={actionLabelStyle}>{tui(lang, 'itVideosReport')}</span>
+        </button>
       </div>
 
       {toast && (
@@ -271,12 +299,44 @@ async function downloadVideo(video, onStart, onError) {
   }
 }
 
+// Reporta un video (una sola vez por usuario, por la restricción
+// UNIQUE en video_reports). No borra ni oculta nada automáticamente
+// — solo registra el reporte para que un admin lo revise en el
+// panel de moderación.
+async function reportVideo(videoId, userId, onSent, onAlready, onError) {
+  if (!userId) return;
+  try {
+    const { error: reportError } = await supabase
+      .from('video_reports')
+      .insert({ video_id: videoId, reporter_id: userId });
+    if (reportError) {
+      if (reportError.code === '23505') { onAlready?.(); return; } // unique violation = ya reportado
+      throw reportError;
+    }
+    onSent?.();
+  } catch (e) {
+    console.error('[VideosTab] report failed:', e);
+    onError?.();
+  }
+}
+
 export default function VideosTab({ user, lang = 'en' }) {
   const [videos, setVideos] = useState(null);
   const [error, setError] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
   const [expandedLiked, setExpandedLiked] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [showModeration, setShowModeration] = useState(false);
+
+  useEffect(() => {
+    if (!user?.id) { setIsAdmin(false); return; }
+    let cancelled = false;
+    supabase.from('profiles').select('is_admin').eq('id', user.id).single()
+      .then(({ data }) => { if (!cancelled) setIsAdmin(!!data?.is_admin); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [user?.id]);
 
   useEffect(() => {
     let cancelled = false;
@@ -379,6 +439,24 @@ export default function VideosTab({ user, lang = 'en' }) {
         </button>
       )}
 
+      {isAdmin && (
+        <button
+          onClick={() => setShowModeration(true)}
+          className="it-tap"
+          aria-label={tui(lang, 'modPanelTitle')}
+          style={{
+            position: 'fixed', right: 16, bottom: 'calc(164px + env(safe-area-inset-bottom))', zIndex: 15,
+            width: 44, height: 44, borderRadius: '50%',
+            background: 'rgba(11,15,13,.85)', backdropFilter: 'blur(6px)',
+            border: `1.5px solid ${IT.gold}`, color: IT.gold, fontSize: 18,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
+          }}
+        >
+          🛡️
+        </button>
+      )}
+
       {showUpload && (
         <UploadVideoModal
           user={user}
@@ -388,6 +466,10 @@ export default function VideosTab({ user, lang = 'en' }) {
         />
       )}
 
+      {showModeration && (
+        <ModerationPanel lang={lang} onClose={() => setShowModeration(false)} />
+      )}
+
       {expandedVideo && (
         <FullscreenPlayer
           video={expandedVideo}
@@ -395,6 +477,7 @@ export default function VideosTab({ user, lang = 'en' }) {
           liked={expandedLiked}
           onLike={handleExpandedLike}
           onClose={() => setExpandedId(null)}
+          reporterId={user?.id}
         />
       )}
     </>
