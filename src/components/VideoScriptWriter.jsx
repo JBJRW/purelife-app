@@ -10,6 +10,7 @@
 import { useState } from 'react';
 import { IT, IT_FONT_HEAD, IT_FONT_BODY } from '../interior/tokens';
 import { tui } from '../i18n';
+import { assembleVideo } from '../lib/videoAssembler';
 
 const TOPIC_SUGGESTIONS = {
   en: ['3-ingredient morning smoothie', 'why hydration matters', '5-minute desk stretch routine', 'reading a nutrition label'],
@@ -25,6 +26,10 @@ export default function VideoScriptWriter({ lang = 'en' }) {
   const [script, setScript] = useState(null);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
+  const [videoState, setVideoState] = useState('idle'); // idle | generating | ready | error
+  const [videoProgress, setVideoProgress] = useState('');
+  const [videoUrl, setVideoUrl] = useState(null);
+  const [videoError, setVideoError] = useState('');
 
   const suggestions = TOPIC_SUGGESTIONS[lang] || TOPIC_SUGGESTIONS.en;
 
@@ -61,6 +66,35 @@ export default function VideoScriptWriter({ lang = 'en' }) {
     setScript(null);
     setError('');
     setTopic('');
+    setVideoState('idle');
+    setVideoUrl(null);
+    setVideoError('');
+  };
+
+  const generateVideo = async () => {
+    if (!script) return;
+    setVideoState('generating');
+    setVideoError('');
+    if (videoUrl) URL.revokeObjectURL(videoUrl);
+    setVideoUrl(null);
+    try {
+      const { blob } = await assembleVideo(script, {
+        lang,
+        brandName: 'PureLife Wellness Club',
+        onProgress: (step, i, total) => {
+          setVideoProgress(`${tui(lang, 'videoGenerating')} ${i + 1}/${total}`);
+        },
+      });
+      const url = URL.createObjectURL(blob);
+      setVideoUrl(url);
+      setVideoState('ready');
+    } catch (e) {
+      const key = e?.message === 'media_recorder_unsupported' || e?.message === 'web_audio_unsupported'
+        ? 'videoNotSupported'
+        : 'videoError';
+      setVideoError(tui(lang, key));
+      setVideoState('error');
+    }
   };
 
   return (
@@ -225,6 +259,82 @@ export default function VideoScriptWriter({ lang = 'en' }) {
           {script.music_mood && (
             <div style={{ marginBottom: 20, fontSize: 13, color: IT.textSecondary, fontFamily: IT_FONT_BODY }}>
               🎵 <span style={{ fontWeight: 600 }}>{tui(lang, 'scriptMusicMood')}:</span> {script.music_mood}
+            </div>
+          )}
+
+          {videoState === 'idle' && (
+            <button
+              onClick={generateVideo}
+              className="it-tap"
+              style={{
+                width: '100%', padding: '14px', borderRadius: 14, cursor: 'pointer', marginBottom: 12,
+                border: `1.5px solid ${IT.emerald}`, background: `${IT.emerald}18`,
+                color: IT.cream, fontSize: 14, fontWeight: 700, fontFamily: IT_FONT_BODY,
+              }}
+            >
+              {tui(lang, 'videoCtaGenerate')}
+            </button>
+          )}
+
+          {videoState === 'generating' && (
+            <div style={{
+              textAlign: 'center', padding: '18px 0', marginBottom: 12, color: IT.textSecondary,
+              fontFamily: IT_FONT_BODY, fontSize: 13,
+            }}>
+              🎬 {videoProgress || tui(lang, 'videoGenerating')}
+            </div>
+          )}
+
+          {videoState === 'error' && (
+            <div style={{
+              color: '#E06B5C', fontSize: 13, marginBottom: 12, padding: '10px 14px',
+              background: 'rgba(224,107,92,0.1)', borderRadius: 10, fontFamily: IT_FONT_BODY,
+              display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center',
+            }}>
+              <span>{videoError}</span>
+              <button
+                onClick={generateVideo}
+                className="it-tap"
+                style={{
+                  padding: '8px 16px', borderRadius: 20, cursor: 'pointer',
+                  border: '1px solid #E06B5C', background: 'transparent',
+                  color: '#E06B5C', fontSize: 12, fontWeight: 600, fontFamily: IT_FONT_BODY,
+                }}
+              >
+                🔄 {tui(lang, 'scriptRegenerate')}
+              </button>
+            </div>
+          )}
+
+          {videoState === 'ready' && videoUrl && (
+            <div style={{ marginBottom: 16 }}>
+              <div style={{
+                color: IT.emerald, fontSize: 12, fontWeight: 700, fontFamily: IT_FONT_BODY,
+                textAlign: 'center', marginBottom: 8,
+              }}>
+                ✅ {tui(lang, 'videoReady')}
+              </div>
+              <video
+                src={videoUrl}
+                controls
+                style={{
+                  width: '100%', maxWidth: 280, display: 'block', margin: '0 auto 12px',
+                  borderRadius: 14, border: `2px solid ${IT.goldLight}`,
+                }}
+              />
+              <a
+                href={videoUrl}
+                download="purelife-video.webm"
+                className="it-tap"
+                style={{
+                  display: 'block', width: '100%', padding: '12px', borderRadius: 14,
+                  border: `1.5px solid ${IT.gold}`, background: `${IT.gold}18`,
+                  color: IT.cream, fontSize: 13, fontWeight: 700, fontFamily: IT_FONT_BODY,
+                  textAlign: 'center', textDecoration: 'none', boxSizing: 'border-box',
+                }}
+              >
+                {tui(lang, 'videoDownload')}
+              </a>
             </div>
           )}
 
