@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#080B0A">
 <meta name="description" content="Dr. Smoothie AI — Your AI wellness concierge. Personalized smoothies, physical analysis, healthy lifestyle.">
-<title>Dr. Smoothie AI · PureLive Wellness Club</title>
+<title>Dr. Smoothie AI · PureLife Wellness Club</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
@@ -2011,7 +2011,7 @@ button{font-family:'DM Sans',sans-serif;}
     <div class="comm-inner">
       <div class="pg-eyebrow" style="margin-bottom:12px"><div class="pg-eyebrow-line" style="background:var(--emerald)"></div><span class="pg-eyebrow-text" style="color:var(--emerald)">Community</span></div>
       <div class="comm-title">Real <em>Transformations</em></div>
-      <div class="comm-sub">Stories from the PureLive community. Your change inspires thousands.</div>
+      <div class="comm-sub">Stories from the PureLife community. Your change inspires thousands.</div>
       <button class="comm-share" onclick="shareMyStory()">📱 Share my story</button>
     </div>
   </div>
@@ -2092,7 +2092,7 @@ button{font-family:'DM Sans',sans-serif;}
     <div id="keyStatus" style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:20px"></div>
     <div style="text-align:center;padding:16px;border-top:1px solid var(--border2)">
       <div style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:300;color:var(--cream)">Dr. Smoothie <em style="color:var(--gold2)">AI</em></div>
-      <div style="font-size:11px;color:var(--muted);margin-top:4px">PureLive Wellness Club · v4.0</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">PureLife Wellness Club · v4.0</div>
       <div style="font-size:10px;color:var(--muted);margin-top:2px;opacity:0.6">jorge desarrollador × Claude · 2026</div>
     </div>
   </div>
@@ -2154,7 +2154,7 @@ button{font-family:'DM Sans',sans-serif;}
   <div class="ob-orb1"></div><div class="ob-orb2"></div>
   <div class="ob-inner">
     <div class="ob-logo">🥤</div>
-    <div class="ob-eyebrow"><div class="ob-ey-line"></div><span class="ob-kicker">PureLive Wellness Club</span></div>
+    <div class="ob-eyebrow"><div class="ob-ey-line"></div><span class="ob-kicker">PureLife Wellness Club</span></div>
     <div class="ob-headline">Welcome to Dr.<br><em>Smoothie AI</em></div>
     <div class="ob-sub">Your AI wellness concierge. Personalized smoothies, physical analysis, and healthy lifestyle in one place.</div>
     <div class="ob-feats">
@@ -2321,7 +2321,7 @@ function cycleLang(){lang=LANGS[(LANGS.indexOf(lang)+1)%LANGS.length];document.g
 
 // Onboarding
 function checkOb(){var ob=document.getElementById('onboarding');if(!ob)return;if(localStorage.getItem('ob_done')){ob.style.display='none';}}
-function startApp(){var ob=document.getElementById('onboarding');if(ob){ob.style.transition='opacity 0.3s ease';ob.style.opacity='0';setTimeout(function(){ob.style.display='none';},300);}localStorage.setItem('ob_done','1');showToast('🌿 Welcome to PureLive!');}
+function startApp(){var ob=document.getElementById('onboarding');if(ob){ob.style.transition='opacity 0.3s ease';ob.style.opacity='0';setTimeout(function(){ob.style.display='none';},300);}localStorage.setItem('ob_done','1');showToast('🌿 Welcome to PureLife!');}
 function skipOb(){var ob=document.getElementById('onboarding');if(ob){ob.style.transition='opacity 0.3s ease';ob.style.opacity='0';setTimeout(function(){ob.style.display='none';},300);}localStorage.setItem('ob_done','1');}
 
 // Home
@@ -2380,7 +2380,7 @@ async function sendMsg(){
   t.innerHTML='<div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
   msgs.appendChild(t);msgs.scrollTop=msgs.scrollHeight;
   try{
-    const res=await fetch('https://dr-smoothie-proxy.waracaojr2012.workers.dev',{method:'POST',headers:{'Content-Type':'application/json','anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-5-20250929',max_tokens:400,system:'You are Dr. Smoothie AI, warm wellness concierge for PureLive Wellness Club. Recommend personalized smoothies. Be concise (2-3 sentences), warm, specific. End with: 🌿 Dr. Smoothie AI — General wellness guidance only',messages:chatHistory})});
+    const res=await fetch('https://dr-smoothie-proxy.waracaojr2012.workers.dev',{method:'POST',headers:{'Content-Type':'application/json','anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-5-20250929',max_tokens:400,system:'You are Dr. Smoothie AI, warm wellness concierge for PureLife Wellness Club. Recommend personalized smoothies. Be concise (2-3 sentences), warm, specific. End with: 🌿 Dr. Smoothie AI — General wellness guidance only',messages:chatHistory})});
     const data=await res.json();t.remove();
     const reply=data.content?.[0]?.text||"I'm ready to help! Tell me your wellness goal. 🌿";
     addMsg(reply,'bot');chatHistory.push({role:'assistant',content:reply});
@@ -2473,12 +2473,7 @@ function toggleShopItem(idx){
   const c=document.getElementById('sc'+idx);if(c)c.textContent=shopState[idx]?'✓':'';
 }
 function shareShop(name){
-  const text=name+'
-
-'+Object.entries(shopState).map(([i,d])=>{const el=document.getElementById('si'+i);return(d?'✅ ':'⬜ ')+(el?.querySelector('.shop-item-name')?.textContent||'');}).join('
-')+'
-
-🌿 PureLive Wellness Club';
+  const text=name+'\n\n'+Object.entries(shopState).map(([i,d])=>{const el=document.getElementById('si'+i);return(d?'✅ ':'⬜ ')+(el?.querySelector('.shop-item-name')?.textContent||'');}).join('\n')+'\n\n🌿 PureLife Wellness Club';
   if(navigator.share)navigator.share({title:name,text});
   else{navigator.clipboard?.writeText(text);showToast('📋 List copied!');}
 }
@@ -2537,9 +2532,8 @@ function approveVid(){if(!vidUrl)return;showToast('✅ Video saved!');}
 
 // Community
 function shareMyStory(){
-  const text='My wellness transformation with #PureLifeWellnessClub 🌿
-https://dr-smoothie-ai.netlify.app';
-  if(navigator.share)navigator.share({title:'My PureLive Story',text});
+  const text='My wellness transformation with #PureLifeWellnessClub 🌿\nhttps://dr-smoothie-ai.netlify.app';
+  if(navigator.share)navigator.share({title:'My PureLife Story',text});
   else{navigator.clipboard?.writeText(text);showToast('📋 Link copied! Share on TikTok & Instagram');}
 }
 
