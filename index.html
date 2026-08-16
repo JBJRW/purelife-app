@@ -2444,6 +2444,9 @@ async function runAnalysis(){
     }
   }catch(e){}
   showQResult(match);btn.textContent='🌿 Analyze my profile';btn.disabled=false;
+  if(currentUser){
+    sb.from('progress_exams').insert({user_id:currentUser.id,exam_type:'wellness_quiz',score:Q.bmi,answers:{age:Q.age,weight:Q.weight,height:Q.height,bmi:Q.bmi,goal:Q.goal,health:Q.health,match}}).then(({error})=>{if(error)console.error('progress_exams insert:',error);});
+  }
 }
 function showQResult(match){
   document.getElementById('qs4').style.display='none';
@@ -2467,9 +2470,9 @@ function sendProfileToChat(){
 function openShopFromQuiz(){const m=window._qm;if(m)openShop(m.name,m.ings||[]);}
 
 // Shopping
-let shopState={};
-function openShop(name,ings){
-  shopState={};
+let shopState={},shopRowIds={};
+async function openShop(name,ings){
+  shopState={};shopRowIds={};
   const body=document.getElementById('shopBody');
   body.innerHTML=`<div style="padding:14px 20px;background:rgba(201,168,76,0.06);border-bottom:1px solid var(--border2)"><div style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:300;color:var(--cream);letter-spacing:-0.03em">${name}</div></div>`+
     ings.map((ing,i)=>{
@@ -2479,11 +2482,17 @@ function openShop(name,ings){
     }).join('')+
     `<div style="padding:20px"><button class="btn-gold btn-full" onclick="shareShop('${name}')">📤 Share list</button></div>`;
   openSheet('shopSheet');
+  if(currentUser){
+    await sb.from('shopping_list').delete().eq('user_id',currentUser.id);
+    const {data}=await sb.from('shopping_list').insert(ings.map(ing=>({user_id:currentUser.id,ingredient:ing,recipe_name:name,checked:false}))).select('id,ingredient');
+    if(data)data.forEach((row,i)=>{shopRowIds[i]=row.id;});
+  }
 }
 function toggleShopItem(idx){
   shopState[idx]=!shopState[idx];
   document.getElementById('si'+idx)?.classList.toggle('done',shopState[idx]);
   const c=document.getElementById('sc'+idx);if(c)c.textContent=shopState[idx]?'✓':'';
+  if(currentUser&&shopRowIds[idx])sb.from('shopping_list').update({checked:shopState[idx]}).eq('id',shopRowIds[idx]).then(()=>{});
 }
 function shareShop(name){
   const text=name+'\n\n'+Object.entries(shopState).map(([i,d])=>{const el=document.getElementById('si'+i);return(d?'✅ ':'⬜ ')+(el?.querySelector('.shop-item-name')?.textContent||'');}).join('\n')+'\n\n🌿 PureLife Wellness Club';
