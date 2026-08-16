@@ -1852,9 +1852,9 @@ button{font-family:'DM Sans',sans-serif;}
     <div class="tiers-title">Join PureLife <em>Club</em></div>
     <p class="tiers-sub">Thousands transforming their wellness with personalized AI smoothie plans.</p>
     <div class="tiers-grid">
-      <div class="tier-pill" onclick="showToast('Seed plan — coming soon')"><div class="tier-pill-name">Seed</div><div class="tier-pill-price">Free<span>/mo</span></div><div class="tier-pill-feat">3 recipes</div></div>
-      <div class="tier-pill featured" onclick="showToast('Bloom plan — coming soon')"><div class="tier-pill-name">Bloom</div><div class="tier-pill-price">$4<span>.99</span></div><div class="tier-pill-feat">Unlimited AI</div></div>
-      <div class="tier-pill" onclick="showToast('Canopy plan — coming soon')"><div class="tier-pill-name">Canopy</div><div class="tier-pill-price">$9<span>.99</span></div><div class="tier-pill-feat">Concierge</div></div>
+      <div class="tier-pill" onclick="startCheckout('seed')"><div class="tier-pill-name">Seed</div><div class="tier-pill-price">$29<span>/mo</span></div><div class="tier-pill-feat">3 recipes</div></div>
+      <div class="tier-pill featured" onclick="startCheckout('bloom')"><div class="tier-pill-name">Bloom</div><div class="tier-pill-price">$49<span>/mo</span></div><div class="tier-pill-feat">Unlimited AI</div></div>
+      <div class="tier-pill" onclick="startCheckout('canopy')"><div class="tier-pill-name">Canopy</div><div class="tier-pill-price">$79<span>/mo</span></div><div class="tier-pill-feat">Concierge</div></div>
     </div>
     <button class="btn-gold btn-full" onclick="showToast('🌿 Joining waitlist...')">Start Free — No card needed</button>
   </div>
@@ -2539,6 +2539,28 @@ function shareMyStory(){
 
 // Profile
 function saveProf(){localStorage.setItem('un',document.getElementById('pName')?.value||'');localStorage.setItem('ue',document.getElementById('pEmail')?.value||'');}
+
+// Checkout real (Stripe) — Seed/Bloom/Canopy
+async function startCheckout(tier){
+  let email=localStorage.getItem('ue');
+  if(!email||!email.includes('@')){
+    email=prompt('Enter your email to continue to checkout:');
+    if(!email||!email.includes('@')){showToast('Valid email required');return;}
+    localStorage.setItem('ue',email);
+  }
+  const name=localStorage.getItem('un')||undefined;
+  showToast('🔒 Redirecting to secure checkout…');
+  try{
+    const res=await fetch('/api/stripe-checkout',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email,tier,name})
+    });
+    const data=await res.json();
+    if(res.ok&&data.url){window.location.href=data.url;}
+    else{showToast('❌ '+(data.error||'Checkout error, try again'));}
+  }catch(e){showToast('❌ Network error, try again');}
+}
 function saveKey(val){localStorage.setItem('ak',val);window.ANTHROPIC_API_KEY=val;}
 async function testKey(){
   const key=document.getElementById('pKey')?.value||localStorage.getItem('ak')||AK;
