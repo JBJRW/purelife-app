@@ -2031,7 +2031,7 @@ async function sendMsg(){
   t.innerHTML='<div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
   msgs.appendChild(t);msgs.scrollTop=msgs.scrollHeight;
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':localStorage.getItem('ak')||AK,'anthropic-version':'2023-06-01','anthropic-dangerous-request-allow-browser':'true'},body:JSON.stringify({model:'claude-sonnet-4-5-20250929',max_tokens:400,system:'You are Dr. Smoothie AI, warm wellness concierge for PureLive Wellness Club. Recommend personalized smoothies. Be concise (2-3 sentences), warm, specific. End with: 🌿 Dr. Smoothie AI — General wellness guidance only',messages:chatHistory})});
+    const res=await fetch('https://dr-smoothie-proxy.waracaojr2012.workers.dev',{method:'POST',headers:{'Content-Type':'application/json','anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-5-20250929',max_tokens:400,system:'You are Dr. Smoothie AI, warm wellness concierge for PureLive Wellness Club. Recommend personalized smoothies. Be concise (2-3 sentences), warm, specific. End with: 🌿 Dr. Smoothie AI — General wellness guidance only',messages:chatHistory})});
     const data=await res.json();t.remove();
     const reply=data.content?.[0]?.text||"I'm ready to help! Tell me your wellness goal. 🌿";
     addMsg(reply,'bot');chatHistory.push({role:'assistant',content:reply});
@@ -2075,7 +2075,7 @@ async function runAnalysis(){
   const key=localStorage.getItem('ak')||AK;
   if(key&&key.startsWith('sk-')){
     try{
-      const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-request-allow-browser':'true'},body:JSON.stringify({model:'claude-sonnet-4-5-20250929',max_tokens:150,system:'Return ONLY valid JSON: {name,why,ings}. No markdown.',messages:[{role:'user',content:`Profile: age=${Q.age}, weight=${Q.weight}kg, BMI=${Q.bmi}, goal=${Q.goal}, health=${Q.health.join(',')}. Suggest perfect smoothie.`}]})});
+      const res=await fetch('https://dr-smoothie-proxy.waracaojr2012.workers.dev',{method:'POST',headers:{'Content-Type':'application/json','anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-5-20250929',max_tokens:150,system:'Return ONLY valid JSON: {name,why,ings}. No markdown.',messages:[{role:'user',content:`Profile: age=${Q.age}, weight=${Q.weight}kg, BMI=${Q.bmi}, goal=${Q.goal}, health=${Q.health.join(',')}. Suggest perfect smoothie.`}]})});
       const data=await res.json();
       const parsed=JSON.parse(data.content?.[0]?.text?.replace(/```json|```/g,'').trim()||'{}');
       if(parsed.name)match={...match,...parsed};
@@ -2202,7 +2202,7 @@ async function testKey(){
   const el=document.getElementById('keyStatus');
   if(el){el.textContent='⏳ Testing...';el.style.color='var(--muted)';}
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-request-allow-browser':'true'},body:JSON.stringify({model:'claude-sonnet-4-5-20250929',max_tokens:10,messages:[{role:'user',content:'Hi'}]})});
+    const res=await fetch('https://dr-smoothie-proxy.waracaojr2012.workers.dev',{method:'POST',headers:{'Content-Type':'application/json','anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-5-20250929',max_tokens:10,messages:[{role:'user',content:'Hi'}]})});
     const data=await res.json();
     if(el){el.textContent=data.content?'✅ AI connected — Dr. Smoothie AI active':'❌ Invalid key';el.style.color=data.content?'var(--emerald)':'#ef4444';}
   }catch(e){if(el){el.textContent='❌ Connection failed';el.style.color='#ef4444';}}
