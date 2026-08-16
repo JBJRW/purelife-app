@@ -43,18 +43,150 @@ const GLOBAL_CSS = `
   @keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-6px)} }
 `;
 
-const AI_REPLIES = [
-  "¡Excelente pregunta! Basado en tu perfil, te recomiendo incorporar adaptógenos como ashwagandha y maca en tu smoothie matutino para regular el cortisol. 🌿",
-  "La combinación de remolacha + jengibre + zanahoria tiene estudios que muestran mejora del 23% en rendimiento físico. ¿Te genero el protocolo completo?",
-  "Para maximizar la absorción de nutrientes, te sugiero consumir tu smoothie verde 30 minutos antes de comer. La vitamina C de la piña potencia la absorción del hierro 🧬",
-  "Detecto que tu nivel de vitalidad está en 74%. Con el protocolo de 7 días que diseñé para ti, podemos llevarlo al 90%+ en 2 semanas. ¿Empezamos?",
-];
+const LT = {
+  en: {
+    eyebrow: "The longevity clinic in your pocket",
+    heroSub: "Wellness Club",
+    heroDesc: "Artificial intelligence + cutting-edge nutrition science to transform your vital energy, one smoothie at a time.",
+    vitality: "Vitality",
+    ctaStart: "Start free",
+    ctaPlans: "See plans",
+    whyEyebrow: "Why PureLife",
+    whyTitleA: "Science, design ", whyTitleB: "and real care.",
+    card1Name: "Designed around you", card1Role: "Simple, clear, no distractions",
+    card1Desc: "Every screen is built so taking care of yourself becomes a natural part of your day — no friction, no complications.",
+    card1F1: "Clean, distraction-free interface", card1F2: "Available in 10 languages", card1F3: "Built for everyday use",
+    card2Name: "Your information, protected", card2Role: "Real security",
+    card2Desc: "Your health data and payments are protected with the same standards banks and hospitals use.",
+    card2F1: "100% secure payments with Stripe", card2F2: "Your data is never shared with third parties", card2F3: "Full control over your account",
+    card3Name: "Dr. Smoothie AI", card3Role: "Real artificial intelligence",
+    card3Desc: "Personalized recommendations based on your body, goals and health — built on Anthropic's (Claude) AI technology, not generic rules.",
+    card3F1: "Truly personalized recommendations", card3F2: "Available 24/7 for your questions", card3F3: "Gets better with every conversation",
+    included: "Included",
+    appEyebrow: "PureLife App 2.0", appTitleA: "Your ", appTitleB: "personal clinic", appTitleC: "always with you",
+    greeting: "Good morning", greetName: "Hi, ", vitalityToday: "Today's vital energy",
+    habits: "✓ 3 habits completed · 2 pending",
+    quickSmoothie: "Today's smoothie", quickStores: "Nearby stores", quickTV: "PureLife TV", quickRewards: "Rewards",
+    recommendedToday: "Recommended today",
+    chip1: "🥬 Green Detox", chip2: "🟡 Golden Anti-inf.", chip3: "🫐 Antioxidant",
+    aiFloat: "Your energy is up 12% this week! 🌟",
+    navHome: "Home", navChat: "AI Chat", navPlans: "Plans", navTV: "TV", navProfile: "Profile",
+    feat1T: "Personalized longevity protocol", feat1D: "AI adapts your daily plan based on symptoms, goals and real progress.",
+    feat2T: "Real-time ingredient map", feat2D: "Find exactly which store has your organic ginger closest to you.",
+    feat3T: "PureLife TV — 4K videos with AI", feat3D: "Cinematic recipes generated with AI, guided step by step.",
+    feat4T: "Gamified Rewards system", feat4D: "Earn points for habits, share achievements and unlock premium access.",
+    aiEyebrow: "Artificial intelligence", aiTitleA: "Meet ", aiTitleB: "Dr. Smoothie AI",
+    online: "Online · Claude Sonnet 4.6", live: "Live",
+    chatPlaceholder: "Write your nutrition question...",
+    aiReplies: [
+      "Great question! Based on your profile, I'd recommend adding adaptogens like ashwagandha and maca to your morning smoothie to help regulate cortisol. 🌿",
+      "The combination of beet + ginger + carrot has been studied to show a 23% improvement in physical performance. Want the full protocol?",
+      "To maximize nutrient absorption, try having your green smoothie 30 minutes before eating. The vitamin C in pineapple boosts iron absorption 🧬",
+      "I'm seeing your vitality level at 74%. With the 7-day protocol I designed for you, we can take it to 90%+ in 2 weeks. Should we start?",
+    ],
+    chatWelcome: "Hi! I'm Dr. Smoothie AI 🌿 Your intelligent nutrition advisor. How are you feeling today? I can design a personalized protocol based on your symptoms and goals.",
+    chatDemoUser: "I feel low on energy in the mornings, what do you recommend?",
+    chatDemoAI: "I understand. Morning fatigue usually has 3 causes: low cortisol, B12/iron deficiency, or not enough hydration. 🧬\n\nI'd recommend the Morning Energy Smoothie:\n• 🥬 Fresh spinach (bioavailable iron)\n• 🍍 Pineapple (bromelain + vitamin C)\n• 🫚 Fresh ginger (boosts circulation)\n• 💧 Coconut water (electrolytes)\n\nHave it 30 min before breakfast. Want the full 7-day protocol?",
+    galleryEyebrow: "Join from the start", galleryTitleA: "A community that", galleryTitleB: "is just getting started",
+    gallerySub: "Early, exclusive access — be part of the first people to build this community.",
+    get1: "Recommendations designed around your energy, inflammation and specific goals — not generic.",
+    get2: "High-quality video classes and protocols, made to fit into your daily routine.",
+    get3: "The first wellness app with AI that truly talks with you and adapts to your profile.",
+    subEyebrow: "Subscription", subTitleA: "Start your transformation ", subTitleB: "today",
+    planBadge: "✨ Annual Plan · Unlimited Access", perYear: " / year",
+    renewal: "📅 Auto-renews · cancel anytime",
+    f1: "Unlimited Dr. Smoothie AI (Claude Sonnet)", f2: "100+ 4K classes · new every week", f3: "Geolocated store map",
+    f4: "Growing global community", f5: "11 languages available", f6: "Auto-renews · cancel online",
+    guaranteeT: "30-day guarantee", guaranteeD: "If you don't see results, we refund you 100%. No questions asked.",
+    saveNote: "✨ Single annual payment · ", saveBold: "Save 48%", saveRest: " vs monthly",
+    perDay: "📅 50¢ a day — less than a coffee",
+    formTitle: "Complete your subscription",
+    labelName: "Full name", labelEmail: "Email address",
+    phName: "Your full name", phEmail: "you@email.com",
+    secureNote: "Your card details are entered on Stripe's secure page, after this step. They never pass through our servers.",
+    btnRedirecting: "Redirecting to Stripe…", btnSubscribe: "🔒 Subscribe for $182/year",
+    paymentMethods: "💳 VISA · MC · AMEX · PayPal",
+    trustText: "Secure payments with ", trustBold: "Stripe", trustRest: " · 256-bit SSL · No hidden fees",
+    errName: "Enter your full name", errEmail: "Enter a valid email",
+    errGeneric: "Couldn't start payment. Try again.", errConn: "Connection error. Try again.",
+    capGreen: "🌿 Green Protocol · 30 days", capGold: "Golden Smoothie · anti-inflammatory", capEnergy: "+Energy · Week 2",
+  },
+  es: {
+    eyebrow: "La clínica de longevidad en tu bolsillo",
+    heroSub: "Wellness Club",
+    heroDesc: "Inteligencia artificial + ciencia nutricional para transformar tu energía vital, un smoothie a la vez.",
+    vitality: "Vitalidad",
+    ctaStart: "Comenzar gratis",
+    ctaPlans: "Ver planes",
+    whyEyebrow: "Por qué PureLife",
+    whyTitleA: "Ciencia, diseño ", whyTitleB: "y cuidado real.",
+    card1Name: "Diseño pensado para vos", card1Role: "Simple, claro, sin distracciones",
+    card1Desc: "Cada pantalla está pensada para que cuidarte sea parte natural de tu día — sin fricción, sin complicaciones.",
+    card1F1: "Interfaz clara y sin distracciones", card1F2: "Disponible en 10 idiomas", card1F3: "Pensado para usar todos los días",
+    card2Name: "Tu información, protegida", card2Role: "Seguridad de verdad",
+    card2Desc: "Tus datos de salud y tus pagos están protegidos con los mismos estándares que usan bancos y hospitales.",
+    card2F1: "Pagos 100% seguros con Stripe", card2F2: "Tus datos nunca se comparten con terceros", card2F3: "Control total sobre tu cuenta",
+    card3Name: "Dr. Smoothie AI", card3Role: "Inteligencia artificial real",
+    card3Desc: "Recomendaciones personalizadas según tu cuerpo, tus objetivos y tu salud — construidas sobre la tecnología de IA de Anthropic (Claude), no reglas genéricas.",
+    card3F1: "Recomendaciones realmente personalizadas", card3F2: "Disponible 24/7 para tus consultas", card3F3: "Mejora con cada conversación",
+    included: "Incluido",
+    appEyebrow: "App PureLife 2.0", appTitleA: "Tu ", appTitleB: "clínica personal", appTitleC: "siempre contigo",
+    greeting: "Buenos días", greetName: "Hola, ", vitalityToday: "Energía vital hoy",
+    habits: "✓ 3 hábitos completados · 2 pendientes",
+    quickSmoothie: "Smoothie hoy", quickStores: "Tiendas cerca", quickTV: "PureLife TV", quickRewards: "Rewards",
+    recommendedToday: "Recomendados hoy",
+    chip1: "🥬 Verde Detox", chip2: "🟡 Dorado Anti-inf.", chip3: "🫐 Antioxidante",
+    aiFloat: "¡Tu energía subió 12% esta semana! 🌟",
+    navHome: "Inicio", navChat: "Chat IA", navPlans: "Planes", navTV: "TV", navProfile: "Perfil",
+    feat1T: "Protocolo de longevidad personalizado", feat1D: "IA adapta tu plan diario basado en síntomas, objetivos y progreso real.",
+    feat2T: "Mapa de ingredientes en tiempo real", feat2D: "Encuentra exactamente qué tienda tiene tu jengibre orgánico más cerca.",
+    feat3T: "PureLife TV — Videos en 4K con IA", feat3D: "Recetas cinematográficas generadas con IA, guiadas paso a paso.",
+    feat4T: "Sistema de Rewards gamificado", feat4D: "Acumula puntos por hábitos, comparte logros y desbloquea acceso premium.",
+    aiEyebrow: "Inteligencia artificial", aiTitleA: "Conoce a ", aiTitleB: "Dr. Smoothie AI",
+    online: "En línea · Claude Sonnet 4.6", live: "Live",
+    chatPlaceholder: "Escribe tu consulta nutricional...",
+    aiReplies: [
+      "¡Excelente pregunta! Basado en tu perfil, te recomiendo incorporar adaptógenos como ashwagandha y maca en tu smoothie matutino para regular el cortisol. 🌿",
+      "La combinación de remolacha + jengibre + zanahoria tiene estudios que muestran mejora del 23% en rendimiento físico. ¿Te genero el protocolo completo?",
+      "Para maximizar la absorción de nutrientes, te sugiero consumir tu smoothie verde 30 minutos antes de comer. La vitamina C de la piña potencia la absorción del hierro 🧬",
+      "Detecto que tu nivel de vitalidad está en 74%. Con el protocolo de 7 días que diseñé para ti, podemos llevarlo al 90%+ en 2 semanas. ¿Empezamos?",
+    ],
+    chatWelcome: "¡Hola! Soy Dr. Smoothie AI 🌿 Tu asesor nutricional inteligente. ¿Cómo te sientes hoy? Puedo diseñarte un protocolo personalizado basado en tus síntomas y objetivos.",
+    chatDemoUser: "Me siento con poca energía en las mañanas, ¿qué me recomiendas?",
+    chatDemoAI: "Entiendo. La fatiga matutina frecuentemente tiene 3 causas: cortisol bajo, déficit de B12/hierro o hidratación insuficiente. 🧬\n\nTe recomiendo el Smoothie Energizante Matutino:\n• 🥬 Espinaca fresca (hierro biodisponible)\n• 🍍 Piña (bromelina + vitamina C)\n• 🫚 Jengibre fresco (estimula circulación)\n• 💧 Agua de coco (electrolitos)\n\nConsumirlo 30 min antes de desayunar. ¿Quieres el protocolo completo de 7 días?",
+    galleryEyebrow: "Únete desde el inicio", galleryTitleA: "Una comunidad que", galleryTitleB: "recién empieza",
+    gallerySub: "Acceso anticipado y exclusivo — sé parte de los primeros en construir esta comunidad.",
+    get1: "Recomendaciones diseñadas para tu energía, tu inflamación y tus objetivos específicos — no genéricas.",
+    get2: "Clases y protocolos en video, en alta calidad, pensados para incorporar a tu rutina diaria.",
+    get3: "La primera app de bienestar con IA que realmente conversa con vos y se adapta a tu perfil.",
+    subEyebrow: "Suscripción", subTitleA: "Comienza tu transformación ", subTitleB: "hoy mismo",
+    planBadge: "✨ Plan Anual · Acceso Ilimitado", perYear: " / año",
+    renewal: "📅 Renovación automática · cancela cuando quieras",
+    f1: "Dr. Smoothie AI ilimitado (Claude Sonnet)", f2: "100+ clases 4K · nuevas cada semana", f3: "Mapa de tiendas geolocalizado",
+    f4: "Comunidad global en crecimiento", f5: "11 idiomas disponibles", f6: "Renovación automática · cancela online",
+    guaranteeT: "Garantía 30 días", guaranteeD: "Si no notas resultados, te devolvemos el 100%. Sin preguntas.",
+    saveNote: "✨ Pago único anual · ", saveBold: "Ahorra 48%", saveRest: " vs mensual",
+    perDay: "📅 0.50¢ al día — menos que un café",
+    formTitle: "Completa tu suscripción",
+    labelName: "Nombre completo", labelEmail: "Correo electrónico",
+    phName: "Tu nombre completo", phEmail: "tu@email.com",
+    secureNote: "Los datos de tu tarjeta se ingresan en la página segura de Stripe, después de este paso. Nunca pasan por nuestros servidores.",
+    btnRedirecting: "Redirigiendo a Stripe…", btnSubscribe: "🔒 Suscribirme por $182/año",
+    paymentMethods: "💳 VISA · MC · AMEX · PayPal",
+    trustText: "Pagos seguros con ", trustBold: "Stripe", trustRest: " · SSL 256-bit · Sin cargos ocultos",
+    errName: "Ingresá tu nombre completo", errEmail: "Ingresá un correo válido",
+    errGeneric: "No se pudo iniciar el pago. Intentá de nuevo.", errConn: "Error de conexión. Intentá de nuevo.",
+    capGreen: "🌿 Protocolo Verde · 30 días", capGold: "Smoothie Dorado · anti-inflamatorio", capEnergy: "+Energía · Semana 2",
+  },
+};
 
 export default function LandingScreen({ onStart, lang, onLangChange }) {
+  const dict = LT[lang] || LT.en;
+  const L = (key) => dict[key] ?? LT.en[key] ?? key;
   const [chatMessages, setChatMessages] = useState([
-    { type: "ai", text: "¡Hola! Soy Dr. Smoothie AI 🌿 Tu asesor nutricional inteligente. ¿Cómo te sientes hoy? Puedo diseñarte un protocolo personalizado basado en tus síntomas y objetivos." },
-    { type: "user", text: "Me siento con poca energía en las mañanas, ¿qué me recomiendas?" },
-    { type: "ai", text: "Entiendo. La fatiga matutina frecuentemente tiene 3 causas: cortisol bajo, déficit de B12/hierro o hidratación insuficiente. 🧬\n\nTe recomiendo el Smoothie Energizante Matutino:\n• 🥬 Espinaca fresca (hierro biodisponible)\n• 🍍 Piña (bromelina + vitamina C)\n• 🫚 Jengibre fresco (estimula circulación)\n• 💧 Agua de coco (electrolitos)\n\nConsumirlo 30 min antes de desayunar. ¿Quieres el protocolo completo de 7 días?" },
+    { type: "ai", text: L("chatWelcome") },
+    { type: "user", text: L("chatDemoUser") },
+    { type: "ai", text: L("chatDemoAI") },
     { type: "typing" },
   ]);
   const [chatInput, setChatInput] = useState("");
@@ -95,6 +227,18 @@ export default function LandingScreen({ onStart, lang, onLangChange }) {
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    if (replyIdx === 0) {
+      setChatMessages([
+        { type: "ai", text: L("chatWelcome") },
+        { type: "user", text: L("chatDemoUser") },
+        { type: "ai", text: L("chatDemoAI") },
+        { type: "typing" },
+      ]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lang]);
+
   const addReveal = (el) => {
     if (el && !revealRefs.current.includes(el)) {
       el.style.opacity = "0";
@@ -113,7 +257,8 @@ export default function LandingScreen({ onStart, lang, onLangChange }) {
     setTimeout(() => {
       setChatMessages(prev => {
         const noT = prev.filter(m => m.type !== "typing");
-        return [...noT, { type: "ai", text: AI_REPLIES[replyIdx % AI_REPLIES.length] }];
+        const replies = L("aiReplies");
+        return [...noT, { type: "ai", text: replies[replyIdx % replies.length] }];
       });
       setReplyIdx(i => i + 1);
     }, 1800);
@@ -121,8 +266,8 @@ export default function LandingScreen({ onStart, lang, onLangChange }) {
   };
 
   const doCheckout = async () => {
-    if (!coName.trim()) { setCoError("Ingresá tu nombre completo"); return; }
-    if (!coEmail.trim() || !coEmail.includes("@")) { setCoError("Ingresá un correo válido"); return; }
+    if (!coName.trim()) { setCoError(L("errName")); return; }
+    if (!coEmail.trim() || !coEmail.includes("@")) { setCoError(L("errEmail")); return; }
     setCoLoading(true); setCoError("");
     try {
       const res = await fetch("/api/stripe-checkout", {
@@ -134,11 +279,11 @@ export default function LandingScreen({ onStart, lang, onLangChange }) {
       if (res.ok && data.url) {
         window.location.href = data.url;
       } else {
-        setCoError(data.error || "No se pudo iniciar el pago. Intentá de nuevo.");
+        setCoError(data.error || L("errGeneric"));
         setCoLoading(false);
       }
     } catch {
-      setCoError("Error de conexión. Intentá de nuevo.");
+      setCoError(L("errConn"));
       setCoLoading(false);
     }
   };
@@ -172,15 +317,15 @@ export default function LandingScreen({ onStart, lang, onLangChange }) {
           {/* Eyebrow */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 24, animation: "fadeUp 0.8s ease both" }}>
             <div style={{ width: 40, height: 1, background: "linear-gradient(90deg, transparent, var(--gold))" }} />
-            <span style={{ fontSize: "0.65rem", letterSpacing: "0.25em", textTransform: "uppercase", color: "var(--gold)", fontWeight: 500 }}>La clínica de longevidad en tu bolsillo</span>
+            <span style={{ fontSize: "0.65rem", letterSpacing: "0.25em", textTransform: "uppercase", color: "var(--gold)", fontWeight: 500 }}>{L("eyebrow")}</span>
             <div style={{ width: 40, height: 1, background: "linear-gradient(90deg, var(--gold), transparent)" }} />
           </div>
 
           {/* Logo */}
           <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(3rem,8vw,5rem)", fontWeight: 300, lineHeight: 1, letterSpacing: -2, background: "linear-gradient(135deg, var(--gold3) 0%, var(--gold) 40%, var(--sage) 100%)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent", marginBottom: 8, animation: "fadeUp 0.9s 0.1s ease both" }}>PureLife</div>
-          <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.1rem", color: "var(--muted)", fontStyle: "italic", letterSpacing: "0.05em", marginBottom: 32, animation: "fadeUp 0.9s 0.2s ease both" }}>Wellness Club</div>
+          <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.1rem", color: "var(--muted)", fontStyle: "italic", letterSpacing: "0.05em", marginBottom: 32, animation: "fadeUp 0.9s 0.2s ease both" }}>{L("heroSub")}</div>
           <p style={{ fontSize: "0.8rem", color: "var(--cream2)", opacity: 0.7, letterSpacing: "0.05em", maxWidth: 320, margin: "0 auto 40px", lineHeight: 1.7, animation: "fadeUp 0.9s 0.3s ease both" }}>
-            Inteligencia artificial + ciencia nutricional para transformar tu energía vital, un smoothie a la vez.
+            {L("heroDesc")}
           </p>
 
           {/* Vitality Ring */}
@@ -198,17 +343,17 @@ export default function LandingScreen({ onStart, lang, onLangChange }) {
             <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
               <img src="/purelife-logo.png" alt="PureLife" style={{ width: "80px", height: "80px", borderRadius: "50%", objectFit: "cover", animation: "spin 20s linear infinite" }} />
               <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.4rem", color: "var(--gold2)", marginTop: 4 }}>74%</div>
-              <div style={{ fontSize: "0.6rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--muted)" }}>Vitalidad</div>
+              <div style={{ fontSize: "0.6rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--muted)" }}>{L("vitality")}</div>
             </div>
           </div>
 
           {/* CTAs */}
           <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", animation: "fadeUp 1s 0.5s ease both" }}>
             <button onClick={onStart} style={{ background: "linear-gradient(135deg, var(--gold), var(--gold2))", color: "var(--obsidian)", border: "none", padding: "14px 28px", borderRadius: 50, fontFamily: "'DM Sans', sans-serif", fontWeight: 600, fontSize: "0.85rem", cursor: "pointer", letterSpacing: "0.03em", boxShadow: "0 8px 32px rgba(201,168,76,0.3)" }}>
-              Comenzar gratis
+              {L("ctaStart")}
             </button>
             <button onClick={() => document.getElementById("checkout-section")?.scrollIntoView({ behavior: "smooth" })} style={{ background: "transparent", color: "var(--cream)", border: "1px solid var(--border)", padding: "14px 28px", borderRadius: 50, fontFamily: "'DM Sans', sans-serif", fontWeight: 400, fontSize: "0.85rem", cursor: "pointer" }}>
-              Ver planes
+              {L("ctaPlans")}
             </button>
           </div>
         </div>
@@ -217,16 +362,16 @@ export default function LandingScreen({ onStart, lang, onLangChange }) {
       {/* ═══ 3 AGENT CARDS ═══ */}
       <section style={{ padding: "80px 24px", maxWidth: 1100, margin: "0 auto" }}>
         <div ref={addReveal} style={{ textAlign: "center", marginBottom: 60 }}>
-          <span style={{ fontSize: "0.65rem", letterSpacing: "0.25em", textTransform: "uppercase", color: "var(--gold)", display: "block", marginBottom: 12 }}>Por qué PureLife</span>
+          <span style={{ fontSize: "0.65rem", letterSpacing: "0.25em", textTransform: "uppercase", color: "var(--gold)", display: "block", marginBottom: 12 }}>{L("whyEyebrow")}</span>
           <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 400, lineHeight: 1.1, color: "var(--cream)" }}>
-            Ciencia, diseño <em style={{ color: "var(--gold2)", fontStyle: "italic" }}>y cuidado real.</em>
+            {L("whyTitleA")}<em style={{ color: "var(--gold2)", fontStyle: "italic" }}>{L("whyTitleB")}</em>
           </h2>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 20 }}>
           {[
-            { icon: "🌿", name: "Diseño pensado para vos", role: "Simple, claro, sin distracciones", desc: "Cada pantalla está pensada para que cuidarte sea parte natural de tu día — sin fricción, sin complicaciones.", feats: ["Interfaz clara y sin distracciones", "Disponible en 10 idiomas", "Pensado para usar todos los días"], glowColor: "var(--gold)", iconBg: "rgba(201,168,76,0.1)", iconBorder: "rgba(201,168,76,0.2)", badgeColor: "var(--gold2)", badgeBg: "rgba(201,168,76,0.12)" },
-            { icon: "🔒", name: "Tu información, protegida", role: "Seguridad de verdad", desc: "Tus datos de salud y tus pagos están protegidos con los mismos estándares que usan bancos y hospitales.", feats: ["Pagos 100% seguros con Stripe", "Tus datos nunca se comparten con terceros", "Control total sobre tu cuenta"], glowColor: "var(--sage)", iconBg: "rgba(74,124,89,0.1)", iconBorder: "rgba(74,124,89,0.2)", badgeColor: "var(--sage)", badgeBg: "rgba(74,124,89,0.12)" },
-            { icon: "🧠", name: "Dr. Smoothie AI", role: "Inteligencia artificial real", desc: "Recomendaciones personalizadas según tu cuerpo, tus objetivos y tu salud — construidas sobre la tecnología de IA de Anthropic (Claude), no reglas genéricas.", feats: ["Recomendaciones realmente personalizadas", "Disponible 24/7 para tus consultas", "Mejora con cada conversación"], glowColor: "var(--emerald)", iconBg: "rgba(0,201,123,0.1)", iconBorder: "rgba(0,201,123,0.2)", badgeColor: "var(--emerald)", badgeBg: "rgba(0,201,123,0.12)" },
+            { icon: "🌿", name: L("card1Name"), role: L("card1Role"), desc: L("card1Desc"), feats: [L("card1F1"), L("card1F2"), L("card1F3")], glowColor: "var(--gold)", iconBg: "rgba(201,168,76,0.1)", iconBorder: "rgba(201,168,76,0.2)", badgeColor: "var(--gold2)", badgeBg: "rgba(201,168,76,0.12)" },
+            { icon: "🔒", name: L("card2Name"), role: L("card2Role"), desc: L("card2Desc"), feats: [L("card2F1"), L("card2F2"), L("card2F3")], glowColor: "var(--sage)", iconBg: "rgba(74,124,89,0.1)", iconBorder: "rgba(74,124,89,0.2)", badgeColor: "var(--sage)", badgeBg: "rgba(74,124,89,0.12)" },
+            { icon: "🧠", name: L("card3Name"), role: L("card3Role"), desc: L("card3Desc"), feats: [L("card3F1"), L("card3F2"), L("card3F3")], glowColor: "var(--emerald)", iconBg: "rgba(0,201,123,0.1)", iconBorder: "rgba(0,201,123,0.2)", badgeColor: "var(--emerald)", badgeBg: "rgba(0,201,123,0.12)" },
           ].map((card, i) => (
             <div key={i} ref={addReveal} style={{ background: "var(--surface)", border: "1px solid var(--border2)", borderRadius: 28, padding: 32, position: "relative", overflow: "hidden", transition: "all 0.4s ease" }}
               onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.borderColor = "var(--border)"; }}
@@ -234,7 +379,7 @@ export default function LandingScreen({ onStart, lang, onLangChange }) {
               <div style={{ position: "absolute", inset: 0, background: `radial-gradient(ellipse at top left, ${card.glowColor}, transparent 60%)`, opacity: 0.06, pointerEvents: "none" }} />
               <div style={{ width: 56, height: 56, borderRadius: 18, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.8rem", marginBottom: 20, background: card.iconBg, border: `1px solid ${card.iconBorder}` }}>{card.icon}</div>
               <span style={{ display: "inline-flex", alignItems: "center", gap: 6, background: card.badgeBg, border: `1px solid ${card.iconBorder}`, borderRadius: 40, padding: "4px 12px", fontSize: "0.65rem", letterSpacing: "0.12em", textTransform: "uppercase", color: card.badgeColor, fontWeight: 600, marginBottom: 12 }}>
-                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--emerald)", display: "inline-block", animation: "pulse 2s infinite" }} /> Incluido
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--emerald)", display: "inline-block", animation: "pulse 2s infinite" }} /> {L("included")}
               </span>
               <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.5rem", fontWeight: 500, color: "var(--cream)", marginBottom: 4 }}>{card.name}</div>
               <div style={{ fontSize: "0.7rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--muted)", marginBottom: 16 }}>{card.role}</div>
@@ -265,23 +410,23 @@ export default function LandingScreen({ onStart, lang, onLangChange }) {
                 <div style={{ padding: "20px 16px 80px", height: 560, overflow: "hidden" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
                     <div>
-                      <div style={{ fontSize: "0.55rem", color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Buenos días</div>
-                      <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.1rem", color: "var(--cream)" }}>Hola, <span style={{ color: "var(--gold2)" }}>Jorge</span> 🌿</div>
+                      <div style={{ fontSize: "0.55rem", color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>{L("greeting")}</div>
+                      <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.1rem", color: "var(--cream)" }}>{L("greetName")}<span style={{ color: "var(--gold2)" }}>Jorge</span> 🌿</div>
                     </div>
                     <div style={{ width: 32, height: 32, borderRadius: "50%", background: "linear-gradient(135deg,var(--gold),var(--sage))", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.9rem" }}>J</div>
                   </div>
                   {/* Vitality card */}
                   <div style={{ background: "linear-gradient(135deg,var(--surface2),var(--surface3))", border: "1px solid var(--border)", borderRadius: 20, padding: 16, marginBottom: 12, position: "relative", overflow: "hidden" }}>
-                    <div style={{ fontSize: "0.55rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--muted)", marginBottom: 4 }}>Energía vital hoy</div>
+                    <div style={{ fontSize: "0.55rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--muted)", marginBottom: 4 }}>{L("vitalityToday")}</div>
                     <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "2rem", color: "var(--gold2)", lineHeight: 1 }}>74<span style={{ fontSize: "1rem", color: "var(--muted)" }}>%</span></div>
-                    <div style={{ fontSize: "0.6rem", color: "var(--cream2)", opacity: 0.6, marginTop: 4 }}>✓ 3 hábitos completados · 2 pendientes</div>
+                    <div style={{ fontSize: "0.6rem", color: "var(--cream2)", opacity: 0.6, marginTop: 4 }}>{L("habits")}</div>
                     <div style={{ background: "#1e1e1e", borderRadius: 10, height: 4, marginTop: 10 }}>
                       <div style={{ height: 4, borderRadius: 10, background: "linear-gradient(90deg,var(--gold),var(--emerald))", width: "74%" }} />
                     </div>
                   </div>
                   {/* Quick grid */}
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 12 }}>
-                    {[["🥤","Smoothie hoy"],["📍","Tiendas cerca"],["🎬","PureLife TV"],["🏆","Rewards"]].map(([ico,lbl]) => (
+                    {[["🥤",L("quickSmoothie")],["📍",L("quickStores")],["🎬",L("quickTV")],["🏆",L("quickRewards")]].map(([ico,lbl]) => (
                       <div key={lbl} style={{ background: "var(--surface2)", border: "1px solid var(--border2)", borderRadius: 16, padding: 12, textAlign: "center" }}>
                         <div style={{ fontSize: "1.4rem", marginBottom: 4 }}>{ico}</div>
                         <div style={{ fontSize: "0.55rem", color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>{lbl}</div>
@@ -289,21 +434,21 @@ export default function LandingScreen({ onStart, lang, onLangChange }) {
                     ))}
                   </div>
                   {/* Smoothie chips */}
-                  <div style={{ marginBottom: 10, fontSize: "0.6rem", color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Recomendados hoy</div>
+                  <div style={{ marginBottom: 10, fontSize: "0.6rem", color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>{L("recommendedToday")}</div>
                   <div style={{ display: "flex", gap: 8, overflow: "hidden" }}>
-                    {["🥬 Verde Detox","🟡 Dorado Anti-inf.","🫐 Antioxidante"].map(c => (
+                    {[L("chip1"),L("chip2"),L("chip3")].map(c => (
                       <div key={c} style={{ background: "var(--surface3)", border: "1px solid var(--border2)", borderRadius: 20, padding: "6px 10px", fontSize: "0.6rem", whiteSpace: "nowrap", color: "var(--cream2)" }}>{c}</div>
                     ))}
                   </div>
                 </div>
                 {/* AI Float */}
                 <div style={{ position: "absolute", bottom: 90, right: 12, zIndex: 10 }}>
-                  <div style={{ background: "linear-gradient(135deg,var(--gold),var(--gold2))", color: "var(--obsidian)", padding: "8px 12px", borderRadius: "16px 16px 4px 16px", fontSize: "0.6rem", fontWeight: 600, maxWidth: 140, marginBottom: 6, boxShadow: "0 4px 16px rgba(201,168,76,0.3)", lineHeight: 1.4 }}>¡Tu energía subió 12% esta semana! 🌟</div>
+                  <div style={{ background: "linear-gradient(135deg,var(--gold),var(--gold2))", color: "var(--obsidian)", padding: "8px 12px", borderRadius: "16px 16px 4px 16px", fontSize: "0.6rem", fontWeight: 600, maxWidth: 140, marginBottom: 6, boxShadow: "0 4px 16px rgba(201,168,76,0.3)", lineHeight: 1.4 }}>{L("aiFloat")}</div>
                   <div style={{ width: 36, height: 36, borderRadius: "50%", background: "transparent", display: "flex", alignItems: "center", justifyContent: "center", marginLeft: "auto", animation: "glow 3s ease-in-out infinite", cursor: "pointer", overflow: "hidden", padding: 2 }}><img src="/purelife-logo.png" alt="PureLife" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} /></div>
                 </div>
                 {/* Bottom nav */}
                 <div style={{ display: "flex", justifyContent: "space-around", padding: "12px 8px 16px", background: "rgba(17,24,21,0.95)", backdropFilter: "blur(20px)", borderTop: "1px solid var(--border2)", position: "absolute", bottom: 16, left: 16, right: 16, borderRadius: "0 0 36px 36px" }}>
-                  {[["🏠","Inicio",true],["💬","Chat IA",false],["🌱","Planes",false],["🎬","TV",false],["👤","Perfil",false]].map(([ico,lbl,active]) => (
+                  {[["🏠",L("navHome"),true],["💬",L("navChat"),false],["🌱",L("navPlans"),false],["🎬",L("navTV"),false],["👤",L("navProfile"),false]].map(([ico,lbl,active]) => (
                     <div key={lbl} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, cursor: "pointer" }}>
                       <div style={{ fontSize: "1.1rem", filter: active ? "drop-shadow(0 0 6px rgba(201,168,76,0.5))" : "none" }}>{ico}</div>
                       <div style={{ fontSize: "0.5rem", letterSpacing: "0.08em", textTransform: "uppercase", color: active ? "var(--gold)" : "var(--muted)" }}>{lbl}</div>
@@ -315,14 +460,14 @@ export default function LandingScreen({ onStart, lang, onLangChange }) {
           </div>
           {/* Features */}
           <div ref={addReveal}>
-            <span style={{ fontSize: "0.65rem", letterSpacing: "0.25em", textTransform: "uppercase", color: "var(--gold)", display: "block", marginBottom: 12 }}>App PureLife 2.0</span>
-            <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "2rem", lineHeight: 1.1, color: "var(--cream)", marginBottom: 32 }}>Tu <em style={{ color: "var(--gold2)" }}>clínica personal</em><br />siempre contigo</h2>
+            <span style={{ fontSize: "0.65rem", letterSpacing: "0.25em", textTransform: "uppercase", color: "var(--gold)", display: "block", marginBottom: 12 }}>{L("appEyebrow")}</span>
+            <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "2rem", lineHeight: 1.1, color: "var(--cream)", marginBottom: 32 }}>{L("appTitleA")}<em style={{ color: "var(--gold2)" }}>{L("appTitleB")}</em><br />{L("appTitleC")}</h2>
             <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
               {[
-                { icon: "🧬", title: "Protocolo de longevidad personalizado", desc: "IA adapta tu plan diario basado en síntomas, objetivos y progreso real." },
-                { icon: "🗺️", title: "Mapa de ingredientes en tiempo real", desc: "Encuentra exactamente qué tienda tiene tu jengibre orgánico más cerca." },
-                { icon: "🎬", title: "PureLife TV — Videos en 4K con IA", desc: "Recetas cinematográficas generadas por fal.ai + HeyGen avatar instructor." },
-                { icon: "🏆", title: "Sistema de Rewards gamificado", desc: "Acumula puntos por hábitos, comparte logros y desbloquea acceso premium." },
+                { icon: "🧬", title: L("feat1T"), desc: L("feat1D") },
+                { icon: "🗺️", title: L("feat2T"), desc: L("feat2D") },
+                { icon: "🎬", title: L("feat3T"), desc: L("feat3D") },
+                { icon: "🏆", title: L("feat4T"), desc: L("feat4D") },
               ].map((f, i) => (
                 <div key={i} style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
                   <div style={{ width: 44, height: 44, borderRadius: 14, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.2rem", background: "rgba(201,168,76,0.08)", border: "1px solid rgba(201,168,76,0.15)" }}>{f.icon}</div>
@@ -340,8 +485,8 @@ export default function LandingScreen({ onStart, lang, onLangChange }) {
       {/* ═══ DR. SMOOTHIE AI CHAT ═══ */}
       <section style={{ padding: "80px 24px", background: "var(--deep)", borderTop: "1px solid var(--border2)" }}>
         <div ref={addReveal} style={{ textAlign: "center", maxWidth: 1100, margin: "0 auto 60px" }}>
-          <span style={{ fontSize: "0.65rem", letterSpacing: "0.25em", textTransform: "uppercase", color: "var(--gold)", display: "block", marginBottom: 12 }}>Inteligencia artificial</span>
-          <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 400, color: "var(--cream)" }}>Conoce a <em style={{ color: "var(--gold2)" }}>Dr. Smoothie AI</em></h2>
+          <span style={{ fontSize: "0.65rem", letterSpacing: "0.25em", textTransform: "uppercase", color: "var(--gold)", display: "block", marginBottom: 12 }}>{L("aiEyebrow")}</span>
+          <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 400, color: "var(--cream)" }}>{L("aiTitleA")}<em style={{ color: "var(--gold2)" }}>{L("aiTitleB")}</em></h2>
         </div>
         <div ref={addReveal} style={{ maxWidth: 500, margin: "0 auto", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 32, overflow: "hidden" }}>
           <div style={{ padding: "20px 24px", background: "var(--surface2)", borderBottom: "1px solid var(--border2)", display: "flex", alignItems: "center", gap: 12 }}>
@@ -350,12 +495,12 @@ export default function LandingScreen({ onStart, lang, onLangChange }) {
               <div style={{ fontWeight: 600, fontSize: "0.9rem" }}>Dr. Smoothie AI</div>
               <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                 <div style={{ width: 5, height: 5, borderRadius: "50%", background: "var(--emerald)" }} />
-                <span style={{ fontSize: "0.65rem", color: "var(--emerald)" }}>En línea · Claude Sonnet 4.6</span>
+                <span style={{ fontSize: "0.65rem", color: "var(--emerald)" }}>{L("online")}</span>
               </div>
             </div>
             <div style={{ marginLeft: "auto" }}>
               <span style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(201,168,76,0.12)", border: "1px solid var(--border)", borderRadius: 40, padding: "4px 12px", fontSize: "0.65rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--gold2)", fontWeight: 600 }}>
-                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--emerald)", display: "inline-block", animation: "pulse 2s infinite" }} /> Live
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--emerald)", display: "inline-block", animation: "pulse 2s infinite" }} /> {L("live")}
               </span>
             </div>
           </div>
@@ -376,71 +521,8 @@ export default function LandingScreen({ onStart, lang, onLangChange }) {
             })}
           </div>
           <div style={{ padding: "16px 20px", borderTop: "1px solid var(--border2)", display: "flex", gap: 10, alignItems: "center" }}>
-            <input value={chatInput} onChange={e => setChatInput(e.target.value)} onKeyDown={e => e.key === "Enter" && sendMsg()} placeholder="Escribe tu consulta nutricional..." style={{ flex: 1, background: "var(--surface2)", border: "1px solid var(--border2)", borderRadius: 24, padding: "10px 16px", color: "var(--cream)", fontFamily: "'DM Sans', sans-serif", fontSize: "0.8rem", outline: "none" }} />
+            <input value={chatInput} onChange={e => setChatInput(e.target.value)} onKeyDown={e => e.key === "Enter" && sendMsg()} placeholder={L("chatPlaceholder")} style={{ flex: 1, background: "var(--surface2)", border: "1px solid var(--border2)", borderRadius: 24, padding: "10px 16px", color: "var(--cream)", fontFamily: "'DM Sans', sans-serif", fontSize: "0.8rem", outline: "none" }} />
             <button onClick={sendMsg} style={{ width: 36, height: 36, borderRadius: "50%", background: "linear-gradient(135deg,var(--gold),var(--gold2))", border: "none", color: "var(--obsidian)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.9rem" }}>➤</button>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══ DESIGN SYSTEM ═══ */}
-      <section style={{ padding: "80px 24px", maxWidth: 1100, margin: "0 auto" }}>
-        <div ref={addReveal} style={{ textAlign: "center", marginBottom: 40 }}>
-          <span style={{ fontSize: "0.65rem", letterSpacing: "0.25em", textTransform: "uppercase", color: "var(--gold)", display: "block", marginBottom: 12 }}>Sistema de diseño</span>
-          <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 400, color: "var(--cream)" }}>Paleta <em style={{ color: "var(--gold2)" }}>& Tipografía</em></h2>
-        </div>
-        <div ref={addReveal} style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 40 }}>
-          {[
-            { bg: "#C9A84C", name: "Gold", hex: "#C9A84C", dark: true },
-            { bg: "#4A7C59", name: "Sage", hex: "#4A7C59", dark: false },
-            { bg: "#00C97B", name: "Emerald", hex: "#00C97B", dark: true },
-            { bg: "#0D1210", name: "Deep", hex: "#0D1210", dark: false, border: true },
-            { bg: "#F4EFE6", name: "Cream", hex: "#F4EFE6", dark: true },
-          ].map(s => (
-            <div key={s.name} style={{ flex: 1, minWidth: 100, borderRadius: 16, padding: "20px 14px", background: s.bg, minHeight: 120, border: s.border ? "1px solid #222" : "none", display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
-              <div style={{ fontSize: "0.65rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.1em", color: s.dark ? "#0A0A0A" : "#fff" }}>{s.name}</div>
-              <div style={{ fontSize: "0.6rem", opacity: 0.6, fontFamily: "monospace", color: s.dark ? "#0A0A0A" : "#fff" }}>{s.hex}</div>
-            </div>
-          ))}
-        </div>
-        <div ref={addReveal} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
-          <div style={{ background: "var(--surface)", border: "1px solid var(--border2)", borderRadius: 20, padding: 24 }}>
-            <div style={{ fontSize: "0.6rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--muted)", marginBottom: 12 }}>Display · Cormorant Garamond</div>
-            <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "2.5rem", color: "var(--cream)", lineHeight: 1.1 }}>La salud es<br /><em style={{ color: "var(--gold2)" }}>lujo accesible</em></div>
-          </div>
-          <div style={{ background: "var(--surface)", border: "1px solid var(--border2)", borderRadius: 20, padding: 24 }}>
-            <div style={{ fontSize: "0.6rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--muted)", marginBottom: 12 }}>Body · DM Sans</div>
-            <div style={{ fontSize: "0.9rem", color: "var(--cream2)", lineHeight: 1.7, opacity: 0.8 }}>Inteligencia artificial combinada con ciencia nutricional de vanguardia para transformar tu bienestar diario de forma sostenible y personalizada.</div>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══ ROADMAP ═══ */}
-      <section style={{ padding: "80px 24px", background: "var(--deep)", borderTop: "1px solid var(--border2)" }}>
-        <div style={{ maxWidth: 700, margin: "0 auto" }}>
-          <div ref={addReveal} style={{ textAlign: "center", marginBottom: 60 }}>
-            <span style={{ fontSize: "0.65rem", letterSpacing: "0.25em", textTransform: "uppercase", color: "var(--gold)", display: "block", marginBottom: 12 }}>Plan de ejecución</span>
-            <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 400, color: "var(--cream)" }}>Roadmap de <em style={{ color: "var(--gold2)" }}>integración</em></h2>
-          </div>
-          <div ref={addReveal} style={{ display: "flex", flexDirection: "column" }}>
-            {[
-              { num: "✓", done: true, active: false, phase: "Fase 1 · Completado", title: "Stack base operativo", desc: "React/Vite + Supabase + Vercel + GitHub CI/CD. api/chat.js activo con claude-sonnet-4-6. Prompt Caching 90% ahorro." },
-              { num: "2", done: false, active: true, phase: "Fase 2 · En curso", title: "Dr. Smoothie AI flotante real", desc: "Integrar chat real Claude en el botón flotante. Auth Supabase → sesión persistente. Food Log → tabla user_logs." },
-              { num: "3", done: false, active: false, phase: "Fase 3 · Próximo", title: "Geolocalización + Mapa real", desc: "Leaflet con navigator.geolocation real. Markers dinámicos de tiendas cercanas. Lista de compras conectada a ingredientes." },
-              { num: "4", done: false, active: false, phase: "Fase 4", title: "Stripe + Tiers activos", desc: "Webhook automático Seed/Bloom/Canopy. RLS por tier en Supabase. Onboarding cinemático por nivel." },
-              { num: "5", done: false, active: false, phase: "Fase 5", title: "PureLife TV + Videos AI", desc: "fal.ai videos reales. HeyGen avatar instructor. PureLife Builder genera protocolo + video + landing en 15 min." },
-            ].map((item, i) => (
-              <div key={i} style={{ display: "flex", gap: 20 }}>
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                  <div style={{ width: 32, height: 32, borderRadius: "50%", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.7rem", fontWeight: 700, border: "2px solid var(--border)", background: item.done ? "var(--gold)" : item.active ? "var(--sage)" : "var(--surface)", color: item.done ? "var(--obsidian)" : item.active ? "#fff" : "var(--cream)", boxShadow: item.active ? "0 0 20px rgba(74,124,89,0.4)" : "none" }}>{item.num}</div>
-                  {i < 4 && <div style={{ width: 2, flex: 1, background: "var(--border2)", minHeight: 40 }} />}
-                </div>
-                <div style={{ paddingBottom: 40 }}>
-                  <div style={{ fontSize: "0.6rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--muted)", marginBottom: 4 }}>{item.phase}</div>
-                  <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.3rem", color: "var(--cream)", marginBottom: 6 }}>{item.title}</div>
-                  <div style={{ fontSize: "0.78rem", color: "var(--muted)", lineHeight: 1.6 }}>{item.desc}</div>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </section>
@@ -448,21 +530,21 @@ export default function LandingScreen({ onStart, lang, onLangChange }) {
       {/* ═══ GALERÍA ═══ */}
       <section style={{ padding: "80px 24px", maxWidth: 1100, margin: "0 auto" }}>
         <div ref={addReveal} style={{ textAlign: "center", marginBottom: 40 }}>
-          <span style={{ fontSize: "0.65rem", letterSpacing: "0.25em", textTransform: "uppercase", color: "var(--gold)", display: "block", marginBottom: 12 }}>Únete desde el inicio</span>
-          <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 400, color: "var(--cream)", marginBottom: 8 }}>Una comunidad que <em style={{ color: "var(--gold2)" }}>recién empieza</em></h2>
-          <p style={{ color: "var(--muted)", fontSize: 14, maxWidth: 480, margin: "0 auto" }}>Acceso anticipado y exclusivo — sé parte de los primeros en construir esta comunidad.</p>
+          <span style={{ fontSize: "0.65rem", letterSpacing: "0.25em", textTransform: "uppercase", color: "var(--gold)", display: "block", marginBottom: 12 }}>{L("galleryEyebrow")}</span>
+          <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 400, color: "var(--cream)", marginBottom: 8 }}>{L("galleryTitleA")} <em style={{ color: "var(--gold2)" }}>{L("galleryTitleB")}</em></h2>
+          <p style={{ color: "var(--muted)", fontSize: 14, maxWidth: 480, margin: "0 auto" }}>{L("gallerySub")}</p>
         </div>
         <div ref={addReveal} style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gridTemplateRows: "repeat(2,200px)", gap: 12 }}>
           <div style={{ gridRow: "span 2", borderRadius: 24, overflow: "hidden", position: "relative" }}>
             <img src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=500&q=80&fit=crop" style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="Healthy lifestyle" />
             <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: 16, background: "linear-gradient(transparent,rgba(0,0,0,0.7))" }}>
-              <span style={{ fontSize: 12, color: "#fff", fontWeight: 600 }}>🌿 Protocolo Verde · 30 días</span>
+              <span style={{ fontSize: 12, color: "#fff", fontWeight: 600 }}>{L("capGreen")}</span>
             </div>
           </div>
           <div style={{ borderRadius: 24, overflow: "hidden", position: "relative" }}>
             <img src="https://images.unsplash.com/photo-1638176066666-ffb2f013c7dd?w=400&q=80&fit=crop" style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="Golden smoothie" />
             <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: 12, background: "linear-gradient(transparent,rgba(0,0,0,0.7))" }}>
-              <span style={{ fontSize: 11, color: "var(--gold2)", fontWeight: 600 }}>Smoothie Dorado · anti-inflamatorio</span>
+              <span style={{ fontSize: 11, color: "var(--gold2)", fontWeight: 600 }}>{L("capGold")}</span>
             </div>
           </div>
           <div style={{ borderRadius: 24, overflow: "hidden" }}>
@@ -471,7 +553,7 @@ export default function LandingScreen({ onStart, lang, onLangChange }) {
           <div style={{ borderRadius: 24, overflow: "hidden", position: "relative" }}>
             <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&q=80&fit=crop" style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="Green vegetables" />
             <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: 12, background: "linear-gradient(transparent,rgba(0,0,0,0.7))" }}>
-              <span style={{ fontSize: 11, color: "var(--emerald)", fontWeight: 600 }}>+Energía · Semana 2</span>
+              <span style={{ fontSize: 11, color: "var(--emerald)", fontWeight: 600 }}>{L("capEnergy")}</span>
             </div>
           </div>
           <div style={{ borderRadius: 24, overflow: "hidden" }}>
@@ -481,9 +563,9 @@ export default function LandingScreen({ onStart, lang, onLangChange }) {
         {/* What you get */}
         <div ref={addReveal} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: 16, marginTop: 24 }}>
           {[
-            { icon: "⚡", text: "Recomendaciones diseñadas para tu energía, tu inflamación y tus objetivos específicos — no genéricas." },
-            { icon: "🎥", text: "Clases y protocolos en video, en alta calidad, pensados para incorporar a tu rutina diaria." },
-            { icon: "🌿", text: "La primera app de bienestar con IA que realmente conversa con vos y se adapta a tu perfil." },
+            { icon: "⚡", text: L("get1") },
+            { icon: "🎥", text: L("get2") },
+            { icon: "🌿", text: L("get3") },
           ].map((t, i) => (
             <div key={i} style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 20, padding: 20, display: "flex", gap: 14, alignItems: "flex-start" }}>
               <div style={{ fontSize: "1.6rem", flexShrink: 0 }}>{t.icon}</div>
@@ -498,33 +580,33 @@ export default function LandingScreen({ onStart, lang, onLangChange }) {
       {/* ═══ CHECKOUT ═══ */}
       <section id="checkout-section" style={{ padding: "100px 24px", maxWidth: 1100, margin: "0 auto" }}>
         <div ref={addReveal} style={{ textAlign: "center", marginBottom: 48 }}>
-          <span style={{ fontSize: "0.65rem", letterSpacing: "0.25em", textTransform: "uppercase", color: "var(--gold)", display: "block", marginBottom: 12 }}>Suscripción</span>
-          <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 400, color: "var(--cream)" }}>Comienza tu transformación <em style={{ color: "var(--gold2)" }}>hoy mismo</em></h2>
+          <span style={{ fontSize: "0.65rem", letterSpacing: "0.25em", textTransform: "uppercase", color: "var(--gold)", display: "block", marginBottom: 12 }}>{L("subEyebrow")}</span>
+          <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 400, color: "var(--cream)" }}>{L("subTitleA")}<em style={{ color: "var(--gold2)" }}>{L("subTitleB")}</em></h2>
         </div>
         <div ref={addReveal} style={{ display: "grid", gridTemplateColumns: "1.15fr 1fr", gap: 28 }}>
           {/* Info */}
           <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 32, padding: 36 }}>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(201,168,76,0.1)", border: "1px solid rgba(201,168,76,0.2)", padding: "6px 14px", borderRadius: 40, fontSize: 11, fontWeight: 600, color: "var(--gold)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 20 }}>✨ Plan Anual · Acceso Ilimitado</div>
-            <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "3.8rem", fontWeight: 700, color: "var(--gold)", lineHeight: 1, marginBottom: 8 }}>$182<span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "1rem", fontWeight: 400, color: "var(--muted)" }}> / año</span></div>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "var(--surface3)", padding: "6px 14px", borderRadius: 40, fontSize: 12, color: "var(--muted)", marginBottom: 28 }}>📅 Renovación automática · cancela cuando quieras</div>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(201,168,76,0.1)", border: "1px solid rgba(201,168,76,0.2)", padding: "6px 14px", borderRadius: 40, fontSize: 11, fontWeight: 600, color: "var(--gold)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 20 }}>{L("planBadge")}</div>
+            <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "3.8rem", fontWeight: 700, color: "var(--gold)", lineHeight: 1, marginBottom: 8 }}>$182<span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "1rem", fontWeight: 400, color: "var(--muted)" }}>{L("perYear")}</span></div>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "var(--surface3)", padding: "6px 14px", borderRadius: 40, fontSize: 12, color: "var(--muted)", marginBottom: 28 }}>{L("renewal")}</div>
             <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 12, marginBottom: 28 }}>
-              {["Dr. Smoothie AI ilimitado (Claude Sonnet)","100+ clases 4K · nuevas cada semana","Mapa de tiendas geolocalizado","Comunidad global en crecimiento","11 idiomas disponibles","Renovación automática · cancela online"].map(item => (
+              {[L("f1"),L("f2"),L("f3"),L("f4"),L("f5"),L("f6")].map(item => (
                 <li key={item} style={{ display: "flex", gap: 10, fontSize: 13.5 }}><span style={{ color: "var(--gold)" }}>✓</span>{item}</li>
               ))}
             </ul>
             <div style={{ background: "rgba(201,168,76,0.07)", border: "1px solid rgba(201,168,76,0.18)", borderRadius: 20, padding: "16px 18px", display: "flex", gap: 14, alignItems: "center", marginBottom: 24 }}>
               <span style={{ fontSize: "1.8rem", flexShrink: 0 }}>🛡️</span>
-              <div><strong style={{ display: "block", marginBottom: 3 }}>Garantía 30 días</strong><span style={{ color: "var(--muted)", fontSize: 12 }}>Si no notas resultados, te devolvemos el 100%. Sin preguntas.</span></div>
+              <div><strong style={{ display: "block", marginBottom: 3 }}>{L("guaranteeT")}</strong><span style={{ color: "var(--muted)", fontSize: 12 }}>{L("guaranteeD")}</span></div>
             </div>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(0,201,123,0.08)", border: "1px solid rgba(0,201,123,0.25)", padding: "8px 16px", borderRadius: 40, fontSize: 12, color: "var(--emerald)", fontWeight: 600 }}>✨ Pago único anual · <strong>Ahorra 48%</strong> vs mensual</div>
-            <p style={{ fontSize: 11, color: "var(--muted)", marginTop: 10 }}>📅 0.50¢ al día — menos que un café</p>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(0,201,123,0.08)", border: "1px solid rgba(0,201,123,0.25)", padding: "8px 16px", borderRadius: 40, fontSize: 12, color: "var(--emerald)", fontWeight: 600 }}>{L("saveNote")}<strong>{L("saveBold")}</strong>{L("saveRest")}</div>
+            <p style={{ fontSize: 11, color: "var(--muted)", marginTop: 10 }}>{L("perDay")}</p>
           </div>
           {/* Form */}
           <div style={{ background: "var(--surface)", border: "1px solid rgba(201,168,76,0.25)", borderRadius: 32, padding: 36 }}>
-            <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.8rem", marginBottom: 24, color: "var(--cream)" }}>Completa tu suscripción</h3>
+            <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.8rem", marginBottom: 24, color: "var(--cream)" }}>{L("formTitle")}</h3>
             {[
-              { label: "Nombre completo", value: coName, setter: setCoName, type: "text", placeholder: "Tu nombre completo" },
-              { label: "Correo electrónico", value: coEmail, setter: setCoEmail, type: "email", placeholder: "tu@email.com" },
+              { label: L("labelName"), value: coName, setter: setCoName, type: "text", placeholder: L("phName") },
+              { label: L("labelEmail"), value: coEmail, setter: setCoEmail, type: "email", placeholder: L("phEmail") },
             ].map(f => (
               <div key={f.label} style={{ marginBottom: 18 }}>
                 <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>{f.label}</label>
@@ -533,14 +615,14 @@ export default function LandingScreen({ onStart, lang, onLangChange }) {
             ))}
             <div style={{ marginBottom: 18, display: "flex", alignItems: "center", gap: 8, background: "rgba(0,201,123,0.06)", border: "1px solid rgba(0,201,123,0.2)", borderRadius: 16, padding: "13px 16px" }}>
               <span style={{ fontSize: "1.2rem" }}>🔒</span>
-              <span style={{ fontSize: 12.5, color: "var(--muted)" }}>Los datos de tu tarjeta se ingresan en la página segura de Stripe, después de este paso. Nunca pasan por nuestros servidores.</span>
+              <span style={{ fontSize: 12.5, color: "var(--muted)" }}>{L("secureNote")}</span>
             </div>
             {coError && (
               <p style={{ color: "#FF6B6B", fontSize: 13, marginBottom: 12, textAlign: "center" }}>{coError}</p>
             )}
-            <button onClick={doCheckout} disabled={coLoading} style={{ width: "100%", background: "linear-gradient(135deg,var(--gold),var(--gold2))", color: "#000", border: "none", padding: 17, borderRadius: 60, fontWeight: 800, fontSize: 15, cursor: coLoading ? "default" : "pointer", marginTop: 8, boxShadow: "0 4px 20px rgba(201,168,76,0.25)", opacity: coLoading ? 0.7 : 1 }}>{coLoading ? "Redirigiendo a Stripe…" : "🔒 Suscribirme por $182/año"}</button>
-            <div style={{ display: "flex", gap: 14, justifyContent: "center", marginTop: 16, color: "var(--muted)", fontSize: "1.4rem" }}>💳 VISA · MC · AMEX · PayPal</div>
-            <p style={{ textAlign: "center", fontSize: 11, color: "var(--muted)", marginTop: 8 }}>Pagos seguros con <strong>Stripe</strong> · SSL 256-bit · Sin cargos ocultos<br /><span style={{ color: "rgba(0,201,123,0.6)", fontSize: 10 }}>● Conexión Stripe activa vía /api/stripe-checkout</span></p>
+            <button onClick={doCheckout} disabled={coLoading} style={{ width: "100%", background: "linear-gradient(135deg,var(--gold),var(--gold2))", color: "#000", border: "none", padding: 17, borderRadius: 60, fontWeight: 800, fontSize: 15, cursor: coLoading ? "default" : "pointer", marginTop: 8, boxShadow: "0 4px 20px rgba(201,168,76,0.25)", opacity: coLoading ? 0.7 : 1 }}>{coLoading ? L("btnRedirecting") : L("btnSubscribe")}</button>
+            <div style={{ display: "flex", gap: 14, justifyContent: "center", marginTop: 16, color: "var(--muted)", fontSize: "1.4rem" }}>{L("paymentMethods")}</div>
+            <p style={{ textAlign: "center", fontSize: 11, color: "var(--muted)", marginTop: 8 }}>{L("trustText")}<strong>{L("trustBold")}</strong>{L("trustRest")}<br /><span style={{ color: "rgba(0,201,123,0.6)", fontSize: 10 }}>● Stripe connection active via /api/stripe-checkout</span></p>
           </div>
         </div>
       </section>
