@@ -558,7 +558,7 @@ export default function RecipesScreen({ user, lang = 'en' }) {
           { id: 'shopping', label: t.tabList, count: shopping.length },
         ].map(t => (
           <button key={t.id} onClick={() => setActiveTab(t.id)} style={{
-            flex: 1, padding: '10px', borderRadius: 10, border: 'none',
+            flex: 1, padding: '10px', borderRadius: 10,
             background: activeTab === t.id ? C.glass : 'transparent',
             border: activeTab === t.id ? `1px solid ${C.glassBorder}` : '1px solid transparent',
             color: activeTab === t.id ? C.cream : C.muted,
