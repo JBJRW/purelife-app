@@ -60,9 +60,10 @@ export default function LandingScreen({ onStart, lang, onLangChange }) {
   const [chatInput, setChatInput] = useState("");
   const [replyIdx, setReplyIdx] = useState(0);
   const chatBodyRef = useRef(null);
-  const [showModal, setShowModal] = useState(false);
   const [coName, setCoName] = useState("");
   const [coEmail, setCoEmail] = useState("");
+  const [coLoading, setCoLoading] = useState(false);
+  const [coError, setCoError] = useState("");
   const revealRefs = useRef([]);
 
   useEffect(() => {
@@ -119,10 +120,27 @@ export default function LandingScreen({ onStart, lang, onLangChange }) {
     setTimeout(() => { if (chatBodyRef.current) chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight; }, 100);
   };
 
-  const doCheckout = () => {
-    if (!coName.trim()) return;
-    if (!coEmail.trim()) return;
-    setShowModal(true);
+  const doCheckout = async () => {
+    if (!coName.trim()) { setCoError("Ingresá tu nombre completo"); return; }
+    if (!coEmail.trim() || !coEmail.includes("@")) { setCoError("Ingresá un correo válido"); return; }
+    setCoLoading(true); setCoError("");
+    try {
+      const res = await fetch("/api/stripe-checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: coEmail, name: coName }),
+      });
+      const data = await res.json();
+      if (res.ok && data.url) {
+        window.location.href = data.url;
+      } else {
+        setCoError(data.error || "No se pudo iniciar el pago. Intentá de nuevo.");
+        setCoLoading(false);
+      }
+    } catch {
+      setCoError("Error de conexión. Intentá de nuevo.");
+      setCoLoading(false);
+    }
   };
 
   return (
@@ -430,9 +448,9 @@ export default function LandingScreen({ onStart, lang, onLangChange }) {
       {/* ═══ GALERÍA ═══ */}
       <section style={{ padding: "80px 24px", maxWidth: 1100, margin: "0 auto" }}>
         <div ref={addReveal} style={{ textAlign: "center", marginBottom: 40 }}>
-          <span style={{ fontSize: "0.65rem", letterSpacing: "0.25em", textTransform: "uppercase", color: "var(--gold)", display: "block", marginBottom: 12 }}>Resultados reales</span>
-          <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 400, color: "var(--cream)", marginBottom: 8 }}>La comunidad que <em style={{ color: "var(--gold2)" }}>transforma</em></h2>
-          <p style={{ color: "var(--muted)", fontSize: 14, maxWidth: 480, margin: "0 auto" }}>50,000+ miembros en 11 países. Estas son sus historias.</p>
+          <span style={{ fontSize: "0.65rem", letterSpacing: "0.25em", textTransform: "uppercase", color: "var(--gold)", display: "block", marginBottom: 12 }}>Únete desde el inicio</span>
+          <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 400, color: "var(--cream)", marginBottom: 8 }}>Una comunidad que <em style={{ color: "var(--gold2)" }}>recién empieza</em></h2>
+          <p style={{ color: "var(--muted)", fontSize: 14, maxWidth: 480, margin: "0 auto" }}>Acceso anticipado y exclusivo — sé parte de los primeros en construir esta comunidad.</p>
         </div>
         <div ref={addReveal} style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gridTemplateRows: "repeat(2,200px)", gap: 12 }}>
           <div style={{ gridRow: "span 2", borderRadius: 24, overflow: "hidden", position: "relative" }}>
@@ -460,19 +478,17 @@ export default function LandingScreen({ onStart, lang, onLangChange }) {
             <img src="https://images.unsplash.com/photo-1543352634-a1c51d9f1fa7?w=400&q=80&fit=crop" style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="Turmeric" />
           </div>
         </div>
-        {/* Testimonials */}
+        {/* What you get */}
         <div ref={addReveal} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: 16, marginTop: 24 }}>
           {[
-            { img: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=60&h=60&q=80&fit=crop&crop=face", text: '"En 3 semanas noté más energía y menos inflamación. Dr. Smoothie AI me cambió el chip."', name: "María L. · Miami, FL" },
-            { img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&q=80&fit=crop&crop=face", text: '"Los videos 4K son increíbles. El protocolo dorado lo preparo todos los días."', name: "Carlos R. · CDMX" },
-            { img: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&q=80&fit=crop&crop=face", text: '"La primera app de bienestar que de verdad cumple. La IA es un lujo."', name: "Ana P. · Madrid" },
+            { icon: "⚡", text: "Recomendaciones diseñadas para tu energía, tu inflamación y tus objetivos específicos — no genéricas." },
+            { icon: "🎥", text: "Clases y protocolos en video, en alta calidad, pensados para incorporar a tu rutina diaria." },
+            { icon: "🌿", text: "La primera app de bienestar con IA que realmente conversa con vos y se adapta a tu perfil." },
           ].map((t, i) => (
             <div key={i} style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 20, padding: 20, display: "flex", gap: 14, alignItems: "flex-start" }}>
-              <img src={t.img} style={{ width: 44, height: 44, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} alt="Member" />
+              <div style={{ fontSize: "1.6rem", flexShrink: 0 }}>{t.icon}</div>
               <div>
-                <p style={{ fontSize: 13, color: "var(--cream)", marginBottom: 6 }}>{t.text}</p>
-                <span style={{ fontSize: 11, color: "var(--muted)" }}>{t.name}</span>
-                <div style={{ color: "var(--gold)", fontSize: 11, marginTop: 4 }}>★★★★★</div>
+                <p style={{ fontSize: 13, color: "var(--cream)", margin: 0 }}>{t.text}</p>
               </div>
             </div>
           ))}
@@ -492,7 +508,7 @@ export default function LandingScreen({ onStart, lang, onLangChange }) {
             <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "3.8rem", fontWeight: 700, color: "var(--gold)", lineHeight: 1, marginBottom: 8 }}>$182<span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "1rem", fontWeight: 400, color: "var(--muted)" }}> / año</span></div>
             <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "var(--surface3)", padding: "6px 14px", borderRadius: 40, fontSize: 12, color: "var(--muted)", marginBottom: 28 }}>📅 Renovación automática · cancela cuando quieras</div>
             <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 12, marginBottom: 28 }}>
-              {["Dr. Smoothie AI ilimitado (Claude Sonnet)","100+ clases 4K · nuevas cada semana","Mapa de tiendas geolocalizado","Comunidad global 50K+ miembros","11 idiomas disponibles","Renovación automática · cancela online"].map(item => (
+              {["Dr. Smoothie AI ilimitado (Claude Sonnet)","100+ clases 4K · nuevas cada semana","Mapa de tiendas geolocalizado","Comunidad global en crecimiento","11 idiomas disponibles","Renovación automática · cancela online"].map(item => (
                 <li key={item} style={{ display: "flex", gap: 10, fontSize: 13.5 }}><span style={{ color: "var(--gold)" }}>✓</span>{item}</li>
               ))}
             </ul>
@@ -515,21 +531,16 @@ export default function LandingScreen({ onStart, lang, onLangChange }) {
                 <input type={f.type} value={f.value} onChange={e => f.setter(e.target.value)} placeholder={f.placeholder} style={{ width: "100%", background: "var(--surface2)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "13px 16px", color: "var(--cream)", fontSize: 14, fontFamily: "'DM Sans', sans-serif", outline: "none" }} />
               </div>
             ))}
-            <div style={{ marginBottom: 18 }}>
-              <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>Número de tarjeta (demo)</label>
-              <input type="text" placeholder="4242 4242 4242 4242" maxLength={19} style={{ width: "100%", background: "var(--surface2)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "13px 16px", color: "var(--cream)", fontSize: 14, fontFamily: "'DM Sans', sans-serif", outline: "none" }} />
+            <div style={{ marginBottom: 18, display: "flex", alignItems: "center", gap: 8, background: "rgba(0,201,123,0.06)", border: "1px solid rgba(0,201,123,0.2)", borderRadius: 16, padding: "13px 16px" }}>
+              <span style={{ fontSize: "1.2rem" }}>🔒</span>
+              <span style={{ fontSize: 12.5, color: "var(--muted)" }}>Los datos de tu tarjeta se ingresan en la página segura de Stripe, después de este paso. Nunca pasan por nuestros servidores.</span>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-              {[["Vencimiento","MM/AA",5],["CVC","123",3]].map(([lbl,ph,max]) => (
-                <div key={lbl} style={{ marginBottom: 18 }}>
-                  <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>{lbl}</label>
-                  <input type="text" placeholder={ph} maxLength={max} style={{ width: "100%", background: "var(--surface2)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "13px 16px", color: "var(--cream)", fontSize: 14, fontFamily: "'DM Sans', sans-serif", outline: "none" }} />
-                </div>
-              ))}
-            </div>
-            <button onClick={doCheckout} style={{ width: "100%", background: "linear-gradient(135deg,var(--gold),var(--gold2))", color: "#000", border: "none", padding: 17, borderRadius: 60, fontWeight: 800, fontSize: 15, cursor: "pointer", marginTop: 8, boxShadow: "0 4px 20px rgba(201,168,76,0.25)" }}>🔒 Suscribirme por $182/año</button>
+            {coError && (
+              <p style={{ color: "#FF6B6B", fontSize: 13, marginBottom: 12, textAlign: "center" }}>{coError}</p>
+            )}
+            <button onClick={doCheckout} disabled={coLoading} style={{ width: "100%", background: "linear-gradient(135deg,var(--gold),var(--gold2))", color: "#000", border: "none", padding: 17, borderRadius: 60, fontWeight: 800, fontSize: 15, cursor: coLoading ? "default" : "pointer", marginTop: 8, boxShadow: "0 4px 20px rgba(201,168,76,0.25)", opacity: coLoading ? 0.7 : 1 }}>{coLoading ? "Redirigiendo a Stripe…" : "🔒 Suscribirme por $182/año"}</button>
             <div style={{ display: "flex", gap: 14, justifyContent: "center", marginTop: 16, color: "var(--muted)", fontSize: "1.4rem" }}>💳 VISA · MC · AMEX · PayPal</div>
-            <p style={{ textAlign: "center", fontSize: 11, color: "var(--muted)", marginTop: 8 }}>Pagos seguros con <strong>Stripe</strong> · SSL 256-bit · Sin cargos ocultos<br /><span style={{ color: "rgba(0,201,123,0.6)", fontSize: 10 }}>● Conexión Stripe activa vía /api/create-checkout-session</span></p>
+            <p style={{ textAlign: "center", fontSize: 11, color: "var(--muted)", marginTop: 8 }}>Pagos seguros con <strong>Stripe</strong> · SSL 256-bit · Sin cargos ocultos<br /><span style={{ color: "rgba(0,201,123,0.6)", fontSize: 10 }}>● Conexión Stripe activa vía /api/stripe-checkout</span></p>
           </div>
         </div>
       </section>
@@ -538,21 +549,7 @@ export default function LandingScreen({ onStart, lang, onLangChange }) {
       <footer style={{ padding: "40px 24px", borderTop: "1px solid var(--border2)", textAlign: "center" }}>
         <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.8rem", color: "var(--gold2)", marginBottom: 8 }}>PureLife Wellness Club</div>
         <div style={{ fontSize: "0.7rem", color: "var(--muted)", letterSpacing: "0.1em" }}>purelifewellnessclub.org · dr.smoothie.ai · JRMB Food Network LLC</div>
-        <div style={{ marginTop: 16, fontSize: "0.65rem", color: "var(--muted)" }}>Preview generado por 3 agentes especiales · Jorge Desarrollador × Claude</div>
       </footer>
-
-      {/* ═══ CHECKOUT MODAL ═══ */}
-      {showModal && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.88)", backdropFilter: "blur(10px)", zIndex: 9000, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <div style={{ background: "var(--surface)", border: "1px solid rgba(201,168,76,0.3)", borderRadius: 32, padding: "44px 36px", maxWidth: 380, textAlign: "center", boxShadow: "0 40px 80px rgba(0,0,0,0.6)", animation: "fadeUp 0.4s ease" }}>
-            <div style={{ fontSize: "3.5rem", marginBottom: 16 }}>✅</div>
-            <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "2.2rem", marginBottom: 12, color: "var(--cream)" }}>¡Bienvenido a PureLife!</h2>
-            <p style={{ color: "var(--muted)", fontSize: 14, marginBottom: 8 }}>Tu membresía <strong style={{ color: "var(--gold)" }}>Anual</strong> está activa.</p>
-            <p style={{ fontSize: 13, color: "var(--muted)", marginBottom: 28 }}>🌿 Recibirás tus credenciales por email. Tu transformación comienza ahora.</p>
-            <button onClick={() => setShowModal(false)} style={{ background: "var(--gold)", color: "#000", border: "none", padding: "14px 32px", borderRadius: 40, fontWeight: 800, fontSize: 14, cursor: "pointer" }}>Comenzar →</button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
