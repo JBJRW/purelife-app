@@ -62,7 +62,7 @@ const RS = {
     ingredientsPlaceholder: 'Ingredients (one per line):\nEg: 2 cups spinach\n1 banana', instructionsPlaceholder: 'Preparation instructions...',
     cancel: 'Cancel', saving: 'Saving...', saveRecipe: '💾 Save Recipe',
     myRecipesTitle: '🍽️ My Recipes', myRecipesSub: 'Created with Dr. Smoothie AI · Saved in your profile',
-    tabRecipes: '🥤 Recipes', tabList: '🛒 List', newRecipeBtn: '✨ New recipe with Dr. Smoothie AI',
+    tabRecipes: '🥤 Recipes', tabList: '🛒 List', tabDiscover: '✨ Discover', newRecipeBtn: '✨ New recipe with Dr. Smoothie AI',
     loadingRecipes: 'Loading recipes...', noRecipesCategory: 'No recipes in this category',
     ingredientsPending: (n) => `${n} ingredients pending`, clearList: 'Clear list', listEmpty: 'Your list is empty',
     addFromRecipes: 'Add ingredients from your recipes', viewRecipesBtn: 'View recipes →', tapToCheck: 'tap to ✓',
@@ -83,7 +83,7 @@ const RS = {
     ingredientsPlaceholder: 'Ingredientes (uno por línea):\nEj: 2 tazas espinaca\n1 plátano', instructionsPlaceholder: 'Instrucciones de preparación...',
     cancel: 'Cancelar', saving: 'Guardando...', saveRecipe: '💾 Guardar Receta',
     myRecipesTitle: '🍽️ Mis Recetas', myRecipesSub: 'Creadas con Dr. Smoothie AI · Guardadas en tu perfil',
-    tabRecipes: '🥤 Recetas', tabList: '🛒 Lista', newRecipeBtn: '✨ Nueva receta con Dr. Smoothie AI',
+    tabRecipes: '🥤 Recetas', tabList: '🛒 Lista', tabDiscover: '✨ Descubrir', newRecipeBtn: '✨ Nueva receta con Dr. Smoothie AI',
     loadingRecipes: 'Cargando recetas...', noRecipesCategory: 'No hay recetas en esta categoría',
     ingredientsPending: (n) => `${n} ingredientes pendientes`, clearList: 'Limpiar lista', listEmpty: 'Tu lista está vacía',
     addFromRecipes: 'Añade ingredientes desde tus recetas', viewRecipesBtn: 'Ver recetas →', tapToCheck: 'tap para ✓',
@@ -104,7 +104,7 @@ const RS = {
     ingredientsPlaceholder: 'Ingrédients (un par ligne) :\nEx : 2 tasses d\'épinards\n1 banane', instructionsPlaceholder: 'Instructions de préparation...',
     cancel: 'Annuler', saving: 'Enregistrement...', saveRecipe: '💾 Enregistrer la recette',
     myRecipesTitle: '🍽️ Mes Recettes', myRecipesSub: 'Créées avec Dr. Smoothie AI · Enregistrées dans votre profil',
-    tabRecipes: '🥤 Recettes', tabList: '🛒 Liste', newRecipeBtn: '✨ Nouvelle recette avec Dr. Smoothie AI',
+    tabRecipes: '🥤 Recettes', tabList: '🛒 Liste', tabDiscover: '✨ Découvrir', newRecipeBtn: '✨ Nouvelle recette avec Dr. Smoothie AI',
     loadingRecipes: 'Chargement des recettes...', noRecipesCategory: 'Aucune recette dans cette catégorie',
     ingredientsPending: (n) => `${n} ingrédients en attente`, clearList: 'Vider la liste', listEmpty: 'Votre liste est vide',
     addFromRecipes: 'Ajoutez des ingrédients depuis vos recettes', viewRecipesBtn: 'Voir les recettes →', tapToCheck: 'toucher pour ✓',
@@ -125,7 +125,7 @@ const RS = {
     ingredientsPlaceholder: 'Ingredientes (um por linha):\nEx: 2 xícaras de espinafre\n1 banana', instructionsPlaceholder: 'Instruções de preparo...',
     cancel: 'Cancelar', saving: 'Salvando...', saveRecipe: '💾 Salvar Receita',
     myRecipesTitle: '🍽️ Minhas Receitas', myRecipesSub: 'Criadas com Dr. Smoothie AI · Salvas no seu perfil',
-    tabRecipes: '🥤 Receitas', tabList: '🛒 Lista', newRecipeBtn: '✨ Nova receita com Dr. Smoothie AI',
+    tabRecipes: '🥤 Receitas', tabList: '🛒 Lista', tabDiscover: '✨ Descobrir', newRecipeBtn: '✨ Nova receita com Dr. Smoothie AI',
     loadingRecipes: 'Carregando receitas...', noRecipesCategory: 'Não há receitas nesta categoria',
     ingredientsPending: (n) => `${n} ingredientes pendentes`, clearList: 'Limpar lista', listEmpty: 'Sua lista está vazia',
     addFromRecipes: 'Adicione ingredientes das suas receitas', viewRecipesBtn: 'Ver receitas →', tapToCheck: 'toque para ✓',
@@ -146,7 +146,7 @@ const RS = {
     ingredientsPlaceholder: 'Ingredienti (uno per riga):\nEs: 2 tazze di spinaci\n1 banana', instructionsPlaceholder: 'Istruzioni di preparazione...',
     cancel: 'Annulla', saving: 'Salvataggio...', saveRecipe: '💾 Salva Ricetta',
     myRecipesTitle: '🍽️ Le Mie Ricette', myRecipesSub: 'Create con Dr. Smoothie AI · Salvate nel tuo profilo',
-    tabRecipes: '🥤 Ricette', tabList: '🛒 Lista', newRecipeBtn: '✨ Nuova ricetta con Dr. Smoothie AI',
+    tabRecipes: '🥤 Ricette', tabList: '🛒 Lista', tabDiscover: '✨ Scopri', newRecipeBtn: '✨ Nuova ricetta con Dr. Smoothie AI',
     loadingRecipes: 'Caricamento ricette...', noRecipesCategory: 'Nessuna ricetta in questa categoria',
     ingredientsPending: (n) => `${n} ingredienti in sospeso`, clearList: 'Svuota lista', listEmpty: 'La tua lista è vuota',
     addFromRecipes: 'Aggiungi ingredienti dalle tue ricette', viewRecipesBtn: 'Vedi ricette →', tapToCheck: 'tocca per ✓',
@@ -159,6 +159,46 @@ const getCategories = (lang='en') => CATEGORY_META.map(c => ({ ...c, label: rs(l
 const getStarterRecipes = (lang='en') => STARTER_META.map(s => ({ ...s, ...rs(lang).starter[s.id], is_starter: true }));
 
 // Card de receta individual
+function CatalogCard({ item, onAddToShopping, lang = 'en' }) {
+  const t = rs(lang);
+  const [open, setOpen] = useState(false);
+  return (
+    <div style={{
+      background: C.glass, border: `1px solid ${C.glassBorder}`,
+      borderRadius: 20, padding: '18px 20px', marginBottom: 12,
+    }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 10 }}>
+        <div style={{ fontSize: 36 }}>🌿</div>
+        <div style={{ flex: 1 }}>
+          <span style={{ color: C.cream, fontWeight: 700, fontSize: 16, fontFamily: FONT_HEAD }}>{item.name}</span>
+          {item.description && (
+            <p style={{ color: C.muted, fontSize: 12.5, margin: '4px 0 0' }}>{item.description}</p>
+          )}
+        </div>
+      </div>
+      {item.benefits && (
+        <p style={{ color: C.light, fontSize: 12, margin: '0 0 12px', fontStyle: 'italic' }}>✨ {item.benefits}</p>
+      )}
+      {open && Array.isArray(item.ingredients) && (
+        <ul style={{ margin: '0 0 12px', paddingLeft: 18, color: C.cream, fontSize: 13 }}>
+          {item.ingredients.map((ing, i) => <li key={i}>{ing}</li>)}
+        </ul>
+      )}
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <button onClick={() => setOpen(o => !o)} style={{
+          padding: '8px 16px', borderRadius: 20,
+          border: `1px solid ${C.glassBorder}`, background: C.glass,
+          color: C.cream, fontSize: 12, cursor: 'pointer', fontFamily: FONT,
+        }}>{open ? '▲' : t.viewRecipe}</button>
+        <button onClick={() => onAddToShopping(item)} style={{
+          padding: '8px 16px', borderRadius: 20, border: 'none',
+          background: C.mint, color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: FONT,
+        }}>{t.addToList}</button>
+      </div>
+    </div>
+  );
+}
+
 function RecipeCard({ recipe, onViewDetail, onAddToShopping, onDelete, isOwn, lang = 'en' }) {
   const t = rs(lang);
   return (
@@ -410,6 +450,8 @@ export default function RecipesScreen({ user, lang = 'en' }) {
   const CATEGORIES = getCategories(lang);
   const STARTER_RECIPES = getStarterRecipes(lang);
   const [recipes, setRecipes] = useState([]);
+  const [catalog, setCatalog] = useState([]);
+  const [catalogLoading, setCatalogLoading] = useState(true);
   const [shopping, setShopping] = useState([]);
   const [activeCategory, setActiveCategory] = useState('all');
   const [activeTab, setActiveTab] = useState('recipes'); // recipes | shopping
@@ -451,7 +493,19 @@ export default function RecipesScreen({ user, lang = 'en' }) {
     }
   }, [user]);
 
-  useEffect(() => { loadRecipes(); loadShopping(); }, [loadRecipes, loadShopping]);
+  // Cargar catálogo global (generado por el agente de IA), en el idioma actual
+  const loadCatalog = useCallback(async () => {
+    setCatalogLoading(true);
+    try {
+      const data = await sbFetch(`smoothie_catalog?language=eq.${lang}&is_published=eq.true&order=created_at.desc&limit=50`, user?.token);
+      setCatalog(Array.isArray(data) ? data : []);
+    } catch {
+      setCatalog([]);
+    }
+    setCatalogLoading(false);
+  }, [lang, user]);
+
+  useEffect(() => { loadRecipes(); loadShopping(); loadCatalog(); }, [loadRecipes, loadShopping, loadCatalog]);
 
   const addToShopping = async (recipe) => {
     const newItems = (recipe.ingredients || []).map(ing => ({
@@ -555,6 +609,7 @@ export default function RecipesScreen({ user, lang = 'en' }) {
       <div style={{ display: 'flex', gap: 8, marginBottom: 20, background: 'rgba(255,255,255,0.05)', padding: 4, borderRadius: 14 }}>
         {[
           { id: 'recipes', label: t.tabRecipes, count: recipes.length },
+          { id: 'discover', label: t.tabDiscover, count: catalog.length },
           { id: 'shopping', label: t.tabList, count: shopping.length },
         ].map(t => (
           <button key={t.id} onClick={() => setActiveTab(t.id)} style={{
@@ -614,6 +669,24 @@ export default function RecipesScreen({ user, lang = 'en' }) {
                 isOwn={!recipe.is_starter}
                 lang={lang}
               />
+            ))
+          )}
+        </>
+      )}
+
+      {/* ── PANEL DESCUBRIR (catálogo global, generado por IA) ── */}
+      {activeTab === 'discover' && (
+        <>
+          {catalogLoading ? (
+            <div style={{ textAlign: 'center', color: C.muted, padding: 40 }}>{t.loadingRecipes}</div>
+          ) : catalog.length === 0 ? (
+            <div style={{ textAlign: 'center', color: C.muted, padding: 40 }}>
+              <div style={{ fontSize: 48, marginBottom: 12 }}>🌿</div>
+              <p>{t.noRecipesCategory}</p>
+            </div>
+          ) : (
+            catalog.map(item => (
+              <CatalogCard key={item.id} item={item} onAddToShopping={addToShopping} lang={lang} />
             ))
           )}
         </>

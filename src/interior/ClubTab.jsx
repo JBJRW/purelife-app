@@ -3,6 +3,20 @@ import { supabase } from '../lib/supabase';
 import { IT, IT_FONT_HEAD, IT_FONT_BODY } from './tokens';
 import { tui } from '../i18n';
 
+function TeamPostRow({ post, lang }) {
+  return (
+    <div style={{ padding: '14px 0', borderTop: `1px solid ${IT.divider}` }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+        <span style={{ fontSize: 14 }}>🌿</span>
+        <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.05em', color: IT.goldLight, textTransform: 'uppercase' }}>
+          {tui(lang, 'itClubTeamBadge')}
+        </span>
+      </div>
+      <p style={{ fontSize: 13, color: IT.cream, opacity: 0.85, lineHeight: 1.6, margin: 0 }}>{post.content}</p>
+    </div>
+  );
+}
+
 function TestimonialRow({ t }) {
   return (
     <div style={{ padding: '14px 0', borderTop: `1px solid ${IT.divider}` }}>
@@ -71,6 +85,7 @@ function ShareForm({ user, onDone, lang }) {
 
 export default function ClubTab({ user, lang = 'en' }) {
   const [testimonials, setTestimonials] = useState(undefined);
+  const [teamPosts, setTeamPosts] = useState(undefined);
   const [founder, setFounder] = useState(null);
   const [showShareForm, setShowShareForm] = useState(false);
   const [shared, setShared] = useState(false);
@@ -87,6 +102,14 @@ export default function ClubTab({ user, lang = 'en' }) {
       .eq('is_approved', true)
       .order('created_at', { ascending: false })
       .then(({ data }) => setTestimonials(data || []));
+    supabase
+      .from('team_posts')
+      .select('*')
+      .eq('is_published', true)
+      .eq('language', lang)
+      .order('created_at', { ascending: false })
+      .limit(10)
+      .then(({ data }) => setTeamPosts(data || []));
   };
 
   useEffect(() => {
@@ -101,7 +124,7 @@ export default function ClubTab({ user, lang = 'en' }) {
         .then(data => { if (data.isFoundingMember) setFounder(data.rank); })
         .catch(() => {});
     }
-  }, [user?.id]);
+  }, [user?.id, lang]);
 
   return (
     <div style={{ position: 'relative', minHeight: '100vh' }}>
@@ -163,6 +186,15 @@ export default function ClubTab({ user, lang = 'en' }) {
           <div style={{ fontSize: 12, color: IT.emerald, padding: '10px 0' }}>
             {tui(lang, 'itClubShared')}
           </div>
+        )}
+
+        {teamPosts !== undefined && teamPosts.length > 0 && (
+          <>
+            <div style={{ fontFamily: IT_FONT_HEAD, color: IT.goldLight, fontSize: 20, fontStyle: 'italic', margin: '20px 0 4px' }}>
+              {tui(lang, 'itClubTeamTips')}
+            </div>
+            {teamPosts.map(p => <TeamPostRow key={p.id} post={p} lang={lang} />)}
+          </>
         )}
 
         <div style={{ fontFamily: IT_FONT_HEAD, color: IT.goldLight, fontSize: 20, fontStyle: 'italic', margin: '20px 0 4px' }}>
