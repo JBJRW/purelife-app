@@ -2069,7 +2069,10 @@ button{font-family:'DM Sans',sans-serif;}
     </div>
     <div id="kaiRes" style="display:none;margin-top:14px;">
       <video id="kaiVid" style="width:100%;border-radius:20px;border:1px solid var(--border);display:none" controls playsinline></video>
-      <button class="btn-gold btn-full" style="margin-top:10px" onclick="approveVid()">✅ Approve & Use</button>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn-gold" style="flex:1" onclick="approveVid()">✅ Approve & Use</button>
+        <a id="kaiDlBtn" class="btn-ghost" style="flex:1;display:flex;align-items:center;justify-content:center;text-decoration:none" href="#" download="purelife-smoothie-video.mp4" target="_blank" rel="noopener">⬇️ Download</a>
+      </div>
     </div>
   </div>
 </div>
@@ -2694,8 +2697,9 @@ async function kaiGen(){
       throw new Error(data.error||data.detail||'Generation failed');
     }
     vidUrl=data.output_url;
-    const vid=document.getElementById('kaiVid'),resEl=document.getElementById('kaiRes');
+    const vid=document.getElementById('kaiVid'),resEl=document.getElementById('kaiRes'),dlBtn=document.getElementById('kaiDlBtn');
     if(vid&&vidUrl){vid.src=vidUrl;vid.style.display='block';resEl.style.display='block';}
+    if(dlBtn&&vidUrl)dlBtn.href=vidUrl;
     st.style.display='none';showToast('✅ Video ready!');
   }catch(e){stm.textContent='⚠️ Error';showToast('❌ '+(e.message||'Error'));}
   btn.disabled=false;btn.textContent='✨ Generate with Kai';
