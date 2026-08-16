@@ -2318,12 +2318,16 @@ function showPage(p){
   document.querySelectorAll('.page').forEach(pg=>pg.classList.remove('active'));
   const t=document.getElementById('page-'+p);
   if(t){t.classList.add('active');t.scrollTop=0;}
+  else{console.warn('Page not found: page-'+p);return;}
   document.querySelectorAll('.nav-btn,.nav-fab').forEach(b=>b.classList.remove('on'));
-  document.querySelector('[data-p="'+p+'"]')?.classList.add('on');
-  if(p==='home')renderHome();
+  const navBtn=document.querySelector('[data-p="'+p+'"]');
+  if(navBtn)navBtn.classList.add('on');
+  // Render page content
+  if(p==='home'){renderHome();renderCatsScroll();}
   if(p==='menu')renderRecipes();
   if(p==='videos')renderVids('detox');
   if(p==='routine')updateStreak();
+  if(p==='quiz')calcBMI();
 }
 
 const LANGS=['en','es','pt','fr'],FLAGS={en:'🇺🇸',es:'🇪🇸',pt:'🇧🇷',fr:'🇫🇷'};
@@ -2331,8 +2335,22 @@ function cycleLang(){lang=LANGS[(LANGS.indexOf(lang)+1)%LANGS.length];document.g
 
 // Onboarding
 function checkOb(){if(!localStorage.getItem('ob_done'))document.getElementById('onboarding').classList.remove('hidden');else document.getElementById('onboarding').classList.add('hidden');}
-function startApp(){document.getElementById('onboarding').classList.add('hidden');localStorage.setItem('ob_done','1');showToast('🌿 Welcome! Starting your analysis...');setTimeout(()=>showPage('quiz'),800);}
-function skipOb(){document.getElementById('onboarding').classList.add('hidden');localStorage.setItem('ob_done','1');}
+function startApp(){
+  const ob = document.getElementById('onboarding');
+  if(ob) ob.classList.add('hidden');
+  localStorage.setItem('ob_done','1');
+  showPage('home');
+  renderHome();
+  showToast('🌿 Welcome to PureLive!');
+  setTimeout(()=>navGo('quiz'), 1200);
+}
+function skipOb(){
+  const ob = document.getElementById('onboarding');
+  if(ob) ob.classList.add('hidden');
+  localStorage.setItem('ob_done','1');
+  showPage('home');
+  renderHome();
+}
 
 // Home
 function renderHome(){
@@ -2659,11 +2677,20 @@ function updateVitalityBig() {
 }
 
 document.addEventListener('DOMContentLoaded',()=>{
+  // Init all data first
+  renderCats();
+  renderCatsScroll();
+  renderVids('detox');
+  renderRecipes();
+  // Then animations
   startWordCycle();
   setDailySmoothie();
   updateVitalityBig();
-  renderCatsScroll();
-  checkOb();renderCats();renderVids('detox');
+  updateStreak();
+  // Then onboarding check
+  checkOb();
+  // Trigger home render
+  renderHome();
   const key=localStorage.getItem('ak')||AK;
   if(key){const inp=document.getElementById('pKey');if(inp)inp.value=key;window.ANTHROPIC_API_KEY=key;localStorage.setItem('ak',key);}
   localStorage.setItem('ltx_key',LK);
