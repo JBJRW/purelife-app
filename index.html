@@ -1659,6 +1659,10 @@ button{font-family:'DM Sans',sans-serif;}
 }
 .word-cycling{animation:wordIn .3s ease both;}
 
+
+.page.active{opacity:1!important;transform:translateY(0)!important;pointer-events:all!important;}
+#app{display:flex!important;flex-direction:column!important;height:100dvh!important;}
+#pages{flex:1!important;position:relative!important;overflow:hidden!important;min-height:0!important;}
 </style>
 </head>
 <body>
@@ -2309,59 +2313,16 @@ const CATS=[
   {id:'diabetic',name:'Diabetic',sub:'Sugar control',icon:'🩺',g:'linear-gradient(145deg,#0c4a6e,#0284c7)'},
 ];
 
-function navGo(p){
-  document.querySelectorAll('.nav-btn,.nav-fab').forEach(b=>b.classList.remove('on'));
-  document.querySelector('[data-p="'+p+'"]')?.classList.add('on');
-  showPage(p);
-}
-function showPage(p){
-  document.querySelectorAll('.page').forEach(pg=>pg.classList.remove('active'));
-  const t=document.getElementById('page-'+p);
-  if(t){t.classList.add('active');t.scrollTop=0;}
-  else{console.warn('Page not found: page-'+p);return;}
-  document.querySelectorAll('.nav-btn,.nav-fab').forEach(b=>b.classList.remove('on'));
-  const navBtn=document.querySelector('[data-p="'+p+'"]');
-  if(navBtn)navBtn.classList.add('on');
-  // Render page content
-  if(p==='home'){renderHome();renderCatsScroll();}
-  if(p==='menu')renderRecipes();
-  if(p==='videos')renderVids('detox');
-  if(p==='routine')updateStreak();
-  if(p==='quiz')calcBMI();
-}
+function navGo(p){showPage(p);}
+function showPage(p){document.querySelectorAll('.page').forEach(function(pg){pg.classList.remove('active');pg.style.opacity='0';});var t=document.getElementById('page-'+p);if(t){t.classList.add('active');t.style.opacity='1';t.style.transform='translateY(0)';t.scrollTop=0;}document.querySelectorAll('.nav-btn,.nav-fab').forEach(function(b){b.classList.remove('on');});var btn=document.querySelector('[data-p="'+p+'"]');if(btn)btn.classList.add('on');if(p==='home'){try{renderHome();}catch(e){}try{renderCatsScroll();}catch(e){}}if(p==='menu')try{renderRecipes();}catch(e){}if(p==='videos')try{renderVids('detox');}catch(e){}if(p==='routine')try{updateStreak();}catch(e){}if(p==='quiz')try{calcBMI();}catch(e){}}
 
 const LANGS=['en','es','pt','fr'],FLAGS={en:'🇺🇸',es:'🇪🇸',pt:'🇧🇷',fr:'🇫🇷'};
 function cycleLang(){lang=LANGS[(LANGS.indexOf(lang)+1)%LANGS.length];document.getElementById('langFlag').textContent=FLAGS[lang];document.getElementById('langCode').textContent=lang.toUpperCase();showToast(FLAGS[lang]+' '+lang.toUpperCase());}
 
 // Onboarding
-function checkOb(){
-  const ob=document.getElementById('onboarding');
-  if(!ob)return;
-  if(localStorage.getItem('ob_done')){
-    ob.classList.add('hidden');
-    renderHome();
-    renderCatsScroll();
-  } else {
-    ob.classList.remove('hidden');
-  }
-}
-function startApp(){
-  const ob=document.getElementById('onboarding');
-  if(ob)ob.classList.add('hidden');
-  localStorage.setItem('ob_done','1');
-  showPage('home');
-  renderHome();
-  renderCatsScroll();
-  showToast('🌿 Welcome! Tap Analysis to start');
-}
-function skipOb(){
-  const ob=document.getElementById('onboarding');
-  if(ob)ob.classList.add('hidden');
-  localStorage.setItem('ob_done','1');
-  showPage('home');
-  renderHome();
-  renderCatsScroll();
-}
+function checkOb(){var ob=document.getElementById('onboarding');if(ob)ob.classList.remove('hidden');}
+function startApp(){var ob=document.getElementById('onboarding');if(ob){ob.style.display='none';}localStorage.setItem('ob_done','1');var pages=document.querySelectorAll('.page');pages.forEach(function(p){p.classList.remove('active');p.style.opacity='0';});var h=document.getElementById('page-home');if(h){h.classList.add('active');h.style.opacity='1';h.style.transform='translateY(0)';}document.querySelectorAll('.nav-btn,.nav-fab').forEach(function(b){b.classList.remove('on');});var hb=document.querySelector('[data-p="home"]');if(hb)hb.classList.add('on');try{renderHome();}catch(e){}try{renderCatsScroll();}catch(e){}showToast('🌿 Welcome to PureLive!');}
+function skipOb(){var ob=document.getElementById('onboarding');if(ob)ob.style.display='none';localStorage.setItem('ob_done','1');var h=document.getElementById('page-home');if(h){h.classList.add('active');h.style.opacity='1';h.style.transform='translateY(0)';}document.querySelectorAll('.nav-btn,.nav-fab').forEach(function(b){b.classList.remove('on');});var hb=document.querySelector('[data-p="home"]');if(hb)hb.classList.add('on');try{renderHome();}catch(e){}try{renderCatsScroll();}catch(e){}}
 
 // Home
 function renderHome(){
