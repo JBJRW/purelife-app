@@ -1,21 +1,2232 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-  <meta name="google-site-verification" content="WKI1rO7arQPrK6zcSj_a_h5W8d8gb7laKWTjt6z1kio" />
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <meta name="theme-color" content="#0F1F17" />
-    <meta name="description" content="PureLife Wellness Club — Dr. Smoothie AI, tu asesor de bienestar nutricional" />
-    <title>PureLife Wellness Club</title>
-    <link rel="icon" type="image/png" href="/purelife-logo.png" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#080B0A">
+<meta name="description" content="Dr. Smoothie AI — Your AI wellness concierge. Personalized smoothies, physical analysis, healthy lifestyle.">
+<title>Dr. Smoothie AI · PureLive Wellness Club</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.json">
+<style>
+
+  :root {
+    --obsidian: #080B0A;
+    --deep: #0D1210;
+    --surface: #111815;
+    --surface2: #162019;
+    --surface3: #1C2920;
+    --gold: #C9A84C;
+    --gold2: #E8C96A;
+    --gold3: #F5E09A;
+    --cream: #F4EFE6;
+    --cream2: #E8E0D0;
+    --sage: #4A7C59;
+    --sage2: #2E5E3A;
+    --emerald: #00C97B;
+    --muted: #6B7E74;
+    --border: rgba(201,168,76,0.15);
+    --border2: rgba(201,168,76,0.08);
+    --glass: rgba(22,32,25,0.85);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--obsidian);
+    color: var(--cream);
+    font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+    cursor: default;
+  }
+
+  /* ── GRAIN OVERLAY ── */
+  body::before {
+    content:'';
+    position:fixed;
+    inset:0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events:none;
+    z-index:9999;
+    opacity:0.4;
+  }
+
+  /* ── AGENT BADGE ── */
+  .agent-badge {
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    background: rgba(201,168,76,0.12);
+    border: 1px solid var(--border);
+    border-radius:40px;
+    padding:4px 12px;
+    font-size:0.65rem;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color: var(--gold2);
+    font-weight:600;
+  }
+  .agent-dot { width:6px; height:6px; border-radius:50%; background:var(--emerald); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  /* ══════════════════════════════════════
+     SECTION 0 — PREVIEW HEADER
+  ══════════════════════════════════════ */
+  .preview-header {
+    background: var(--deep);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 24px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    position:sticky;
+    top:0;
+    z-index:100;
+    backdrop-filter: blur(20px);
+  }
+  .preview-title { font-family:'Cormorant Garamond',serif; font-size:1.1rem; color:var(--gold2); font-style:italic; }
+  .preview-agents { display:flex; gap:8px; flex-wrap:wrap; }
+
+  /* ══════════════════════════════════════
+     SECTION 1 — CINEMATIC SPLASH
+  ══════════════════════════════════════ */
+  .splash {
+    min-height: 100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+    overflow:hidden;
+    padding: 40px 24px;
+  }
+
+  /* Animated background orbs */
+  .orb {
+    position:absolute;
+    border-radius:50%;
+    filter:blur(120px);
+    pointer-events:none;
+    animation: drift 12s ease-in-out infinite alternate;
+  }
+  .orb-1 { width:600px; height:600px; background:radial-gradient(circle, rgba(74,124,89,0.25), transparent 70%); top:-150px; left:-200px; animation-delay:0s; }
+  .orb-2 { width:500px; height:500px; background:radial-gradient(circle, rgba(201,168,76,0.15), transparent 70%); bottom:-100px; right:-150px; animation-delay:-5s; }
+  .orb-3 { width:300px; height:300px; background:radial-gradient(circle, rgba(0,201,123,0.1), transparent 70%); top:40%; left:60%; animation-delay:-9s; }
+  @keyframes drift { 0%{transform:translate(0,0) scale(1)} 100%{transform:translate(30px,-40px) scale(1.1)} }
+
+  /* Hexagonal grid pattern */
+  .hex-bg {
+    position:absolute;
+    inset:0;
+    background-image:
+      linear-gradient(rgba(201,168,76,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(201,168,76,0.04) 1px, transparent 1px);
+    background-size:60px 60px;
+    mask-image: radial-gradient(ellipse at center, black 20%, transparent 80%);
+  }
+
+  .splash-content { position:relative; z-index:2; text-align:center; max-width:500px; }
+
+  .splash-eyebrow {
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    margin-bottom:24px;
+    animation: fadeUp 0.8s ease both;
+  }
+  .eyebrow-line { width:40px; height:1px; background: linear-gradient(90deg, transparent, var(--gold)); }
+  .eyebrow-text { font-size:0.65rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--gold); font-weight:500; }
+
+  .splash-logo {
+    font-family:'Cormorant Garamond',serif;
+    font-size:clamp(3rem,8vw,5rem);
+    font-weight:300;
+    line-height:1;
+    letter-spacing:-2px;
+    background: linear-gradient(135deg, var(--gold3) 0%, var(--gold) 40%, var(--sage) 100%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    margin-bottom:8px;
+    animation: fadeUp 0.9s 0.1s ease both;
+  }
+  .splash-sub {
+    font-family:'Cormorant Garamond',serif;
+    font-size:1.1rem;
+    color:var(--muted);
+    font-style:italic;
+    letter-spacing:0.05em;
+    margin-bottom:32px;
+    animation: fadeUp 0.9s 0.2s ease both;
+  }
+  .splash-tagline {
+    font-size:0.8rem;
+    color:var(--cream2);
+    opacity:0.7;
+    letter-spacing:0.05em;
+    max-width:320px;
+    margin:0 auto 40px;
+    line-height:1.7;
+    animation: fadeUp 0.9s 0.3s ease both;
+  }
+
+  /* Vitality ring */
+  .vitality-ring {
+    width:180px;
+    height:180px;
+    margin:0 auto 40px;
+    position:relative;
+    animation: fadeUp 1s 0.4s ease both;
+  }
+  .vitality-ring svg { width:100%; height:100%; transform:rotate(-90deg); }
+  .ring-bg { fill:none; stroke:rgba(201,168,76,0.1); stroke-width:6; }
+  .ring-fill { fill:none; stroke:url(#ringGrad); stroke-width:6; stroke-linecap:round;
+    stroke-dasharray:440; stroke-dashoffset:112; transition:stroke-dashoffset 2s ease; }
+  .ring-center {
+    position:absolute; inset:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+  }
+  .ring-emoji { font-size:3rem; animation: spin 20s linear infinite; }
+  @keyframes spin { from{transform:rotate(0)} to{transform:rotate(360deg)} }
+  .ring-pct { font-family:'Cormorant Garamond',serif; font-size:1.4rem; color:var(--gold2); margin-top:4px; }
+  .ring-label { font-size:0.6rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--muted); }
+
+  .splash-cta {
+    display:flex; gap:12px; justify-content:center; flex-wrap:wrap;
+    animation: fadeUp 1s 0.5s ease both;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--gold), var(--gold2));
+    color: var(--obsidian);
+    border:none; padding:14px 28px; border-radius:50px;
+    font-family:'DM Sans',sans-serif; font-weight:600; font-size:0.85rem;
+    cursor:pointer; letter-spacing:0.03em;
+    box-shadow: 0 8px 32px rgba(201,168,76,0.3);
+    transition: all 0.3s ease;
+  }
+  .btn-primary:hover { transform:translateY(-2px); box-shadow:0 12px 40px rgba(201,168,76,0.4); }
+  .btn-ghost {
+    background:transparent;
+    color:var(--cream); border:1px solid var(--border);
+    padding:14px 28px; border-radius:50px;
+    font-family:'DM Sans',sans-serif; font-weight:400; font-size:0.85rem;
+    cursor:pointer;
+    transition: all 0.3s ease;
+  }
+  .btn-ghost:hover { border-color:var(--gold); color:var(--gold); }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+  /* ══════════════════════════════════════
+     SECTION 2 — AGENT SHOWCASE CARDS
+  ══════════════════════════════════════ */
+  .agents-section {
+    padding: 80px 24px;
+    max-width:1100px;
+    margin:0 auto;
+  }
+  .section-header { text-align:center; margin-bottom:60px; }
+  .section-label {
+    font-size:0.65rem; letter-spacing:0.25em; text-transform:uppercase;
+    color:var(--gold); margin-bottom:12px; display:block;
+  }
+  .section-title {
+    font-family:'Cormorant Garamond',serif;
+    font-size:clamp(2rem,4vw,3rem);
+    font-weight:400; line-height:1.1; color:var(--cream);
+  }
+  .section-title em { color:var(--gold2); font-style:italic; }
+
+  .agents-grid {
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap:20px;
+  }
+
+  .agent-card {
+    background: var(--surface);
+    border:1px solid var(--border2);
+    border-radius:28px;
+    padding:32px;
+    position:relative;
+    overflow:hidden;
+    transition: all 0.4s ease;
+    animation: fadeUp 0.8s ease both;
+  }
+  .agent-card:nth-child(2){animation-delay:0.1s}
+  .agent-card:nth-child(3){animation-delay:0.2s}
+  .agent-card::before {
+    content:'';
+    position:absolute; inset:0;
+    background: radial-gradient(ellipse at top left, var(--glow-color), transparent 60%);
+    opacity:0.06;
+  }
+  .agent-card:hover { transform:translateY(-4px); border-color:var(--border); }
+  .agent-card:hover::before { opacity:0.12; }
+
+  .agent-icon {
+    width:56px; height:56px; border-radius:18px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.8rem; margin-bottom:20px;
+    background: var(--icon-bg);
+    border: 1px solid var(--icon-border);
+  }
+  .agent-name {
+    font-family:'Cormorant Garamond',serif;
+    font-size:1.5rem; font-weight:500; color:var(--cream);
+    margin-bottom:4px;
+  }
+  .agent-role { font-size:0.7rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--muted); margin-bottom:16px; }
+  .agent-desc { font-size:0.82rem; color:var(--cream2); opacity:0.8; line-height:1.7; margin-bottom:20px; }
+  .agent-features { list-style:none; display:flex; flex-direction:column; gap:8px; }
+  .agent-features li {
+    font-size:0.78rem; color:var(--cream2);
+    display:flex; align-items:center; gap:8px;
+  }
+  .feat-dot { width:4px; height:4px; border-radius:50%; background:var(--gold); flex-shrink:0; }
+
+  .agent-1 { --glow-color: var(--gold); --icon-bg: rgba(201,168,76,0.1); --icon-border: rgba(201,168,76,0.2); }
+  .agent-2 { --glow-color: var(--sage); --icon-bg: rgba(74,124,89,0.1); --icon-border: rgba(74,124,89,0.2); }
+  .agent-3 { --glow-color: var(--emerald); --icon-bg: rgba(0,201,123,0.1); --icon-border: rgba(0,201,123,0.2); }
+
+  /* ══════════════════════════════════════
+     SECTION 3 — APP PREVIEW (MOBILE)
+  ══════════════════════════════════════ */
+  .app-preview-section {
+    padding: 80px 24px;
+    background: var(--deep);
+    border-top: 1px solid var(--border2);
+    border-bottom: 1px solid var(--border2);
+  }
+  .app-preview-inner { max-width:1100px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:center; }
+  @media(max-width:768px){ .app-preview-inner{grid-template-columns:1fr; gap:40px;} }
+
+  .phone-frame {
+    width:280px; margin:0 auto;
+    background: var(--surface2);
+    border-radius:48px;
+    padding:16px;
+    border:2px solid rgba(201,168,76,0.2);
+    box-shadow: 0 40px 100px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.05) inset;
+    position:relative;
+  }
+  .phone-notch {
+    width:80px; height:22px;
+    background:var(--obsidian);
+    border-radius:0 0 16px 16px;
+    margin:0 auto 12px;
+    display:flex; align-items:center; justify-content:center;
+    gap:6px;
+  }
+  .notch-cam { width:8px; height:8px; border-radius:50%; background:#1a1a1a; border:1px solid #333; }
+  .phone-screen {
+    background:var(--obsidian);
+    border-radius:36px;
+    overflow:hidden;
+    min-height:560px;
+  }
+
+  /* --- PHONE TABS INSIDE --- */
+  .phone-nav {
+    display:flex; justify-content:space-around;
+    padding:12px 8px 16px;
+    background: rgba(17,24,21,0.95);
+    backdrop-filter:blur(20px);
+    border-top:1px solid var(--border2);
+    position:absolute; bottom:16px; left:16px; right:16px;
+    border-radius:0 0 36px 36px;
+    z-index:5;
+  }
+  .pnav-item { display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer; }
+  .pnav-icon { font-size:1.1rem; }
+  .pnav-label { font-size:0.5rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); }
+  .pnav-item.active .pnav-label { color:var(--gold); }
+  .pnav-item.active .pnav-icon { filter:drop-shadow(0 0 6px rgba(201,168,76,0.5)); }
+
+  /* Phone HOME screen */
+  .phone-home {
+    padding:20px 16px 80px;
+    height:560px;
+    overflow:hidden;
+  }
+  .phone-header {
+    display:flex; justify-content:space-between; align-items:center;
+    margin-bottom:20px;
+  }
+  .phone-greeting { font-family:'Cormorant Garamond',serif; font-size:1.1rem; color:var(--cream); }
+  .phone-greeting span { color:var(--gold2); }
+  .phone-avatar { width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg,var(--gold),var(--sage)); display:flex; align-items:center; justify-content:center; font-size:0.9rem; }
+
+  .vitality-card-sm {
+    background: linear-gradient(135deg, var(--surface2), var(--surface3));
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:16px;
+    margin-bottom:12px;
+    position:relative;
+    overflow:hidden;
+  }
+  .vitality-card-sm::after {
+    content:'';
+    position:absolute;
+    top:-30px; right:-30px;
+    width:100px; height:100px;
+    background:radial-gradient(circle, rgba(201,168,76,0.15), transparent 70%);
+    border-radius:50%;
+  }
+  .vcard-label { font-size:0.55rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--muted); margin-bottom:4px; }
+  .vcard-val { font-family:'Cormorant Garamond',serif; font-size:2rem; color:var(--gold2); line-height:1; }
+  .vcard-sub { font-size:0.6rem; color:var(--cream2); opacity:0.6; margin-top:4px; }
+  .mini-bar-bg { background:#1e1e1e; border-radius:10px; height:4px; margin-top:10px; }
+  .mini-bar { height:4px; border-radius:10px; background:linear-gradient(90deg,var(--gold),var(--emerald)); width:74%; }
+
+  .quick-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
+  .quick-tile {
+    background:var(--surface2);
+    border:1px solid var(--border2);
+    border-radius:16px;
+    padding:12px;
+    text-align:center;
+  }
+  .quick-tile-icon { font-size:1.4rem; margin-bottom:4px; }
+  .quick-tile-label { font-size:0.55rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.1em; }
+
+  .smoothie-row { display:flex; gap:8px; overflow:hidden; }
+  .smoothie-chip {
+    background:var(--surface3);
+    border:1px solid var(--border2);
+    border-radius:20px;
+    padding:6px 10px;
+    font-size:0.6rem;
+    white-space:nowrap;
+    color:var(--cream2);
+  }
+
+  /* AI Chat bubble on phone */
+  .ai-float {
+    position:absolute;
+    bottom:90px; right:12px;
+    z-index:10;
+  }
+  .ai-bubble-sm {
+    background:linear-gradient(135deg,var(--gold),var(--gold2));
+    color:var(--obsidian);
+    padding:8px 12px;
+    border-radius:16px 16px 4px 16px;
+    font-size:0.6rem;
+    font-weight:600;
+    max-width:140px;
+    margin-bottom:6px;
+    box-shadow:0 4px 16px rgba(201,168,76,0.3);
+    line-height:1.4;
+  }
+  .ai-avatar-sm {
+    width:36px; height:36px; border-radius:50%;
+    background:linear-gradient(135deg,var(--gold),var(--sage2));
+    display:flex; align-items:center; justify-content:center;
+    font-size:1rem;
+    margin-left:auto;
+    box-shadow:0 4px 16px rgba(201,168,76,0.25);
+    cursor:pointer;
+    animation: glow 3s ease-in-out infinite;
+  }
+  @keyframes glow { 0%,100%{box-shadow:0 4px 16px rgba(201,168,76,0.25)} 50%{box-shadow:0 4px 24px rgba(201,168,76,0.5)} }
+
+  /* Right column: feature list */
+  .features-list { display:flex; flex-direction:column; gap:24px; }
+  .feat-item { display:flex; gap:16px; align-items:flex-start; }
+  .feat-icon-wrap {
+    width:44px; height:44px; border-radius:14px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.2rem;
+    background:rgba(201,168,76,0.08);
+    border:1px solid rgba(201,168,76,0.15);
+  }
+  .feat-text h4 { font-size:0.9rem; color:var(--cream); margin-bottom:4px; font-weight:500; }
+  .feat-text p { font-size:0.75rem; color:var(--muted); line-height:1.6; }
+
+  /* ══════════════════════════════════════
+     SECTION 4 — MEMBERSHIP TIERS
+  ══════════════════════════════════════ */
+  .tiers-section { padding:80px 24px; max-width:1100px; margin:0 auto; }
+  .tiers-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(250px,1fr)); gap:20px; margin-top:60px; }
+
+  .tier-card {
+    background:var(--surface);
+    border:1px solid var(--border2);
+    border-radius:28px;
+    padding:32px 28px;
+    position:relative;
+    overflow:hidden;
+    transition: all 0.4s ease;
+  }
+  .tier-card.featured {
+    background: linear-gradient(160deg, var(--surface2), var(--surface3));
+    border-color:var(--gold);
+    transform:scale(1.02);
+  }
+  .tier-card:hover { transform:translateY(-4px) scale(1.01); }
+  .tier-card.featured:hover { transform:translateY(-4px) scale(1.03); }
+
+  .tier-badge {
+    display:inline-block;
+    font-size:0.6rem; letter-spacing:0.15em; text-transform:uppercase;
+    padding:4px 10px; border-radius:20px;
+    margin-bottom:20px;
+    font-weight:600;
+  }
+  .tier-badge.seed { background:rgba(74,124,89,0.2); color:var(--sage); border:1px solid rgba(74,124,89,0.3); }
+  .tier-badge.bloom { background:rgba(201,168,76,0.2); color:var(--gold2); border:1px solid var(--border); }
+  .tier-badge.canopy { background:rgba(0,201,123,0.2); color:var(--emerald); border:1px solid rgba(0,201,123,0.3); }
+
+  .tier-emoji { font-size:2.5rem; margin-bottom:16px; display:block; }
+  .tier-name { font-family:'Cormorant Garamond',serif; font-size:2rem; color:var(--cream); margin-bottom:4px; }
+  .tier-price { font-family:'Cormorant Garamond',serif; font-size:3rem; color:var(--gold2); line-height:1; }
+  .tier-price span { font-size:1rem; color:var(--muted); font-family:'DM Sans',sans-serif; }
+  .tier-desc { font-size:0.75rem; color:var(--muted); margin:12px 0 24px; line-height:1.6; }
+  .tier-perks { list-style:none; display:flex; flex-direction:column; gap:10px; margin-bottom:28px; }
+  .tier-perks li { display:flex; align-items:center; gap:8px; font-size:0.78rem; color:var(--cream2); }
+  .perk-check { color:var(--emerald); font-weight:700; }
+
+  /* ══════════════════════════════════════
+     SECTION 5 — DR. SMOOTHIE AI CHAT
+  ══════════════════════════════════════ */
+  .chat-section {
+    padding:80px 24px;
+    background: var(--deep);
+    border-top:1px solid var(--border2);
+  }
+  .chat-demo {
+    max-width:500px; margin:60px auto 0;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:32px;
+    overflow:hidden;
+  }
+  .chat-header {
+    padding:20px 24px;
+    background:var(--surface2);
+    border-bottom:1px solid var(--border2);
+    display:flex; align-items:center; gap:12px;
+  }
+  .chat-avatar { width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg,var(--gold),var(--sage2)); display:flex; align-items:center; justify-content:center; font-size:1.2rem; }
+  .chat-name { font-weight:600; font-size:0.9rem; }
+  .chat-status { font-size:0.65rem; color:var(--emerald); }
+  .chat-online { display:flex; align-items:center; gap:4px; }
+  .online-dot { width:5px; height:5px; border-radius:50%; background:var(--emerald); }
+
+  .chat-body { padding:20px; display:flex; flex-direction:column; gap:12px; }
+  .msg {
+    max-width:85%;
+    padding:12px 16px;
+    border-radius:20px;
+    font-size:0.8rem;
+    line-height:1.6;
+    animation: fadeUp 0.4s ease;
+  }
+  .msg-ai {
+    background:var(--surface2);
+    border:1px solid var(--border2);
+    align-self:flex-start;
+    border-radius:4px 20px 20px 20px;
+  }
+  .msg-user {
+    background:linear-gradient(135deg,var(--gold),var(--gold2));
+    color:var(--obsidian);
+    align-self:flex-end;
+    border-radius:20px 20px 4px 20px;
+    font-weight:500;
+  }
+  .msg-typing {
+    background:var(--surface2);
+    border:1px solid var(--border2);
+    align-self:flex-start;
+    border-radius:4px 20px 20px 20px;
+    padding:14px 20px;
+  }
+  .typing-dots { display:flex; gap:4px; align-items:center; }
+  .typing-dot { width:5px; height:5px; border-radius:50%; background:var(--muted); animation: bounce 1.2s ease-in-out infinite; }
+  .typing-dot:nth-child(2){animation-delay:0.2s}
+  .typing-dot:nth-child(3){animation-delay:0.4s}
+  @keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+
+  .chat-input-row {
+    padding:16px 20px;
+    border-top:1px solid var(--border2);
+    display:flex; gap:10px; align-items:center;
+  }
+  .chat-input {
+    flex:1; background:var(--surface2); border:1px solid var(--border2);
+    border-radius:24px; padding:10px 16px;
+    color:var(--cream); font-family:'DM Sans',sans-serif; font-size:0.8rem;
+    outline:none;
+    transition: border-color 0.2s;
+  }
+  .chat-input:focus { border-color:var(--gold); }
+  .chat-send {
+    width:36px; height:36px; border-radius:50%;
+    background:linear-gradient(135deg,var(--gold),var(--gold2));
+    border:none; color:var(--obsidian); cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    font-size:0.9rem;
+    transition: transform 0.2s;
+  }
+  .chat-send:hover { transform:scale(1.1); }
+
+  /* ══════════════════════════════════════
+     SECTION 6 — COLOR & TYPOGRAPHY SYSTEM
+  ══════════════════════════════════════ */
+  .design-section { padding:80px 24px; max-width:1100px; margin:0 auto; }
+  .color-grid { display:flex; gap:12px; flex-wrap:wrap; margin-top:40px; }
+  .color-swatch {
+    flex:1; min-width:100px;
+    border-radius:16px; padding:20px 14px;
+    display:flex; flex-direction:column; justify-content:flex-end;
+  }
+  .swatch-name { font-size:0.65rem; font-weight:600; text-transform:uppercase; letter-spacing:0.1em; }
+  .swatch-hex { font-size:0.6rem; opacity:0.6; font-family:monospace; }
+
+  .typo-showcase { margin-top:40px; display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+  @media(max-width:600px){.typo-showcase{grid-template-columns:1fr}}
+  .typo-sample { background:var(--surface); border:1px solid var(--border2); border-radius:20px; padding:24px; }
+  .typo-label { font-size:0.6rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--muted); margin-bottom:12px; }
+
+  /* ══════════════════════════════════════
+     SECTION 7 — ROADMAP
+  ══════════════════════════════════════ */
+  .roadmap-section { padding:80px 24px; background:var(--deep); border-top:1px solid var(--border2); }
+  .roadmap-inner { max-width:700px; margin:0 auto; }
+  .roadmap-list { margin-top:60px; display:flex; flex-direction:column; gap:0; }
+  .roadmap-item { display:flex; gap:20px; }
+  .roadmap-spine { display:flex; flex-direction:column; align-items:center; }
+  .roadmap-node {
+    width:32px; height:32px; border-radius:50%; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    font-size:0.7rem; font-weight:700;
+    border:2px solid var(--border);
+    background:var(--surface);
+  }
+  .roadmap-node.done { background:var(--gold); border-color:var(--gold); color:var(--obsidian); }
+  .roadmap-node.active { background:var(--sage); border-color:var(--sage); color:white; box-shadow:0 0 20px rgba(74,124,89,0.4); }
+  .roadmap-line { width:2px; flex:1; background:var(--border2); min-height:40px; }
+  .roadmap-content { padding-bottom:40px; }
+  .roadmap-phase { font-size:0.6rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--muted); margin-bottom:4px; }
+  .roadmap-title { font-family:'Cormorant Garamond',serif; font-size:1.3rem; color:var(--cream); margin-bottom:6px; }
+  .roadmap-desc { font-size:0.78rem; color:var(--muted); line-height:1.6; }
+
+  /* ══════════════════════════════════════
+     FOOTER
+  ══════════════════════════════════════ */
+  footer {
+    padding:40px 24px;
+    border-top:1px solid var(--border2);
+    text-align:center;
+  }
+  .footer-logo { font-family:'Cormorant Garamond',serif; font-size:1.8rem; color:var(--gold2); margin-bottom:8px; }
+  .footer-sub { font-size:0.7rem; color:var(--muted); letter-spacing:0.1em; }
+
+  /* Interactive tab switching */
+  .tab-switcher { display:flex; gap:8px; flex-wrap:wrap; margin-top:32px; }
+  .tsw-btn {
+    padding:8px 16px; border-radius:30px;
+    font-size:0.75rem; font-weight:500;
+    cursor:pointer; transition: all 0.2s;
+    border:1px solid var(--border2);
+    background:var(--surface2); color:var(--muted);
+  }
+  .tsw-btn.active { background:var(--gold); color:var(--obsidian); border-color:var(--gold); }
+
+  /* ── SCROLL REVEAL ── */
+  .reveal { opacity:0; transform:translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.visible { opacity:1; transform:translateY(0); }
+
+
+/* ═══════════════════════════════════════
+   APP SHELL — Mobile PWA
+═══════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;}
+html,body{height:100%;margin:0;padding:0;}
+
+body{
+  background:var(--obsidian);
+  color:var(--cream);
+  font-family:'DM Sans',sans-serif;
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  -webkit-tap-highlight-color:transparent;
+}
+
+#app{
+  width:100%;height:100dvh;
+  display:flex;flex-direction:column;
+  max-width:480px;margin:0 auto;
+  position:relative;overflow:hidden;
+}
+
+/* ── HEADER ── */
+#header{
+  height:56px;flex-shrink:0;z-index:50;
+  background:rgba(8,11,10,0.92);
+  backdrop-filter:blur(32px) saturate(180%);
+  -webkit-backdrop-filter:blur(32px) saturate(180%);
+  border-bottom:1px solid var(--border2);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;
+}
+.hdr-brand{display:flex;align-items:center;gap:10px;}
+.hdr-logo{
+  width:32px;height:32px;border-radius:10px;
+  background:linear-gradient(145deg,var(--gold2),var(--gold));
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;
+  box-shadow:0 2px 12px rgba(201,168,76,0.3);
+}
+.hdr-name{
+  font-family:'Cormorant Garamond',serif;
+  font-size:17px;font-weight:400;letter-spacing:-0.02em;color:var(--cream);
+}
+.hdr-name em{font-style:italic;color:var(--gold2);}
+.hdr-right{display:flex;align-items:center;gap:8px;}
+.lang-btn{
+  height:30px;padding:0 10px;border-radius:50px;
+  border:1px solid var(--border);background:var(--surface2);
+  font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;
+  color:var(--gold2);cursor:pointer;display:flex;align-items:center;gap:4px;
+  transition:all 0.15s ease;
+}
+.lang-btn:active{transform:scale(0.93);}
+.notif-btn{
+  width:32px;height:32px;border-radius:50%;
+  border:1px solid var(--border);background:var(--surface2);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;position:relative;
+  transition:transform 0.1s ease;
+}
+.notif-btn:active{transform:scale(0.88);}
+.notif-btn svg{width:15px;height:15px;stroke:var(--muted);stroke-width:1.8;fill:none;stroke-linecap:round;}
+.notif-dot{
+  position:absolute;top:-2px;right:-2px;width:8px;height:8px;
+  border-radius:50%;background:var(--emerald);border:2px solid var(--obsidian);
+  display:none;animation:pulse 2s infinite;
+}
+.notif-dot.show{display:block;}
+
+/* ── PAGES ── */
+#pages{flex:1;position:relative;overflow:hidden;}
+.page{
+  position:absolute;inset:0;
+  overflow-y:auto;overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+  padding-bottom:80px;
+  opacity:0;pointer-events:none;
+  transform:translateY(8px);
+  transition:opacity 0.24s cubic-bezier(0.16,1,0.3,1),
+             transform 0.24s cubic-bezier(0.16,1,0.3,1);
+}
+.page.active{opacity:1;pointer-events:all;transform:translateY(0);}
+
+/* ── BOTTOM NAV ── */
+#nav{
+  flex-shrink:0;height:68px;z-index:100;
+  background:rgba(8,11,10,0.94);
+  backdrop-filter:blur(32px) saturate(200%);
+  -webkit-backdrop-filter:blur(32px) saturate(200%);
+  border-top:1px solid var(--border2);
+  display:flex;align-items:center;justify-content:space-around;
+  padding:0 8px max(8px,env(safe-area-inset-bottom));
+}
+.nav-btn{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  min-width:48px;height:52px;border:none;background:transparent;
+  cursor:pointer;position:relative;padding:8px;
+  border-radius:12px;
+  transition:transform 0.08s cubic-bezier(0.2,0,0,1);
+  -webkit-tap-highlight-color:transparent;
+}
+.nav-btn:active{transform:scale(0.82);}
+.nav-btn svg{
+  width:21px;height:21px;
+  stroke:var(--muted);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;fill:none;
+  transition:stroke 0.15s ease,transform 0.24s cubic-bezier(0.34,1.56,0.64,1);
+}
+.nav-btn.on svg{stroke:var(--gold);transform:scale(1.1) translateY(-1px);}
+.nav-btn span{
+  font-size:9px;font-weight:600;letter-spacing:0.02em;
+  color:var(--muted);transition:color 0.15s ease;
+}
+.nav-btn.on span{color:var(--gold);}
+.nav-btn::after{
+  content:'';position:absolute;bottom:2px;
+  width:4px;height:4px;border-radius:50%;background:var(--gold);
+  transform:scale(0);transition:transform 0.24s cubic-bezier(0.34,1.56,0.64,1);
+}
+.nav-btn.on::after{transform:scale(1);}
+
+/* FAB center */
+.nav-fab{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  border:none;background:transparent;cursor:pointer;padding:0;
+  transition:transform 0.08s cubic-bezier(0.2,0,0,1);
+  -webkit-tap-highlight-color:transparent;
+}
+.nav-fab:active{transform:scale(0.88);}
+.nav-fab-disc{
+  width:50px;height:50px;border-radius:15px;
+  background:linear-gradient(145deg,var(--gold2),var(--gold));
+  display:flex;align-items:center;justify-content:center;
+  margin-top:-14px;
+  box-shadow:0 4px 20px rgba(201,168,76,0.4),
+             inset 0 1px 0 rgba(255,255,255,0.2);
+  transition:transform 0.15s cubic-bezier(0.34,1.56,0.64,1),
+             box-shadow 0.15s ease;
+}
+.nav-fab:hover .nav-fab-disc{transform:translateY(-2px);box-shadow:0 8px 28px rgba(201,168,76,0.5);}
+.nav-fab.on .nav-fab-disc{background:linear-gradient(145deg,var(--gold),var(--sage));}
+.nav-fab svg{width:22px;height:22px;stroke:var(--obsidian);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;fill:none;}
+.nav-fab-lbl{font-size:9px;font-weight:700;color:var(--gold2);letter-spacing:0.04em;margin-top:1px;}
+
+/* ═══ PAGE COMPONENTS ═══ */
+
+/* Shared page header */
+.pg-header{
+  padding:28px 20px 20px;
+  border-bottom:1px solid var(--border2);
+}
+.pg-eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.pg-eyebrow-line{width:20px;height:1px;background:var(--gold);opacity:0.7;}
+.pg-eyebrow-text{font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);font-weight:600;}
+.pg-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.8rem;font-weight:300;
+  letter-spacing:-0.04em;line-height:1.15;color:var(--cream);
+}
+.pg-title em{font-style:italic;color:var(--gold2);}
+.pg-sub{font-size:13px;color:var(--muted);margin-top:6px;line-height:1.6;}
+
+/* HOME */
+.home-hero{
+  min-height:260px;position:relative;overflow:hidden;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:32px 20px 24px;
+}
+.home-hero .orb-1{width:400px;height:400px;top:-120px;left:-150px;filter:blur(100px);}
+.home-hero .orb-2{width:300px;height:300px;bottom:-80px;right:-100px;filter:blur(100px);}
+.home-hero-inner{position:relative;z-index:2;}
+.home-eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:16px;animation:fadeUp 0.5s ease both;}
+.eyebrow-line{width:32px;height:1px;background:linear-gradient(90deg,transparent,var(--gold));}
+.eyebrow-text{font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);font-weight:500;}
+.home-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(2.2rem,8vw,3rem);font-weight:300;
+  letter-spacing:-0.04em;line-height:1.1;color:var(--cream);
+  margin-bottom:12px;animation:fadeUp 0.5s 0.1s ease both;
+}
+.home-title em{font-style:italic;color:var(--gold2);}
+.home-sub{
+  font-size:14px;color:var(--muted);line-height:1.65;
+  margin-bottom:24px;max-width:280px;animation:fadeUp 0.5s 0.2s ease both;
+}
+.home-cta{display:flex;gap:8px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;animation:fadeUp 0.5s 0.3s ease both;}
+.ha-pill{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:10px 16px;border-radius:50px;
+  border:1px solid var(--border);
+  background:rgba(22,32,25,0.8);backdrop-filter:blur(12px);
+  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;
+  color:var(--cream2);white-space:nowrap;cursor:pointer;flex-shrink:0;
+  transition:transform 0.08s cubic-bezier(0.2,0,0,1),border-color 0.15s ease;
+}
+.ha-pill:active{transform:scale(0.94);}
+.ha-pill:hover{border-color:var(--gold);}
+.ha-pill.gold{
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  border-color:transparent;color:var(--obsidian);
+  box-shadow:0 4px 20px rgba(201,168,76,0.35);
+}
+
+/* Vitality strip */
+.vitality-strip{
+  padding:20px;display:flex;align-items:center;gap:20px;
+  border-bottom:1px solid var(--border2);cursor:pointer;
+  transition:background 0.15s ease;
+}
+.vitality-strip:active{background:var(--surface2);}
+.vring{width:80px;height:80px;position:relative;flex-shrink:0;}
+.vring svg{width:100%;height:100%;transform:rotate(-90deg);}
+.vring-bg{fill:none;stroke:rgba(201,168,76,0.1);stroke-width:5;}
+.vring-fill{
+  fill:none;stroke:url(#vGrad);stroke-width:5;stroke-linecap:round;
+  stroke-dasharray:220;stroke-dashoffset:55;
+  transition:stroke-dashoffset 1.5s ease;
+}
+.vring-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.vring-pct{font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--gold2);letter-spacing:-0.03em;}
+.vring-lbl{font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);}
+.vitality-info{flex:1;}
+.vi-label{font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:4px;}
+.vi-title{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:300;color:var(--cream);letter-spacing:-0.03em;}
+.vi-title em{font-style:italic;color:var(--gold2);}
+.vi-sub{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.5;}
+
+/* Category cards */
+.sec-row{
+  padding:20px 20px 12px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.sec-eyebrow{font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);font-weight:600;}
+.sec-link{font-size:12px;color:var(--muted);cursor:pointer;}
+.cat-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:10px;padding:0 20px 20px;
+}
+.cat-card{
+  border-radius:20px;overflow:hidden;cursor:pointer;
+  position:relative;aspect-ratio:1/1.15;
+  border:1px solid var(--border2);
+  transition:transform 0.15s cubic-bezier(0.16,1,0.3,1),box-shadow 0.15s ease;
+  animation:fadeUp 0.5s ease both;
+}
+.cat-card:nth-child(1){animation-delay:0ms}
+.cat-card:nth-child(2){animation-delay:55ms}
+.cat-card:nth-child(3){animation-delay:110ms}
+.cat-card:nth-child(4){animation-delay:165ms}
+.cat-card:nth-child(5){animation-delay:220ms}
+.cat-card:nth-child(6){animation-delay:275ms}
+.cat-card:active{transform:scale(0.96);}
+.cat-card:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(0,0,0,0.5),0 0 0 1px var(--border);}
+.cat-bg{position:absolute;inset:0;}
+.cat-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(8,11,10,0.85) 0%,rgba(8,11,10,0.1) 55%,transparent 100%);}
+.cat-content{position:absolute;inset:0;padding:16px;display:flex;flex-direction:column;justify-content:flex-end;}
+.cat-icon{font-size:26px;margin-bottom:8px;}
+.cat-name{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:400;color:var(--cream);letter-spacing:-0.02em;line-height:1.2;margin-bottom:3px;}
+.cat-sub{font-size:11px;color:rgba(244,239,230,0.55);font-weight:400;}
+
+/* Download strip */
+.dl-strip{
+  margin:0 20px 20px;background:var(--surface2);
+  border:1px solid var(--border);border-radius:20px;padding:20px;
+}
+.dl-title{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:300;color:var(--cream);letter-spacing:-0.03em;margin-bottom:4px;}
+.dl-title em{font-style:italic;color:var(--gold2);}
+.dl-sub{font-size:12px;color:var(--muted);margin-bottom:16px;}
+.dl-btns{display:flex;gap:8px;}
+.dl-btn{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 14px;border-radius:12px;
+  border:1px solid var(--border);background:var(--surface3);
+  color:var(--cream2);font-family:'DM Sans',sans-serif;
+  font-size:12px;font-weight:600;cursor:pointer;
+  flex:1;justify-content:center;text-decoration:none;
+  transition:all 0.15s ease;
+}
+.dl-btn:active{transform:scale(0.95);}
+.dl-btn:hover{border-color:var(--gold);color:var(--gold2);}
+.dl-btn svg{width:15px;height:15px;fill:currentColor;flex-shrink:0;}
+
+/* Membership tiers */
+.tiers-strip{margin:0 20px 24px;}
+.tiers-title{
+  font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:300;
+  color:var(--cream);letter-spacing:-0.03em;margin-bottom:6px;
+}
+.tiers-title em{font-style:italic;color:var(--gold2);}
+.tiers-sub{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:16px;}
+.tiers-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;}
+.tier-pill{
+  border-radius:16px;padding:14px 10px;
+  border:1px solid var(--border2);background:var(--surface2);
+  text-align:center;cursor:pointer;
+  transition:all 0.15s ease;
+}
+.tier-pill.featured{border-color:var(--gold);background:rgba(201,168,76,0.07);}
+.tier-pill:active{transform:scale(0.96);}
+.tier-pill-name{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px;}
+.tier-pill-price{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:300;color:var(--cream);letter-spacing:-0.04em;}
+.tier-pill-price span{font-size:10px;color:var(--muted);font-family:'DM Sans',sans-serif;}
+.tier-pill-feat{font-size:10px;color:var(--muted);margin-top:3px;}
+.tier-pill.featured .tier-pill-name{color:var(--gold);}
+
+/* ── CHAT PAGE ── */
+.chat-page{display:flex;flex-direction:column;height:100%;padding-bottom:0;}
+.chat-hdr{
+  padding:16px 20px;border-bottom:1px solid var(--border2);
+  background:rgba(8,11,10,0.8);flex-shrink:0;
+}
+.chat-hdr-name{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:300;letter-spacing:-0.03em;color:var(--cream);}
+.chat-hdr-name em{font-style:italic;color:var(--gold2);}
+.chat-hdr-sub{font-size:11px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:6px;}
+.online-dot{width:5px;height:5px;border-radius:50%;background:var(--emerald);}
+.chat-msgs{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:12px;-webkit-overflow-scrolling:touch;}
+.chat-msg{max-width:84%;padding:12px 16px;font-size:13px;line-height:1.6;animation:fadeUp 0.24s ease both;}
+.chat-msg.user{align-self:flex-end;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--obsidian);border-radius:20px 20px 4px 20px;font-weight:500;}
+.chat-msg.bot{align-self:flex-start;background:var(--surface2);color:var(--cream2);border:1px solid var(--border2);border-radius:4px 20px 20px 20px;}
+.typing-dots{display:flex;gap:4px;align-items:center;}
+.typing-dot{width:5px;height:5px;border-radius:50%;background:var(--muted);animation:bounce 1.2s ease-in-out infinite;}
+.typing-dot:nth-child(2){animation-delay:0.2s}
+.typing-dot:nth-child(3){animation-delay:0.4s}
+.quick-chips{display:flex;gap:8px;padding:8px 20px;overflow-x:auto;scrollbar-width:none;flex-shrink:0;}
+.qchip{
+  flex-shrink:0;padding:7px 14px;border-radius:50px;
+  border:1px solid var(--border);background:var(--surface2);
+  font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;
+  color:var(--cream2);cursor:pointer;white-space:nowrap;
+  transition:all 0.15s ease;
+}
+.qchip:active{transform:scale(0.94);}
+.qchip:hover{border-color:var(--gold);color:var(--gold2);}
+.chat-inp-row{
+  padding:12px 16px max(12px,env(safe-area-inset-bottom));
+  border-top:1px solid var(--border2);background:rgba(8,11,10,0.9);
+  display:flex;gap:8px;align-items:center;flex-shrink:0;
+}
+#chatInp{
+  flex:1;padding:11px 16px;border-radius:50px;
+  border:1px solid var(--border);background:var(--surface2);
+  font-family:'DM Sans',sans-serif;font-size:14px;color:var(--cream);
+  outline:none;-webkit-appearance:none;
+  transition:border-color 0.15s ease;
+}
+#chatInp::placeholder{color:var(--muted);}
+#chatInp:focus{border-color:var(--gold);}
+.chat-send-btn{
+  width:40px;height:40px;border-radius:50%;border:none;flex-shrink:0;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  box-shadow:0 2px 10px rgba(201,168,76,0.35);
+  transition:transform 0.08s cubic-bezier(0.2,0,0,1);
+}
+.chat-send-btn:active{transform:scale(0.88);}
+.chat-send-btn svg{width:16px;height:16px;stroke:var(--obsidian);stroke-width:2.2;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+
+/* ── QUIZ PAGE ── */
+.quiz-prog{display:flex;align-items:center;gap:12px;margin-top:14px;}
+.qp-bar{flex:1;height:2px;background:var(--border2);border-radius:2px;overflow:hidden;}
+.qp-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:2px;transition:width 0.24s ease;}
+.qp-txt{font-size:11px;font-weight:600;color:var(--muted);white-space:nowrap;}
+.quiz-body{padding:24px 20px;}
+.quiz-q{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:300;letter-spacing:-0.03em;color:var(--cream);line-height:1.25;margin-bottom:6px;}
+.quiz-hint{font-size:13px;color:var(--muted);margin-bottom:20px;}
+.inp-pair{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.inp-box{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:16px;padding:14px;text-align:center;
+  transition:border-color 0.15s ease,background 0.15s ease;
+}
+.inp-box:focus-within{border-color:var(--gold);background:rgba(201,168,76,0.04);}
+.inp-box-lbl{font-size:9px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;}
+.inp-box input{
+  width:100%;background:transparent;border:none;outline:none;
+  font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;
+  color:var(--cream);text-align:center;letter-spacing:-0.04em;
+}
+.inp-box-unit{font-size:11px;color:var(--muted);margin-top:3px;}
+.bmi-box{background:rgba(201,168,76,0.06);border-color:var(--gold);}
+.bmi-box .inp-box-lbl{color:var(--gold);}
+#qBMI{
+  font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;
+  color:var(--gold2);display:block;text-align:center;
+  letter-spacing:-0.04em;line-height:1.2;
+}
+.opt-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+.opt-grid.cols3{grid-template-columns:1fr 1fr 1fr;}
+.opt-pill{
+  padding:14px 8px;border-radius:16px;
+  border:1px solid var(--border);background:var(--surface2);
+  text-align:center;cursor:pointer;
+  transition:transform 0.08s cubic-bezier(0.2,0,0,1),
+             border-color 0.15s ease,background 0.15s ease;
+}
+.opt-pill:active{transform:scale(0.95);}
+.opt-pill.on{border-color:var(--gold);background:rgba(201,168,76,0.07);}
+.opt-icon{font-size:22px;margin-bottom:6px;}
+.opt-lbl{font-size:12px;font-weight:600;color:var(--cream2);}
+.opt-pill.on .opt-lbl{color:var(--gold2);}
+.quiz-nav{display:flex;gap:10px;padding-top:14px;}
+.q-back{
+  width:48px;height:48px;border-radius:50%;flex-shrink:0;
+  border:1px solid var(--border);background:var(--surface2);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  transition:transform 0.08s ease;
+}
+.q-back:active{transform:scale(0.9);}
+.q-back svg{width:16px;height:16px;stroke:var(--muted);stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+.q-next{
+  flex:1;height:48px;border-radius:50px;border:none;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:var(--obsidian);font-family:'DM Sans',sans-serif;
+  font-size:14px;font-weight:700;cursor:pointer;
+  box-shadow:0 4px 16px rgba(201,168,76,0.3);
+  transition:transform 0.08s ease,box-shadow 0.15s ease;
+}
+.q-next:active{transform:scale(0.97);}
+
+/* Quiz result */
+.qres-card{
+  margin:20px;padding:24px;
+  background:linear-gradient(145deg,var(--surface2),var(--surface3));
+  border:1px solid var(--border);border-radius:24px;
+  animation:scaleIn 0.3s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+@keyframes scaleIn{from{opacity:0;transform:scale(0.92);}to{opacity:1;transform:scale(1);}}
+.qres-label{font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
+.qres-name{font-family:'Cormorant Garamond',serif;font-size:1.7rem;font-weight:300;color:var(--cream);letter-spacing:-0.04em;line-height:1.2;margin-bottom:6px;}
+.qres-why{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:14px;}
+.qres-ings{display:flex;flex-wrap:wrap;gap:6px;}
+.qres-ing{
+  padding:4px 10px;background:rgba(201,168,76,0.1);
+  border:1px solid var(--border);border-radius:50px;
+  font-size:11px;font-weight:600;color:var(--gold2);
+}
+.bmi-card{
+  margin:0 20px 20px;
+  background:rgba(201,168,76,0.06);border:1px solid var(--border);
+  border-radius:20px;padding:20px;text-align:center;
+}
+.bmi-big{font-family:'Cormorant Garamond',serif;font-size:3rem;font-weight:300;color:var(--gold2);letter-spacing:-0.06em;line-height:1;}
+.bmi-lbl{font-size:13px;font-weight:600;color:var(--gold);margin-top:6px;}
+.qres-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 20px 16px;}
+.qra{
+  height:48px;border-radius:50px;border:none;cursor:pointer;
+  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;
+  transition:transform 0.08s ease;
+}
+.qra:active{transform:scale(0.97);}
+.qra.gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--obsidian);box-shadow:0 3px 12px rgba(201,168,76,0.3);}
+.qra.ghost{background:var(--surface2);border:1px solid var(--border);color:var(--cream2);}
+
+/* RECIPES */
+.recipe-list{padding:14px 20px;display:flex;flex-direction:column;gap:10px;}
+.recipe-card{
+  background:var(--surface2);border:1px solid var(--border2);border-radius:20px;
+  overflow:hidden;cursor:pointer;
+  transition:transform 0.15s ease,border-color 0.15s ease;
+}
+.recipe-card:active{transform:scale(0.975);}
+.recipe-card:hover{border-color:var(--border);}
+.recipe-card-inner{display:flex;align-items:center;gap:14px;padding:14px 16px;}
+.recipe-ico{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.recipe-name{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:400;color:var(--cream);letter-spacing:-0.02em;margin-bottom:3px;}
+.recipe-meta{font-size:11px;color:var(--muted);}
+.recipe-arr{
+  width:26px;height:26px;border-radius:50%;background:var(--surface3);
+  margin-left:auto;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.recipe-arr svg{width:12px;height:12px;stroke:var(--muted);stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+
+/* VIDEOS */
+.vid-tabs{display:flex;gap:8px;padding:12px 20px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--border2);}
+.vtab{
+  flex-shrink:0;padding:7px 14px;border-radius:50px;
+  border:1px solid var(--border);background:var(--surface2);
+  font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;
+  color:var(--muted);cursor:pointer;white-space:nowrap;
+  transition:all 0.15s ease;
+}
+.vtab:active{transform:scale(0.93);}
+.vtab.on{background:linear-gradient(135deg,var(--gold),var(--gold2));border-color:transparent;color:var(--obsidian);}
+.vid-list{padding:14px 20px;display:flex;flex-direction:column;gap:10px;}
+.vid-card{
+  border-radius:20px;overflow:hidden;background:var(--surface2);
+  border:1px solid var(--border2);cursor:pointer;
+  transition:transform 0.15s ease;
+}
+.vid-card:active{transform:scale(0.975);}
+.vid-thumb{position:relative;aspect-ratio:16/9;overflow:hidden;}
+.vid-thumb img{width:100%;height:100%;object-fit:cover;}
+.vid-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(8,11,10,0.3);}
+.vid-play{width:44px;height:44px;border-radius:50%;background:rgba(201,168,76,0.9);display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 2px 12px rgba(201,168,76,0.3);}
+.vid-info{padding:12px 14px;}
+.vid-title{font-size:13px;font-weight:600;color:var(--cream);line-height:1.4;margin-bottom:3px;}
+.vid-meta{font-size:11px;color:var(--muted);}
+
+/* COMMUNITY */
+.comm-hero{
+  padding:32px 20px 24px;position:relative;overflow:hidden;
+  background:linear-gradient(160deg,var(--surface2),var(--obsidian));
+  border-bottom:1px solid var(--border2);
+}
+.comm-orb{position:absolute;top:-80px;right:-80px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(74,124,89,0.2),transparent 70%);filter:blur(60px);}
+.comm-inner{position:relative;z-index:2;}
+.comm-title{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:300;color:var(--cream);letter-spacing:-0.04em;line-height:1.2;margin-bottom:6px;}
+.comm-title em{font-style:italic;color:var(--emerald);}
+.comm-sub{font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:20px;max-width:280px;}
+.comm-share{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:10px 18px;border-radius:50px;
+  border:1px solid rgba(0,201,123,0.3);background:rgba(0,201,123,0.08);
+  color:var(--emerald);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;
+  cursor:pointer;transition:all 0.15s ease;
+}
+.comm-share:active{transform:scale(0.95);}
+.tc-list{padding:16px 20px;display:flex;flex-direction:column;gap:12px;}
+.tc{
+  background:var(--surface2);border:1px solid var(--border2);border-radius:20px;
+  overflow:hidden;transition:transform 0.15s ease,border-color 0.15s ease;
+}
+.tc:active{transform:scale(0.975);}
+.tc:hover{border-color:var(--border);}
+.tc-head{padding:14px 14px 0;display:flex;align-items:center;gap:10px;}
+.tc-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--obsidian);flex-shrink:0;}
+.tc-name{font-size:13px;font-weight:600;color:var(--cream);}
+.tc-loc{font-size:11px;color:var(--muted);}
+.tc-badge{margin-left:auto;padding:3px 8px;border-radius:50px;font-size:10px;font-weight:600;}
+.tc-body{padding:12px 14px;}
+.tc-quote{font-size:13px;color:var(--cream2);line-height:1.65;margin-bottom:10px;}
+.tc-result{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:50px;background:rgba(0,201,123,0.08);border:1px solid rgba(0,201,123,0.2);font-size:11px;font-weight:600;color:var(--emerald);}
+.tc-foot{padding:10px 14px;border-top:1px solid var(--border2);display:flex;gap:16px;}
+.tc-act{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--muted);cursor:pointer;font-weight:500;}
+
+/* ROUTINE */
+.streak-card{
+  margin:14px 20px 0;
+  background:linear-gradient(145deg,var(--surface2),var(--surface3));
+  border:1px solid var(--border);border-radius:20px;padding:18px;
+  display:flex;align-items:center;gap:14px;cursor:pointer;
+  transition:transform 0.08s ease;
+}
+.streak-card:active{transform:scale(0.97);}
+.streak-num{font-family:'Cormorant Garamond',serif;font-size:2.8rem;font-weight:300;color:var(--gold2);letter-spacing:-0.06em;line-height:1;}
+.streak-lbl{font-size:11px;color:var(--muted);margin-top:3px;}
+.streak-cta{margin-left:auto;font-size:12px;font-weight:600;color:var(--gold);}
+.alarms-list{padding:14px 20px;display:flex;flex-direction:column;gap:10px;}
+.alarm-item{
+  display:flex;align-items:center;gap:14px;padding:14px;
+  background:var(--surface2);border:1px solid var(--border2);border-radius:20px;
+  transition:transform 0.08s ease,border-color 0.15s ease;
+}
+.alarm-item:active{transform:scale(0.98);}
+.alarm-item.on{border-color:var(--border);}
+.al-emoji{font-size:24px;flex-shrink:0;}
+.al-name{font-size:14px;font-weight:600;color:var(--cream);}
+.al-time{font-size:11px;color:var(--muted);margin-top:2px;}
+.toggle{
+  width:44px;height:26px;border-radius:50px;border:1px solid var(--border);
+  background:var(--surface3);position:relative;cursor:pointer;flex-shrink:0;
+  transition:background 0.24s ease,border-color 0.15s ease;
+}
+.toggle.on{background:linear-gradient(135deg,var(--gold),var(--gold2));border-color:transparent;}
+.toggle::after{
+  content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;
+  border-radius:50%;background:var(--cream);
+  box-shadow:0 1px 4px rgba(0,0,0,0.3);
+  transition:transform 0.24s cubic-bezier(0.16,1,0.3,1);
+}
+.toggle.on::after{transform:translateX(18px);background:var(--obsidian);}
+
+/* KAI */
+.kai-tabs{
+  display:flex;gap:2px;background:var(--surface2);
+  border-radius:14px;padding:3px;margin:14px 20px 0;
+}
+.kai-tab{
+  flex:1;height:34px;border-radius:11px;border:none;
+  background:transparent;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;
+  color:var(--muted);cursor:pointer;transition:all 0.15s ease;
+}
+.kai-tab.on{background:var(--surface3);color:var(--cream);box-shadow:0 1px 4px rgba(0,0,0,0.2);}
+.kai-bd{padding:14px 20px;}
+.km-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px;}
+.km-btn{
+  padding:10px 6px;border-radius:14px;border:1px solid var(--border);
+  background:var(--surface2);text-align:center;cursor:pointer;
+  transition:all 0.15s ease;
+}
+.km-btn:active{transform:scale(0.93);}
+.km-btn.on{border-color:var(--gold);background:rgba(201,168,76,0.07);}
+.km-icon{font-size:18px;margin-bottom:4px;}
+.km-name{font-size:10px;font-weight:700;color:var(--muted);}
+.km-btn.on .km-name{color:var(--gold2);}
+.km-tag{font-size:8px;font-weight:700;padding:1px 5px;border-radius:4px;background:rgba(201,168,76,0.15);color:var(--gold);margin-top:2px;display:inline-block;}
+.field-lbl{font-size:11px;font-weight:600;color:var(--muted);margin-bottom:10px;letter-spacing:0.02em;}
+textarea.kai-inp{
+  width:100%;padding:12px 14px;border-radius:14px;
+  border:1px solid var(--border);background:var(--surface2);
+  font-family:'DM Sans',sans-serif;font-size:14px;color:var(--cream);
+  resize:none;min-height:80px;outline:none;margin-bottom:14px;
+  transition:border-color 0.15s ease;line-height:1.55;
+}
+textarea.kai-inp:focus{border-color:var(--gold);}
+textarea.kai-inp::placeholder{color:var(--muted);}
+
+/* Buttons */
+.btn-gold{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:700;
+  height:50px;padding:0 24px;border-radius:50px;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:var(--obsidian);font-size:14px;letter-spacing:-0.01em;
+  box-shadow:0 2px 12px rgba(201,168,76,0.3),inset 0 1px 0 rgba(255,255,255,0.2);
+  transition:transform 0.08s ease,box-shadow 0.15s ease;
+  -webkit-tap-highlight-color:transparent;
+}
+.btn-gold:active{transform:scale(0.97);}
+.btn-gold:hover{box-shadow:0 6px 20px rgba(201,168,76,0.4);}
+.btn-ghost{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  border:1px solid var(--border);cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;
+  height:50px;padding:0 24px;border-radius:50px;
+  background:var(--surface2);color:var(--cream2);font-size:14px;
+  transition:transform 0.08s ease,border-color 0.15s ease;
+  -webkit-tap-highlight-color:transparent;
+}
+.btn-ghost:active{transform:scale(0.97);}
+.btn-ghost:hover{border-color:var(--gold);color:var(--gold2);}
+.btn-full{width:100%;}
+
+/* Overlays */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(4px);z-index:200;opacity:0;pointer-events:none;transition:opacity 0.24s ease;}
+.overlay.open{opacity:1;pointer-events:all;}
+.sheet{
+  position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;
+  background:var(--surface);border-radius:28px 28px 0 0;border-top:1px solid var(--border);
+  z-index:300;max-height:90dvh;overflow-y:auto;
+  transform:translateY(100%);transition:transform 0.36s cubic-bezier(0.77,0,0.175,1);
+}
+.sheet.open{transform:translateY(0);}
+.sheet-handle{width:32px;height:3px;background:var(--border);border-radius:2px;margin:12px auto;}
+.sheet-hdr{padding:6px 20px 16px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;}
+.sheet-ttl{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:300;letter-spacing:-0.03em;color:var(--cream);}
+.sheet-cls{width:28px;height:28px;border-radius:50%;background:var(--surface2);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--muted);transition:transform 0.08s ease;}
+.sheet-cls:active{transform:scale(0.85);}
+.shop-item{display:flex;align-items:center;gap:14px;padding:12px 20px;border-bottom:1px solid var(--border2);cursor:pointer;transition:background 0.08s ease;}
+.shop-item:active{background:var(--surface2);}
+.shop-item.done .shop-item-name{text-decoration:line-through;color:var(--muted);}
+.shop-chk{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;color:var(--obsidian);transition:all 0.24s cubic-bezier(0.34,1.56,0.64,1);}
+.shop-item.done .shop-chk{background:var(--emerald);border-color:var(--emerald);}
+.shop-item-name{font-size:14px;font-weight:500;color:var(--cream);}
+.shop-item-qty{font-size:11px;color:var(--muted);margin-top:2px;}
+.shop-emoji{font-size:22px;flex-shrink:0;margin-left:auto;}
+
+/* ONBOARDING */
+#onboarding{
+  position:fixed;inset:0;background:var(--obsidian);z-index:1000;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:40px 24px;
+  transition:opacity 0.4s ease,transform 0.4s cubic-bezier(0.77,0,0.175,1);
+}
+#onboarding.hidden{opacity:0;transform:translateY(-100%);pointer-events:none;}
+.ob-orb1{position:absolute;width:400px;height:400px;border-radius:50%;filter:blur(120px);background:radial-gradient(circle,rgba(74,124,89,0.25),transparent 70%);top:-150px;left:-150px;animation:drift 12s ease-in-out infinite alternate;}
+.ob-orb2{position:absolute;width:300px;height:300px;border-radius:50%;filter:blur(100px);background:radial-gradient(circle,rgba(201,168,76,0.15),transparent 70%);bottom:-100px;right:-100px;animation:drift 8s ease-in-out infinite alternate;animation-delay:-4s;}
+.ob-inner{position:relative;z-index:2;width:100%;max-width:360px;display:flex;flex-direction:column;align-items:center;text-align:center;}
+.ob-logo{
+  width:80px;height:80px;border-radius:22px;
+  background:linear-gradient(145deg,var(--gold2),var(--gold));
+  display:flex;align-items:center;justify-content:center;font-size:38px;
+  margin-bottom:24px;
+  box-shadow:0 0 0 8px rgba(201,168,76,0.1),0 0 0 16px rgba(201,168,76,0.05);
+  animation:obPulse 3s ease-in-out infinite;
+}
+@keyframes obPulse{0%,100%{box-shadow:0 0 0 8px rgba(201,168,76,0.1),0 0 0 16px rgba(201,168,76,0.05);}50%{box-shadow:0 0 0 12px rgba(201,168,76,0.15),0 0 0 24px rgba(201,168,76,0.03);}}
+.ob-eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:12px;animation:fadeIn 0.6s ease both;}
+.ob-ey-line{width:24px;height:1px;background:var(--gold);}
+.ob-kicker{font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);font-weight:500;}
+.ob-headline{font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,8vw,2.8rem);font-weight:300;letter-spacing:-0.04em;line-height:1.1;color:var(--cream);margin-bottom:12px;animation:fadeUp 0.6s 0.1s ease both;}
+.ob-headline em{font-style:italic;color:var(--gold2);}
+.ob-sub{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:32px;max-width:300px;animation:fadeUp 0.6s 0.2s ease both;}
+.ob-feats{width:100%;display:flex;flex-direction:column;gap:10px;margin-bottom:32px;}
+.ob-feat{
+  display:flex;align-items:center;gap:14px;
+  background:rgba(22,32,25,0.6);border:1px solid var(--border);border-radius:20px;
+  padding:14px 16px;animation:fadeUp 0.5s ease both;text-align:left;
+}
+.ob-feat:nth-child(1){animation-delay:0.25s}
+.ob-feat:nth-child(2){animation-delay:0.35s}
+.ob-feat:nth-child(3){animation-delay:0.45s}
+.ob-feat:nth-child(4){animation-delay:0.55s}
+.ob-feat-ico{font-size:22px;flex-shrink:0;}
+.ob-feat-ttl{font-size:13px;font-weight:600;color:var(--cream);}
+.ob-feat-sub{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.5;}
+.ob-cta{width:100%;animation:fadeUp 0.5s 0.65s ease both;}
+.ob-btn{
+  width:100%;height:52px;border-radius:50px;border:none;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:var(--obsidian);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;
+  cursor:pointer;box-shadow:0 4px 20px rgba(201,168,76,0.4);
+  transition:transform 0.08s ease,box-shadow 0.15s ease;margin-bottom:12px;
+}
+.ob-btn:active{transform:scale(0.97);}
+.ob-skip{font-size:13px;color:var(--muted);background:none;border:none;cursor:pointer;width:100%;padding:8px;font-family:'DM Sans',sans-serif;}
+
+/* PROFILE */
+.prof-section{background:var(--surface2);border:1px solid var(--border2);border-radius:20px;overflow:hidden;margin-bottom:14px;}
+.prof-row{padding:14px 20px;border-bottom:1px solid var(--border2);}
+.prof-row:last-child{border-bottom:none;}
+.prof-row-lbl{font-size:10px;font-weight:600;color:var(--gold);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px;}
+.prof-row input{width:100%;background:transparent;border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--cream);}
+.prof-row input::placeholder{color:var(--muted);}
+
+/* Toast */
+#toast{
+  position:fixed;bottom:86px;left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background:var(--surface3);color:var(--cream);
+  border:1px solid var(--border);
+  padding:11px 20px;border-radius:50px;
+  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;
+  z-index:9999;opacity:0;pointer-events:none;white-space:nowrap;
+  box-shadow:0 8px 24px rgba(0,0,0,0.5);letter-spacing:-0.01em;
+  transition:opacity 0.24s cubic-bezier(0.16,1,0.3,1),transform 0.24s cubic-bezier(0.16,1,0.3,1);
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+::-webkit-scrollbar{display:none;}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;}
+input[type=number]{-moz-appearance:textfield;}
+a{text-decoration:none;color:inherit;}
+button{font-family:'DM Sans',sans-serif;}
+</style>
+</head>
+<body>
+
+<div id="app">
+
+<!-- HEADER -->
+<header id="header">
+  <div class="hdr-brand">
+    <div class="hdr-logo">🥤</div>
+    <div class="hdr-name">Dr. Smoothie <em>AI</em></div>
+  </div>
+  <div class="hdr-right">
+    <button class="lang-btn" onclick="cycleLang()">
+      <span id="langFlag">🇺🇸</span><span id="langCode">EN</span>
+    </button>
+    <div class="notif-btn" onclick="showToast('🔔 Notifications coming soon')">
+      <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <div class="notif-dot show" id="notifDot"></div>
+    </div>
+  </div>
+</header>
+
+<!-- PAGES -->
+<div id="pages">
+
+<!-- HOME -->
+<div id="page-home" class="page active">
+  <div class="home-hero">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="hex-bg"></div>
+    <div class="home-hero-inner">
+      <div class="home-eyebrow">
+        <div class="eyebrow-line"></div>
+        <span class="eyebrow-text">AI Wellness · Personalized</span>
+      </div>
+      <h1 class="home-title">Your <em>Wellness</em><br>Starts Here</h1>
+      <p class="home-sub">Tell me your goal. I'll create your perfect smoothie plan, personalized for your body.</p>
+      <div class="home-cta">
+        <button class="ha-pill gold" onclick="navGo('quiz')">📋 My Analysis</button>
+        <button class="ha-pill" onclick="navGo('menu')">🥤 Recipes</button>
+        <button class="ha-pill" onclick="navGo('community')">🌿 Stories</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vitality ring -->
+  <div class="vitality-strip" onclick="openCheckin()">
+    <div class="vring">
+      <svg viewBox="0 0 100 100">
+        <defs>
+          <linearGradient id="vGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#C9A84C"/>
+            <stop offset="100%" style="stop-color:#4A7C59"/>
+          </linearGradient>
+        </defs>
+        <circle class="vring-bg" cx="50" cy="50" r="35"/>
+        <circle class="vring-fill" id="vRingFill" cx="50" cy="50" r="35"/>
+      </svg>
+      <div class="vring-inner">
+        <div style="font-size:1.6rem">🥤</div>
+        <div class="vring-pct" id="vPct">74%</div>
+      </div>
+    </div>
+    <div class="vitality-info">
+      <div class="vi-label">Daily Vitality</div>
+      <div class="vi-title">Your <em>Wellness</em></div>
+      <div class="vi-sub" id="vSub">Tap to check in today</div>
+    </div>
+  </div>
+
+  <div class="sec-row">
+    <div class="sec-eyebrow">Wellness Goals</div>
+    <span class="sec-link" onclick="navGo('menu')">See all</span>
+  </div>
+  <div class="cat-grid" id="catGrid"></div>
+
+  <!-- Download -->
+  <div class="dl-strip">
+    <div class="dl-title">Get the <em>App</em></div>
+    <div class="dl-sub">iOS & Android · Free to download</div>
+    <div class="dl-btns">
+      <a class="dl-btn" href="https://apps.apple.com/search?term=dr+smoothie+wellness" target="_blank">
+        <svg viewBox="0 0 24 24"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+        App Store
+      </a>
+      <a class="dl-btn" href="https://play.google.com/store/search?q=smoothie+wellness+ai" target="_blank">
+        <svg viewBox="0 0 24 24"><path d="M3.18 23.76c.38.21.8.24 1.19.09l11.9-6.87-2.62-2.63zM20.7 10.37L17.5 8.57l-2.93 2.93 2.93 2.93 3.22-1.86c.92-.53.92-1.67-.02-2.2zM2.14 1.24C2.05 1.46 2 1.71 2 2v20c0 .29.05.54.14.76l.07.07 11.2-11.2v-.26L2.21 1.17z"/></svg>
+        Google Play
+      </a>
+    </div>
+  </div>
+
+  <!-- Tiers -->
+  <div class="tiers-strip">
+    <div class="tiers-title">Join PureLife <em>Club</em></div>
+    <p class="tiers-sub">Thousands transforming their wellness with personalized AI smoothie plans.</p>
+    <div class="tiers-grid">
+      <div class="tier-pill" onclick="showToast('Seed plan — coming soon')">
+        <div class="tier-pill-name">Seed</div>
+        <div class="tier-pill-price">Free<span>/mo</span></div>
+        <div class="tier-pill-feat">3 recipes</div>
+      </div>
+      <div class="tier-pill featured" onclick="showToast('Bloom plan — coming soon')">
+        <div class="tier-pill-name">Bloom</div>
+        <div class="tier-pill-price">$4<span>.99</span></div>
+        <div class="tier-pill-feat">Unlimited AI</div>
+      </div>
+      <div class="tier-pill" onclick="showToast('Canopy plan — coming soon')">
+        <div class="tier-pill-name">Canopy</div>
+        <div class="tier-pill-price">$9<span>.99</span></div>
+        <div class="tier-pill-feat">Concierge</div>
+      </div>
+    </div>
+    <button class="btn-gold btn-full" onclick="showToast('🌿 Joining waitlist...')">Start Free — No card needed</button>
+  </div>
+  <div style="height:32px"></div>
+</div>
+
+<!-- RECIPES -->
+<div id="page-menu" class="page">
+  <div class="pg-header">
+    <div class="pg-eyebrow"><div class="pg-eyebrow-line"></div><span class="pg-eyebrow-text">Smoothie Recipes</span></div>
+    <div class="pg-title">Personalized <em>Recipes</em></div>
+    <div class="pg-sub">Curated for your wellness goals</div>
+  </div>
+  <div class="recipe-list" id="recipeList"></div>
+</div>
+
+<!-- VIDEOS -->
+<div id="page-videos" class="page">
+  <div class="pg-header">
+    <div class="pg-eyebrow"><div class="pg-eyebrow-line"></div><span class="pg-eyebrow-text">Tutorial Videos</span></div>
+    <div class="pg-title">Learn to <em>Blend</em></div>
+  </div>
+  <div class="vid-tabs">
+    <button class="vtab on" onclick="setVCat(this,'detox')">♻️ Detox</button>
+    <button class="vtab" onclick="setVCat(this,'weight')">⚖️ Weight</button>
+    <button class="vtab" onclick="setVCat(this,'fitness')">💪 Fitness</button>
+    <button class="vtab" onclick="setVCat(this,'energy')">⚡ Energy</button>
+    <button class="vtab" onclick="setVCat(this,'heart')">❤️ Heart</button>
+    <button class="vtab" onclick="setVCat(this,'diabetic')">🩺 Diabetic</button>
+  </div>
+  <div class="vid-list" id="vidList"></div>
+</div>
+
+<!-- CHAT -->
+<div id="page-chat" class="page chat-page">
+  <div class="chat-hdr">
+    <div class="chat-hdr-name">Dr. Smoothie <em>AI</em></div>
+    <div class="chat-hdr-sub">
+      <div class="online-dot"></div>
+      Personal wellness concierge · Available 24/7
+    </div>
+  </div>
+  <div class="chat-msgs" id="chatMsgs">
+    <div class="chat-msg bot">Hi! I'm Dr. Smoothie AI 🌿 Tell me your wellness goal and I'll create a personalized smoothie plan just for you. What are you working towards?</div>
+  </div>
+  <div class="quick-chips">
+    <button class="qchip" onclick="sendQ('I want to lose weight')">⚖️ Weight loss</button>
+    <button class="qchip" onclick="sendQ('I need more energy')">⚡ More energy</button>
+    <button class="qchip" onclick="sendQ('Help me detox')">🌿 Detox</button>
+    <button class="qchip" onclick="sendQ('Heart health smoothie')">❤️ Heart health</button>
+    <button class="qchip" onclick="sendQ('Diabetic-friendly smoothie')">🩺 Diabetic</button>
+  </div>
+  <div class="chat-inp-row">
+    <input id="chatInp" type="text" placeholder="Ask Dr. Smoothie AI..." onkeydown="if(event.key==='Enter')sendMsg()"/>
+    <button class="chat-send-btn" onclick="sendMsg()">
+      <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div id="page-quiz" class="page">
+  <div class="pg-header">
+    <div class="pg-eyebrow"><div class="pg-eyebrow-line"></div><span class="pg-eyebrow-text">Wellness Analysis</span></div>
+    <div class="pg-title">Your <em>Profile</em></div>
+    <div class="quiz-prog"><div class="qp-bar"><div class="qp-fill" id="qpFill" style="width:25%"></div></div><span class="qp-txt" id="qpTxt">1 of 4</span></div>
+  </div>
+  <!-- Step 1 -->
+  <div class="quiz-body" id="qs1">
+    <div class="quiz-q">Body measurements</div>
+    <div class="quiz-hint">We calculate your BMI to find your ideal smoothie</div>
+    <div class="inp-pair">
+      <div class="inp-box"><div class="inp-box-lbl">Age</div><input type="number" id="qAge" value="30" min="15" max="90" oninput="calcBMI()"><div class="inp-box-unit">years</div></div>
+      <div class="inp-box"><div class="inp-box-lbl">Weight</div><input type="number" id="qWeight" value="70" min="30" max="250" oninput="calcBMI()"><div class="inp-box-unit">kg</div></div>
+    </div>
+    <div class="inp-pair">
+      <div class="inp-box"><div class="inp-box-lbl">Height</div><input type="number" id="qHeight" value="170" min="100" max="220" oninput="calcBMI()"><div class="inp-box-unit">cm</div></div>
+      <div class="inp-box bmi-box"><div class="inp-box-lbl">BMI</div><span id="qBMI">24.2</span><div class="inp-box-unit" id="qBMILbl">Normal ✅</div></div>
+    </div>
+    <div class="quiz-nav"><button class="q-next btn-full" onclick="qGo(1,2)">Continue →</button></div>
+  </div>
+  <!-- Step 2 -->
+  <div class="quiz-body" id="qs2" style="display:none">
+    <div class="quiz-q">About you</div><div class="quiz-hint">Help us personalize your plan</div>
+    <div style="margin-bottom:20px"><div class="field-lbl">Gender</div>
+      <div class="opt-grid cols3">
+        <div class="opt-pill on" data-g="male" onclick="selOpt(this,'gender')"><div class="opt-icon">👨</div><div class="opt-lbl">Male</div></div>
+        <div class="opt-pill" data-g="female" onclick="selOpt(this,'gender')"><div class="opt-icon">👩</div><div class="opt-lbl">Female</div></div>
+        <div class="opt-pill" data-g="other" onclick="selOpt(this,'gender')"><div class="opt-icon">🧑</div><div class="opt-lbl">Other</div></div>
+      </div>
+    </div>
+    <div><div class="field-lbl">Activity level</div>
+      <div class="opt-grid">
+        <div class="opt-pill on" data-a="sedentary" onclick="selOpt(this,'activity')"><div class="opt-icon">🪑</div><div class="opt-lbl">Sedentary</div></div>
+        <div class="opt-pill" data-a="light" onclick="selOpt(this,'activity')"><div class="opt-icon">🚶</div><div class="opt-lbl">Light</div></div>
+        <div class="opt-pill" data-a="moderate" onclick="selOpt(this,'activity')"><div class="opt-icon">🏊</div><div class="opt-lbl">Moderate</div></div>
+        <div class="opt-pill" data-a="active" onclick="selOpt(this,'activity')"><div class="opt-icon">🏋️</div><div class="opt-lbl">Very active</div></div>
+      </div>
+    </div>
+    <div class="quiz-nav">
+      <button class="q-back" onclick="qGo(2,1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <button class="q-next" style="flex:1" onclick="qGo(2,3)">Continue →</button>
+    </div>
+  </div>
+  <!-- Step 3 -->
+  <div class="quiz-body" id="qs3" style="display:none">
+    <div class="quiz-q">Health conditions</div><div class="quiz-hint">Select all that apply</div>
+    <div class="opt-grid">
+      <div class="opt-pill on" data-h="none" onclick="selOpt(this,'health',true)"><div class="opt-icon">✅</div><div class="opt-lbl">None</div></div>
+      <div class="opt-pill" data-h="diabetes" onclick="selOpt(this,'health',true)"><div class="opt-icon">💧</div><div class="opt-lbl">Diabetes</div></div>
+      <div class="opt-pill" data-h="hypertension" onclick="selOpt(this,'health',true)"><div class="opt-icon">❤️</div><div class="opt-lbl">Hypertension</div></div>
+      <div class="opt-pill" data-h="cholesterol" onclick="selOpt(this,'health',true)"><div class="opt-icon">🩸</div><div class="opt-lbl">Cholesterol</div></div>
+      <div class="opt-pill" data-h="digestive" onclick="selOpt(this,'health',true)"><div class="opt-icon">🫁</div><div class="opt-lbl">Digestive</div></div>
+      <div class="opt-pill" data-h="fatigue" onclick="selOpt(this,'health',true)"><div class="opt-icon">😴</div><div class="opt-lbl">Fatigue</div></div>
+    </div>
+    <div class="quiz-nav">
+      <button class="q-back" onclick="qGo(3,2)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <button class="q-next" style="flex:1" onclick="qGo(3,4)">Continue →</button>
+    </div>
+  </div>
+  <!-- Step 4 -->
+  <div class="quiz-body" id="qs4" style="display:none">
+    <div class="quiz-q">Your main goal</div><div class="quiz-hint">What do you want to achieve?</div>
+    <div class="opt-grid">
+      <div class="opt-pill" data-goal="weight_loss" onclick="selOpt(this,'goal')"><div class="opt-icon">⚖️</div><div class="opt-lbl">Lose weight</div></div>
+      <div class="opt-pill on" data-goal="energy" onclick="selOpt(this,'goal')"><div class="opt-icon">⚡</div><div class="opt-lbl">More energy</div></div>
+      <div class="opt-pill" data-goal="detox" onclick="selOpt(this,'goal')"><div class="opt-icon">🌿</div><div class="opt-lbl">Detox</div></div>
+      <div class="opt-pill" data-goal="muscle" onclick="selOpt(this,'goal')"><div class="opt-icon">💪</div><div class="opt-lbl">Muscle</div></div>
+      <div class="opt-pill" data-goal="heart" onclick="selOpt(this,'goal')"><div class="opt-icon">❤️</div><div class="opt-lbl">Heart</div></div>
+      <div class="opt-pill" data-goal="immunity" onclick="selOpt(this,'goal')"><div class="opt-icon">🛡️</div><div class="opt-lbl">Immunity</div></div>
+    </div>
+    <div class="quiz-nav">
+      <button class="q-back" onclick="qGo(4,3)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <button class="q-next" style="flex:1" id="qAnalyzeBtn" onclick="runAnalysis()">🌿 Analyze my profile</button>
+    </div>
+  </div>
+  <!-- Result -->
+  <div id="qRes" style="display:none">
+    <div class="qres-card"><div class="qres-label">Your perfect smoothie</div><div class="qres-name" id="qResName"></div><div class="qres-why" id="qResWhy"></div><div class="qres-ings" id="qResIngs"></div></div>
+    <div class="bmi-card"><div class="bmi-big" id="qResBMI">24.2</div><div class="bmi-lbl" id="qResBMILbl">Normal weight ✅</div></div>
+    <div class="qres-actions">
+      <button class="qra gold" onclick="sendProfileToChat()">🤖 Ask Dr. AI</button>
+      <button class="qra ghost" onclick="openShopFromQuiz()">🛒 Shop list</button>
+    </div>
+    <div style="padding:0 20px 20px"><button class="btn-ghost btn-full" onclick="resetQuiz()">↺ Retake</button></div>
+  </div>
+</div>
+
+<!-- COMMUNITY -->
+<div id="page-community" class="page">
+  <div class="comm-hero">
+    <div class="comm-orb"></div>
+    <div class="comm-inner">
+      <div class="pg-eyebrow" style="margin-bottom:12px"><div class="pg-eyebrow-line" style="background:var(--emerald)"></div><span class="pg-eyebrow-text" style="color:var(--emerald)">Community</span></div>
+      <div class="comm-title">Real <em>Transformations</em></div>
+      <div class="comm-sub">Stories from the PureLive community. Your change inspires thousands.</div>
+      <button class="comm-share" onclick="shareMyStory()">📱 Share my story</button>
+    </div>
+  </div>
+  <div class="tc-list">
+    <div class="tc"><div class="tc-head"><div class="tc-av" style="background:linear-gradient(145deg,var(--gold),var(--sage))">M</div><div><div class="tc-name">Maria G.</div><div class="tc-loc">Miami, FL · Jan 2026</div></div><div class="tc-badge" style="background:rgba(0,201,123,0.1);color:var(--emerald);border:1px solid rgba(0,201,123,0.2)">⭐ Featured</div></div><div class="tc-body"><div class="tc-quote">"30 days on the detox plan and I feel completely different. More energy, better sleep, and I lost 4kg without starving!"</div><div class="tc-result">🌿 -4kg in 30 days · More energy</div></div><div class="tc-foot"><div class="tc-act">❤️ 234</div><div class="tc-act">💬 18</div><div class="tc-act" onclick="shareMyStory()">📤 Share</div></div></div>
+    <div class="tc"><div class="tc-head"><div class="tc-av" style="background:linear-gradient(145deg,#6366f1,#4f46e5)">C</div><div><div class="tc-name">Carlos M.</div><div class="tc-loc">Bogotá, CO · Feb 2026</div></div><div class="tc-badge" style="background:rgba(99,102,241,0.1);color:#818cf8;border:1px solid rgba(99,102,241,0.2)">💪 Fitness</div></div><div class="tc-body"><div class="tc-quote">"The Pre-Workout smoothie changed my training completely. Dr. AI recommended exactly what I needed — +30% endurance."</div><div class="tc-result">💪 +30% athletic performance</div></div><div class="tc-foot"><div class="tc-act">❤️ 187</div><div class="tc-act">💬 12</div><div class="tc-act" onclick="shareMyStory()">📤 Share</div></div></div>
+    <div class="tc"><div class="tc-head"><div class="tc-av" style="background:linear-gradient(145deg,#d97706,#b45309)">A</div><div><div class="tc-name">Ana P.</div><div class="tc-loc">Madrid, ES · Mar 2026</div></div><div class="tc-badge" style="background:rgba(217,119,6,0.1);color:#fbbf24;border:1px solid rgba(217,119,6,0.2)">💧 Diabetic</div></div><div class="tc-body"><div class="tc-quote">"As a diabetic I was afraid of smoothies. Dr. AI created a specific plan and now my blood sugar is stable. Doctor approved!"</div><div class="tc-result">💧 Stable blood sugar · Doctor approved</div></div><div class="tc-foot"><div class="tc-act">❤️ 312</div><div class="tc-act">💬 29</div><div class="tc-act" onclick="shareMyStory()">📤 Share</div></div></div>
+  </div>
+</div>
+
+<!-- ROUTINE -->
+<div id="page-routine" class="page">
+  <div class="pg-header">
+    <div class="pg-eyebrow"><div class="pg-eyebrow-line"></div><span class="pg-eyebrow-text">Daily Routine</span></div>
+    <div class="pg-title">Your <em>Reminders</em></div>
+    <div class="pg-sub">Stay consistent · Never miss your smoothie</div>
+  </div>
+  <div class="streak-card" onclick="openCheckin()">
+    <div style="font-size:2.2rem">🔥</div>
+    <div><div class="streak-num" id="streakNum">0</div><div class="streak-lbl">day streak</div></div>
+    <div class="streak-cta">Check in →</div>
+  </div>
+  <div class="alarms-list">
+    <div class="alarm-item on" id="al-1"><div class="al-emoji">🌅</div><div style="flex:1"><div class="al-name">Morning Smoothie</div><div class="al-time">7:00 AM · Mon–Fri</div></div><button class="toggle on" onclick="toggleAl(this,'al-1')"></button></div>
+    <div class="alarm-item on" id="al-2"><div class="al-emoji">🛒</div><div style="flex:1"><div class="al-name">Buy Ingredients</div><div class="al-time">6:00 PM · Sunday</div></div><button class="toggle on" onclick="toggleAl(this,'al-2')"></button></div>
+    <div class="alarm-item" id="al-3"><div class="al-emoji">🌙</div><div style="flex:1"><div class="al-name">Evening Check-in</div><div class="al-time">8:00 PM · Daily</div></div><button class="toggle" onclick="toggleAl(this,'al-3')"></button></div>
+    <div class="alarm-item" id="al-4"><div class="al-emoji">💧</div><div style="flex:1"><div class="al-name">Hydration</div><div class="al-time">2:00 PM · Daily</div></div><button class="toggle" onclick="toggleAl(this,'al-4')"></button></div>
+  </div>
+  <div style="padding:0 20px 20px">
+    <button class="btn-ghost btn-full" onclick="showToast('⏰ Add reminder — coming soon')">+ Add reminder</button>
+  </div>
+</div>
+
+<!-- KAI -->
+<div id="page-kai" class="page">
+  <div class="pg-header">
+    <div class="pg-eyebrow"><div class="pg-eyebrow-line"></div><span class="pg-eyebrow-text">Kai · AI Generator</span></div>
+    <div class="pg-title">Generate <em>Content</em></div>
+  </div>
+  <div class="kai-tabs">
+    <button class="kai-tab on" onclick="switchKai(this,'image')">🖼 Images</button>
+    <button class="kai-tab" onclick="switchKai(this,'video')">🎬 Videos 4K</button>
+  </div>
+  <div class="kai-bd">
+    <div class="field-lbl">Model</div>
+    <div class="km-grid">
+      <div class="km-btn on" data-m="ltx-2-3-fast" onclick="setKM(this)"><div class="km-icon">⚡</div><div class="km-name">LTX Fast</div><div class="km-tag">FREE</div></div>
+      <div class="km-btn" data-m="ltx-2-3-pro" onclick="setKM(this)"><div class="km-icon">🌟</div><div class="km-name">LTX Pro</div><div class="km-tag">4K</div></div>
+      <div class="km-btn" data-m="seedance" onclick="setKM(this)"><div class="km-icon">🌱</div><div class="km-name">Seedance</div><div class="km-tag">HGF</div></div>
+      <div class="km-btn" data-m="kling" onclick="setKM(this)"><div class="km-icon">🎬</div><div class="km-name">Kling</div><div class="km-tag">HGF</div></div>
+    </div>
+    <div class="field-lbl">Describe your content</div>
+    <textarea class="kai-inp" id="kaiPrompt" placeholder="A fresh green smoothie poured in slow motion, tropical fruits, golden hour, cinematic 4K..."></textarea>
+    <button class="btn-gold btn-full" id="kaiBtn" onclick="kaiGen()">✨ Generate with Kai</button>
+    <div id="kaiSt" style="display:none;margin-top:14px;padding:14px;background:rgba(201,168,76,0.06);border:1px solid var(--border);border-radius:14px;">
+      <div style="font-size:13px;font-weight:600;color:var(--gold2)" id="kaiStMsg">Generating...</div>
+    </div>
+    <div id="kaiRes" style="display:none;margin-top:14px;">
+      <video id="kaiVid" style="width:100%;border-radius:20px;border:1px solid var(--border);display:none" controls playsinline></video>
+      <button class="btn-gold btn-full" style="margin-top:10px" onclick="approveVid()">✅ Approve & Use</button>
+    </div>
+  </div>
+</div>
+
+<!-- PROFILE -->
+<div id="page-profile" class="page">
+  <div class="pg-header">
+    <div class="pg-eyebrow"><div class="pg-eyebrow-line"></div><span class="pg-eyebrow-text">Your Account</span></div>
+    <div class="pg-title">Settings & <em>Profile</em></div>
+  </div>
+  <div style="padding:20px">
+    <div class="prof-section">
+      <div class="prof-row"><div class="prof-row-lbl">Name</div><input id="pName" placeholder="Your name" oninput="saveProf()"></div>
+      <div class="prof-row"><div class="prof-row-lbl">Email</div><input type="email" id="pEmail" placeholder="your@email.com" oninput="saveProf()"></div>
+      <div class="prof-row"><div class="prof-row-lbl">Anthropic API Key</div><input type="password" id="pKey" placeholder="sk-ant-..." oninput="saveKey(this.value)" style="font-family:monospace;font-size:12px"></div>
+    </div>
+    <button class="btn-gold btn-full" onclick="testKey()" style="margin-bottom:10px">🤖 Test AI Connection</button>
+    <div id="keyStatus" style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:20px"></div>
+    <div style="text-align:center;padding:16px;border-top:1px solid var(--border2)">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:300;color:var(--cream)">Dr. Smoothie <em style="color:var(--gold2)">AI</em></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">PureLive Wellness Club · v4.0</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:2px;opacity:0.6">jorge desarrollador × Claude · 2026</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /pages -->
+
+<!-- NAV -->
+<nav id="nav">
+  <button class="nav-btn on" data-p="home" onclick="navGo('home')">
+    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <span>Home</span>
+  </button>
+  <button class="nav-btn" data-p="menu" onclick="navGo('menu')">
+    <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+    <span>Recipes</span>
+  </button>
+  <button class="nav-fab" data-p="chat" onclick="navGo('chat')">
+    <div class="nav-fab-disc">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    </div>
+    <span class="nav-fab-lbl">Dr. AI</span>
+  </button>
+  <button class="nav-btn" data-p="quiz" onclick="navGo('quiz')">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+    <span>Analysis</span>
+  </button>
+  <button class="nav-btn" data-p="community" onclick="navGo('community')">
+    <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    <span>Community</span>
+  </button>
+</nav>
+
+</div><!-- /app -->
+
+<!-- OVERLAY + SHEETS -->
+<div class="overlay" id="overlay" onclick="closeSheets()"></div>
+<div class="sheet" id="shopSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-hdr"><div class="sheet-ttl">Shopping List</div><button class="sheet-cls" onclick="closeSheets()">✕</button></div>
+  <div id="shopBody" style="padding-bottom:40px"></div>
+</div>
+<div class="sheet" id="checkinSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-hdr"><div class="sheet-ttl">Daily Check-in</div><button class="sheet-cls" onclick="closeSheets()">✕</button></div>
+  <div style="padding:20px">
+    <div style="font-size:15px;font-weight:600;color:var(--cream);margin-bottom:16px">How are you feeling today?</div>
+    <div class="opt-grid cols3" style="margin-bottom:20px">
+      <div class="opt-pill" onclick="selOpt(this,'ci')"><div class="opt-icon">🌟</div><div class="opt-lbl">Great</div></div>
+      <div class="opt-pill on" onclick="selOpt(this,'ci')"><div class="opt-icon">😊</div><div class="opt-lbl">Good</div></div>
+      <div class="opt-pill" onclick="selOpt(this,'ci')"><div class="opt-icon">😴</div><div class="opt-lbl">Tired</div></div>
+    </div>
+    <button class="btn-gold btn-full" onclick="doCheckin()">✅ Save Check-in</button>
+  </div>
+</div>
+
+<!-- ONBOARDING -->
+<div id="onboarding">
+  <div class="ob-orb1"></div><div class="ob-orb2"></div>
+  <div class="ob-inner">
+    <div class="ob-logo">🥤</div>
+    <div class="ob-eyebrow"><div class="ob-ey-line"></div><span class="ob-kicker">PureLive Wellness Club</span></div>
+    <div class="ob-headline">Welcome to Dr.<br><em>Smoothie AI</em></div>
+    <div class="ob-sub">Your AI wellness concierge. Personalized smoothies, physical analysis, and healthy lifestyle in one place.</div>
+    <div class="ob-feats">
+      <div class="ob-feat"><div class="ob-feat-ico">📋</div><div><div class="ob-feat-ttl">Physical Analysis</div><div class="ob-feat-sub">BMI, goals & conditions analyzed to create your plan</div></div></div>
+      <div class="ob-feat"><div class="ob-feat-ico">🥤</div><div><div class="ob-feat-ttl">Personalized Recipes</div><div class="ob-feat-sub">Daily smoothies tailored to your body and goals</div></div></div>
+      <div class="ob-feat"><div class="ob-feat-ico">🤖</div><div><div class="ob-feat-ttl">AI Concierge 24/7</div><div class="ob-feat-sub">Ask Dr. Smoothie AI anything about your wellness</div></div></div>
+      <div class="ob-feat"><div class="ob-feat-ico">📲</div><div><div class="ob-feat-ttl">Download the App</div><div class="ob-feat-sub">iOS App Store & Google Play available now</div></div></div>
+    </div>
+    <div class="ob-cta">
+      <button class="ob-btn" onclick="startApp()">Start My Wellness Journey →</button>
+      <button class="ob-skip" onclick="skipOb()">I already have an account</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const AK="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";
+const LK="ltxv_jko5XTZ7Nqd9xIQ0ugf90n7TFjbRRk_VNiMrSWTwSaK0Ndm9-OtZ_6-E8LPe7RX-sJ5OSanCnpuyc-h9ZM0jiCLu5MXGRaGerkWUBnVFGN4GZ8g32wQM9yCdXo-RMbSUfoXhQ-Sry43eLBuSKKNB_QRWQwIKlx5a2URO4HPR-4sDRjoh";
+let lang='en',chatHistory=[],qStep=1,kaiModel='ltx-2-3-fast',vidUrl=null;
+let Q={age:30,weight:70,height:170,bmi:24.2,gender:'male',activity:'sedentary',health:['none'],goal:'energy'};
+
+const VID_DATA = {
+  detox:[
+    {id:'pPPiDFg7cIk',title:'5 Superfoods That Reset Your Metabolism',meta:'Dr. Mark Hyman · 12 min'},
+    {id:'EzD4JQHNykI',title:'Morning Anti-Inflammatory Green Smoothie',meta:'Raw Alignment · 7 min'},
+    {id:'fqhYBTg73fw',title:'3-Day Green Juice Fast: Complete Guide',meta:'Joe Cross · 14 min'},
+    {id:'K3mgTHFE7kQ',title:'Turmeric + Ginger: Most Powerful Detox',meta:'Dr. Josh Axe · 10 min'},
+  ],
+  weight:[
+    {id:'pWp6kkMSBgk',title:'How to Burn Fat Without Losing Muscle',meta:'Thomas DeLauer · 13 min'},
+    {id:'OTolxrpZo_w',title:'Slow Metabolism: Speed It Up Naturally',meta:'Dr. Berg · 11 min'},
+    {id:'RuOvn_rjAx0',title:'Detox Water: 7 Recipes to Eliminate Toxins',meta:'Healthy Tips · 8 min'},
+    {id:'bSQFsuMOMGo',title:'Best Smoothie for Weight Loss',meta:'Clean & Delicious · 6 min'},
+  ],
+  fitness:[
+    {id:'YBKRI3bJI6E',title:'Pre-Workout Smoothie for Energy',meta:'Fit Men Cook · 5 min'},
+    {id:'LhAr3sDMGGI',title:'Post-Workout Recovery Smoothie',meta:'Jeremy Ethier · 7 min'},
+    {id:'dMjFGxNhw78',title:'High Protein Green Smoothie',meta:'Nutrition · 4 min'},
+    {id:'9B1U3w5v-SY',title:'Banana Protein Shake Recipe',meta:'Jeff Nippard · 6 min'},
+  ],
+  energy:[
+    {id:'BxFuomNS9oQ',title:'Natural Energy Boost Smoothie',meta:'Green Thickies · 5 min'},
+    {id:'RNlGHm5BFCI',title:'All Day Energy Green Smoothie',meta:'Simple Green Smoothies · 4 min'},
+    {id:'kDz-5oq8WfQ',title:'Morning Energy Smoothie',meta:'Clean Food Crush · 5 min'},
+    {id:'3_jIFxEPO3A',title:'Energizing Mango Smoothie Bowl',meta:'Rainbow Plant Life · 8 min'},
+  ],
+  heart:[
+    {id:'qkOxShv9YS4',title:'Heart Healthy Smoothie Recipes',meta:'Cleveland Clinic · 6 min'},
+    {id:'EyPqG9bFoWA',title:'Best Foods for Your Heart',meta:'Dr. Oz · 10 min'},
+    {id:'zXROBsqbDGY',title:'Beet Smoothie for Blood Pressure',meta:'Wellness Lab · 5 min'},
+    {id:'KFR5nMzXktU',title:'Omega-3 Smoothie for Heart Health',meta:'Pick Up Limes · 7 min'},
+  ],
+  diabetic:[
+    {id:'7t3b8UMXdow',title:'Low Glycemic Smoothie for Diabetics',meta:'Diabetes Strong · 6 min'},
+    {id:'lc0uMHJFSQY',title:'Sugar-Free Green Smoothie',meta:'Diabetes UK · 5 min'},
+    {id:'MEmh8bvJFtA',title:'Best Smoothies for Blood Sugar Control',meta:'Dr. Eric Berg · 9 min'},
+    {id:'vlQ4N7JdlnI',title:'Diabetic-Friendly Smoothie Recipes',meta:'Health Coach · 7 min'},
+  ],
+};
+
+const SMOOTHIE_DB = {
+  weight_loss: {
+    name:'Metabolism Express 🔥',
+    why:'Designed to boost your metabolism and control appetite',
+    ings:['Spinach','Green apple','Ginger','Whey protein','Green tea','Lemon'],
+    category:'weight'
+  },
+  energy: {
+    name:'Brain Power Max ⚡',
+    why:'Natural energy boost without sugar spikes',
+    ings:['Blueberries','Matcha','Avocado','Coconut milk','Maca','Banana'],
+    category:'energy'
+  },
+  detox: {
+    name:'Detox Supreme Green ♻️',
+    why:'Deep cleanse for your liver and digestive system',
+    ings:['Spinach','Cucumber','Ginger','Lemon','Coconut water','Fresh mint'],
+    category:'detox'
+  },
+  muscle: {
+    name:'Pre-Workout Bomb 💪',
+    why:'Maximum energy and protein for your workout',
+    ings:['Banana','Peanut butter','Oats','Cacao','Oat milk','Whey protein'],
+    category:'fitness'
+  },
+  heart: {
+    name:'Cardio Shield ❤️',
+    why:'Omega-3 and antioxidants for a healthy heart',
+    ings:['Walnuts','Blueberries','Flaxseed','Oats','Oat milk','Cinnamon'],
+    category:'heart'
+  },
+  immunity: {
+    name:'Immunity Fortress 🛡️',
+    why:'Vitamin C and antioxidants to strengthen your immune system',
+    ings:['Orange','Ginger','Turmeric','Carrot','Lemon','Black pepper'],
+    category:'energy'
+  },
+  diabetes: {
+    name:'Sugar Balance Pro 💧',
+    why:'Low glycemic index — perfect for blood sugar control',
+    ings:['Mixed berries','Spinach','Chia seeds','Cinnamon','Almond milk','Flaxseed'],
+    category:'diabetic'
+  },
+  hypertension: {
+    name:'Pressure Control 🩺',
+    why:'Potassium and magnesium to regulate blood pressure',
+    ings:['Banana','Beet','Spinach','Celery','Coconut water','Ginger'],
+    category:'heart'
+  }
+};
+
+const ING_DB = {
+  'spinach':      {emoji:'🥬', qty:'2 cups (60g)'},
+  'banana':       {emoji:'🍌', qty:'1 medium'},
+  'blueberries':  {emoji:'🫐', qty:'1 cup (150g)'},
+  'mango':        {emoji:'🥭', qty:'½ mango'},
+  'ginger':       {emoji:'🫚', qty:'2cm piece'},
+  'lemon':        {emoji:'🍋', qty:'1 lemon'},
+  'coconut water':{emoji:'🥥', qty:'1 cup (240ml)'},
+  'almond milk':  {emoji:'🥛', qty:'1 cup (240ml)'},
+  'oat milk':     {emoji:'🥛', qty:'1 cup (240ml)'},
+  'coconut milk': {emoji:'🥛', qty:'½ cup (120ml)'},
+  'green tea':    {emoji:'🍵', qty:'1 cup brewed'},
+  'matcha':       {emoji:'🍵', qty:'1 tsp'},
+  'cucumber':     {emoji:'🥒', qty:'½ cucumber'},
+  'avocado':      {emoji:'🥑', qty:'¼ avocado'},
+  'oats':         {emoji:'🌾', qty:'¼ cup (25g)'},
+  'chia seeds':   {emoji:'🌱', qty:'2 tbsp'},
+  'flaxseed':     {emoji:'🌱', qty:'1 tbsp'},
+  'cinnamon':     {emoji:'🧂', qty:'1 tsp'},
+  'turmeric':     {emoji:'🧂', qty:'½ tsp'},
+  'maca':         {emoji:'🌿', qty:'1 tsp'},
+  'whey protein': {emoji:'💪', qty:'1 scoop (30g)'},
+  'peanut butter':{emoji:'🥜', qty:'2 tbsp'},
+  'walnuts':      {emoji:'🌰', qty:'¼ cup (30g)'},
+  'cacao':        {emoji:'🍫', qty:'1 tbsp'},
+  'mixed berries':{emoji:'🍓', qty:'1 cup (150g)'},
+  'orange':       {emoji:'🍊', qty:'1 orange'},
+  'carrot':       {emoji:'🥕', qty:'1 medium'},
+  'beet':         {emoji:'🫀', qty:'½ small beet'},
+  'celery':       {emoji:'🥬', qty:'2 stalks'},
+  'fresh mint':   {emoji:'🌿', qty:'handful'},
+  'black pepper': {emoji:'🧂', qty:'pinch'},
+  'green apple':  {emoji:'🍏', qty:'½ apple'},
+};
+
+
+const CATS=[
+  {id:'detox',name:'Detox',sub:'Cleanse & reset',icon:'♻️',g:'linear-gradient(145deg,#052e16,#15803d)'},
+  {id:'weight',name:'Weight Loss',sub:'Burn & tone',icon:'⚖️',g:'linear-gradient(145deg,#7c2d12,#c2410c)'},
+  {id:'fitness',name:'Fitness',sub:'Strength & endurance',icon:'💪',g:'linear-gradient(145deg,#1e1b4b,#4338ca)'},
+  {id:'energy',name:'Energy',sub:'Natural boost',icon:'⚡',g:'linear-gradient(145deg,#713f12,#ca8a04)'},
+  {id:'heart',name:'Heart Health',sub:'Cardio support',icon:'❤️',g:'linear-gradient(145deg,#4c0519,#be123c)'},
+  {id:'diabetic',name:'Diabetic',sub:'Sugar control',icon:'🩺',g:'linear-gradient(145deg,#0c4a6e,#0284c7)'},
+];
+
+function navGo(p){
+  document.querySelectorAll('.nav-btn,.nav-fab').forEach(b=>b.classList.remove('on'));
+  document.querySelector('[data-p="'+p+'"]')?.classList.add('on');
+  showPage(p);
+}
+function showPage(p){
+  document.querySelectorAll('.page').forEach(pg=>pg.classList.remove('active'));
+  const t=document.getElementById('page-'+p);
+  if(t){t.classList.add('active');t.scrollTop=0;}
+  document.querySelectorAll('.nav-btn,.nav-fab').forEach(b=>b.classList.remove('on'));
+  document.querySelector('[data-p="'+p+'"]')?.classList.add('on');
+  if(p==='home')renderHome();
+  if(p==='menu')renderRecipes();
+  if(p==='videos')renderVids('detox');
+  if(p==='routine')updateStreak();
+}
+
+const LANGS=['en','es','pt','fr'],FLAGS={en:'🇺🇸',es:'🇪🇸',pt:'🇧🇷',fr:'🇫🇷'};
+function cycleLang(){lang=LANGS[(LANGS.indexOf(lang)+1)%LANGS.length];document.getElementById('langFlag').textContent=FLAGS[lang];document.getElementById('langCode').textContent=lang.toUpperCase();showToast(FLAGS[lang]+' '+lang.toUpperCase());}
+
+// Onboarding
+function checkOb(){if(!localStorage.getItem('ob_done'))document.getElementById('onboarding').classList.remove('hidden');else document.getElementById('onboarding').classList.add('hidden');}
+function startApp(){document.getElementById('onboarding').classList.add('hidden');localStorage.setItem('ob_done','1');showToast('🌿 Welcome! Starting your analysis...');setTimeout(()=>showPage('quiz'),800);}
+function skipOb(){document.getElementById('onboarding').classList.add('hidden');localStorage.setItem('ob_done','1');}
+
+// Home
+function renderHome(){
+  renderCats();
+  const streak=parseInt(localStorage.getItem('streak')||'0');
+  const pct=Math.min(74+streak*2,100);
+  const el=document.getElementById('vPct');if(el)el.textContent=pct+'%';
+  const sub=document.getElementById('vSub');
+  if(sub)sub.textContent=streak>0?'🔥 '+streak+' day streak! Keep going!':'Tap to check in today';
+  const ring=document.getElementById('vRingFill');
+  if(ring){const c=2*Math.PI*35;ring.style.strokeDasharray=c;ring.style.strokeDashoffset=c-(c*pct/100);}
+}
+function renderCats(){
+  const g=document.getElementById('catGrid');
+  if(!g||g.children.length>0)return;
+  g.innerHTML=CATS.map((c,i)=>`<div class="cat-card" onclick="navGo('menu')" style="animation-delay:${i*55}ms"><div class="cat-bg" style="background:${c.g}"></div><div class="cat-overlay"></div><div class="cat-content"><div class="cat-icon">${c.icon}</div><div class="cat-name">${c.name}</div><div class="cat-sub">${c.sub}</div></div></div>`).join('');
+}
+
+// Recipes
+function renderRecipes(){
+  const l=document.getElementById('recipeList');if(!l)return;
+  l.innerHTML=CATS.map(c=>{
+    const sm=SMOOTHIE_DB[c.id]||SMOOTHIE_DB.energy||{};
+    return `<div class="recipe-card" onclick="openShop('${sm.name||c.name}',[${(sm.ings||[]).map(i=>"'"+i+"'").join(',')}])"><div class="recipe-card-inner"><div class="recipe-ico" style="background:${c.g}">${c.icon}</div><div style="flex:1;min-width:0"><div class="recipe-name">${sm.name||c.name+' Smoothie'}</div><div class="recipe-meta">${(sm.ings||[]).slice(0,3).join(', ')||c.sub}</div></div><div class="recipe-arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div></div></div>`;
+  }).join('');
+}
+
+// Videos
+function setVCat(btn,cat){document.querySelectorAll('.vtab').forEach(t=>t.classList.remove('on'));btn.classList.add('on');renderVids(cat);}
+function renderVids(cat){
+  const l=document.getElementById('vidList');if(!l)return;
+  const vids=VID_DATA[cat]||[];
+  l.innerHTML=vids.map((v,i)=>`<div class="vid-card" onclick="playVid('${v.id}',${i})"><div class="vid-thumb"><img src="https://img.youtube.com/vi/${v.id}/mqdefault.jpg" alt="${v.title}" loading="lazy"><div class="vid-overlay"><div class="vid-play">▶</div></div></div><div class="vid-info"><div class="vid-title">${v.title}</div><div class="vid-meta">🌿 ${v.meta}</div></div></div>`).join('');
+}
+function playVid(id,idx){
+  const card=document.querySelector('.vid-card:nth-child('+(idx+1)+')');
+  if(!card)return;
+  card.innerHTML=`<div style="aspect-ratio:16/9"><iframe src="https://www.youtube.com/embed/${id}?autoplay=1" style="width:100%;height:100%;border-radius:20px;border:none" allow="autoplay;encrypted-media" allowfullscreen></iframe></div>`;
+}
+
+// Chat
+function addMsg(text,role){
+  const msgs=document.getElementById('chatMsgs');
+  const d=document.createElement('div');d.className='chat-msg '+role;d.textContent=text;
+  msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;return d;
+}
+async function sendMsg(){
+  const inp=document.getElementById('chatInp');
+  const text=inp.value.trim();if(!text)return;
+  inp.value='';addMsg(text,'user');chatHistory.push({role:'user',content:text});
+  const msgs=document.getElementById('chatMsgs');
+  const t=document.createElement('div');t.className='chat-msg bot';
+  t.innerHTML='<div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
+  msgs.appendChild(t);msgs.scrollTop=msgs.scrollHeight;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':localStorage.getItem('ak')||AK,'anthropic-version':'2023-06-01','anthropic-dangerous-request-allow-browser':'true'},body:JSON.stringify({model:'claude-sonnet-4-5-20250929',max_tokens:400,system:'You are Dr. Smoothie AI, warm wellness concierge for PureLive Wellness Club. Recommend personalized smoothies. Be concise (2-3 sentences), warm, specific. End with: 🌿 Dr. Smoothie AI — General wellness guidance only',messages:chatHistory})});
+    const data=await res.json();t.remove();
+    const reply=data.content?.[0]?.text||"I'm ready to help! Tell me your wellness goal. 🌿";
+    addMsg(reply,'bot');chatHistory.push({role:'assistant',content:reply});
+    if(chatHistory.length>20)chatHistory=chatHistory.slice(-20);
+  }catch(e){t.remove();addMsg("Set your API key in Profile → Settings to activate Dr. AI. 🌿",'bot');}
+}
+function sendQ(text){document.getElementById('chatInp').value=text;sendMsg();}
+
+// Quiz
+function calcBMI(){
+  const w=parseFloat(document.getElementById('qWeight')?.value)||70;
+  const h=parseFloat(document.getElementById('qHeight')?.value)||170;
+  const bmi=Math.round(w/((h/100)**2)*10)/10;Q.bmi=bmi;
+  const el=document.getElementById('qBMI'),lb=document.getElementById('qBMILbl');
+  if(el)el.textContent=bmi;
+  if(lb)lb.textContent=bmi<18.5?'Underweight ⚠️':bmi<25?'Normal ✅':bmi<30?'Overweight ⚠️':'Obesity ⚠️';
+}
+function selOpt(el,group,multi=false){
+  const grid=el.closest('.opt-grid');
+  if(!multi){grid?.querySelectorAll('.opt-pill').forEach(p=>p.classList.remove('on'));el.classList.add('on');}
+  else{
+    if(el.dataset.h==='none'){grid?.querySelectorAll('.opt-pill').forEach(p=>p.classList.remove('on'));el.classList.add('on');Q.health=['none'];}
+    else{grid?.querySelector('[data-h="none"]')?.classList.remove('on');el.classList.toggle('on');Q.health=[...grid.querySelectorAll('.opt-pill.on')].map(p=>p.dataset.h);}
+  }
+}
+function qGo(from,to){
+  if(from===1){Q.age=parseInt(document.getElementById('qAge').value)||30;Q.weight=parseFloat(document.getElementById('qWeight').value)||70;Q.height=parseFloat(document.getElementById('qHeight').value)||170;calcBMI();}
+  document.getElementById('qs'+from).style.display='none';
+  document.getElementById('qs'+to).style.display='block';
+  qStep=to;
+  const f=document.getElementById('qpFill'),t=document.getElementById('qpTxt');
+  if(f)f.style.width=(qStep/4*100)+'%';if(t)t.textContent=qStep+' of 4';
+}
+async function runAnalysis(){
+  const btn=document.getElementById('qAnalyzeBtn');btn.textContent='⏳ Analyzing...';btn.disabled=true;
+  const gp=document.querySelector('#qs4 .opt-pill.on');if(gp)Q.goal=gp.dataset.goal||'energy';
+  localStorage.setItem('qp',JSON.stringify(Q));
+  let match=SMOOTHIE_DB[Q.goal]||SMOOTHIE_DB.energy||{};
+  if(Q.health.includes('diabetes'))match=SMOOTHIE_DB.diabetes||SMOOTHIE_DB.energy;
+  if(Q.health.includes('hypertension'))match=SMOOTHIE_DB.heart||SMOOTHIE_DB.energy;
+  const key=localStorage.getItem('ak')||AK;
+  if(key&&key.startsWith('sk-')){
+    try{
+      const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-request-allow-browser':'true'},body:JSON.stringify({model:'claude-sonnet-4-5-20250929',max_tokens:150,system:'Return ONLY valid JSON: {name,why,ings}. No markdown.',messages:[{role:'user',content:`Profile: age=${Q.age}, weight=${Q.weight}kg, BMI=${Q.bmi}, goal=${Q.goal}, health=${Q.health.join(',')}. Suggest perfect smoothie.`}]})});
+      const data=await res.json();
+      const parsed=JSON.parse(data.content?.[0]?.text?.replace(/```json|```/g,'').trim()||'{}');
+      if(parsed.name)match={...match,...parsed};
+    }catch(e){}
+  }
+  showQResult(match);btn.textContent='🌿 Analyze my profile';btn.disabled=false;
+}
+function showQResult(match){
+  document.getElementById('qs4').style.display='none';
+  document.getElementById('qRes').style.display='block';
+  document.getElementById('qResName').textContent=match.name||'Green Wellness Blend';
+  document.getElementById('qResWhy').textContent=match.why||'Matched to your profile';
+  document.getElementById('qResBMI').textContent=Q.bmi;
+  const b=Q.bmi;document.getElementById('qResBMILbl').textContent=b<18.5?'Underweight ⚠️':b<25?'Normal weight ✅':b<30?'Overweight ⚠️':'Obesity — consult doctor';
+  document.getElementById('qResIngs').innerHTML=(match.ings||[]).map(i=>`<span class="qres-ing">${i}</span>`).join('');
+  window._qm=match;document.getElementById('page-quiz').scrollTop=0;
+}
+function resetQuiz(){
+  qStep=1;document.getElementById('qRes').style.display='none';
+  ['qs1','qs2','qs3','qs4'].forEach((id,i)=>{const el=document.getElementById(id);if(el)el.style.display=i===0?'block':'none';});
+  const f=document.getElementById('qpFill');if(f)f.style.width='25%';
+}
+function sendProfileToChat(){
+  const p=`Profile: ${Q.age}yrs, ${Q.weight}kg, BMI ${Q.bmi}, goal: ${Q.goal}. Create my wellness plan.`;
+  showPage('chat');setTimeout(()=>{document.getElementById('chatInp').value=p;sendMsg();},400);
+}
+function openShopFromQuiz(){const m=window._qm;if(m)openShop(m.name,m.ings||[]);}
+
+// Shopping
+let shopState={};
+function openShop(name,ings){
+  shopState={};
+  const body=document.getElementById('shopBody');
+  body.innerHTML=`<div style="padding:14px 20px;background:rgba(201,168,76,0.06);border-bottom:1px solid var(--border2)"><div style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:300;color:var(--cream);letter-spacing:-0.03em">${name}</div></div>`+
+    ings.map((ing,i)=>{
+      const info=ING_DB[ing.toLowerCase()]||{emoji:'🌿',qty:'to taste'};
+      shopState[i]=false;
+      return `<div class="shop-item" id="si${i}" onclick="toggleShopItem(${i})"><div class="shop-chk" id="sc${i}"></div><div style="flex:1"><div class="shop-item-name">${ing}</div><div class="shop-item-qty">${info.qty}</div></div><div class="shop-emoji">${info.emoji}</div></div>`;
+    }).join('')+
+    `<div style="padding:20px"><button class="btn-gold btn-full" onclick="shareShop('${name}')">📤 Share list</button></div>`;
+  openSheet('shopSheet');
+}
+function toggleShopItem(idx){
+  shopState[idx]=!shopState[idx];
+  document.getElementById('si'+idx)?.classList.toggle('done',shopState[idx]);
+  const c=document.getElementById('sc'+idx);if(c)c.textContent=shopState[idx]?'✓':'';
+}
+function shareShop(name){
+  const text=name+'
+
+'+Object.entries(shopState).map(([i,d])=>{const el=document.getElementById('si'+i);return(d?'✅ ':'⬜ ')+(el?.querySelector('.shop-item-name')?.textContent||'');}).join('
+')+'
+
+🌿 PureLive Wellness Club';
+  if(navigator.share)navigator.share({title:name,text});
+  else{navigator.clipboard?.writeText(text);showToast('📋 List copied!');}
+}
+
+// Sheets
+function openSheet(id){document.getElementById('overlay').classList.add('open');document.getElementById(id).classList.add('open');}
+function closeSheets(){document.getElementById('overlay').classList.remove('open');document.querySelectorAll('.sheet').forEach(s=>s.classList.remove('open'));}
+
+// Streak & checkin
+function updateStreak(){const s=localStorage.getItem('streak')||'0';const el=document.getElementById('streakNum');if(el)el.textContent=s;}
+function openCheckin(){openSheet('checkinSheet');}
+function doCheckin(){
+  const today=new Date().toDateString(),last=localStorage.getItem('lci');
+  if(last===today){showToast('✅ Already checked in!');closeSheets();return;}
+  let streak=parseInt(localStorage.getItem('streak')||'0');
+  streak=last===new Date(Date.now()-86400000).toDateString()?streak+1:1;
+  localStorage.setItem('streak',streak);localStorage.setItem('lci',today);
+  updateStreak();closeSheets();showToast('🔥 Day '+streak+' streak!');renderHome();
+}
+function toggleAl(btn,id){
+  btn.classList.toggle('on');
+  document.getElementById(id)?.classList.toggle('on',btn.classList.contains('on'));
+  showToast(btn.classList.contains('on')?'⏰ Reminder on':'🔕 Reminder off');
+  if(btn.classList.contains('on')&&'Notification' in window&&Notification.permission==='default')Notification.requestPermission();
+}
+
+// Kai
+function setKM(btn){document.querySelectorAll('.km-btn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');kaiModel=btn.dataset.m;}
+function switchKai(btn,tab){document.querySelectorAll('.kai-tab').forEach(t=>t.classList.remove('on'));btn.classList.add('on');}
+async function kaiGen(){
+  const prompt=document.getElementById('kaiPrompt')?.value.trim();
+  if(!prompt){showToast('⚠️ Describe your content first');return;}
+  const btn=document.getElementById('kaiBtn'),st=document.getElementById('kaiSt'),stm=document.getElementById('kaiStMsg');
+  btn.disabled=true;btn.textContent='⏳ Generating...';st.style.display='block';stm.textContent='⚡ LTX 2.3 generating...';
+  try{
+    const key=localStorage.getItem('ltx_key')||LK;
+    const res=await fetch('https://api.ltx.video/v2/text-to-video',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({prompt:prompt+', cinematic wellness brand, professional quality',model:kaiModel,duration:8,resolution:'1920x1080',fps:24,generate_audio:true})});
+    const job=await res.json();if(!job.id)throw new Error('Submit failed');
+    stm.textContent='🎬 Rendering (~20s)...';
+    for(let i=0;i<40;i++){
+      await new Promise(r=>setTimeout(r,3000));
+      const poll=await fetch('https://api.ltx.video/v2/text-to-video/'+job.id,{headers:{'Authorization':'Bearer '+key}});
+      const data=await poll.json();
+      if(data.status==='completed'){
+        vidUrl=data.result?.video_url;
+        const vid=document.getElementById('kaiVid'),res=document.getElementById('kaiRes');
+        if(vid&&vidUrl){vid.src=vidUrl;vid.style.display='block';res.style.display='block';}
+        st.style.display='none';showToast('✅ Video ready!');break;
+      }
+      if(data.status==='failed')throw new Error('Failed');
+    }
+  }catch(e){stm.textContent='⚠️ Error';showToast('❌ '+(e.message||'Error'));}
+  btn.disabled=false;btn.textContent='✨ Generate with Kai';
+}
+function approveVid(){if(!vidUrl)return;showToast('✅ Video saved!');}
+
+// Community
+function shareMyStory(){
+  const text='My wellness transformation with #PureLifeWellnessClub 🌿
+https://dr-smoothie-ai.netlify.app';
+  if(navigator.share)navigator.share({title:'My PureLive Story',text});
+  else{navigator.clipboard?.writeText(text);showToast('📋 Link copied! Share on TikTok & Instagram');}
+}
+
+// Profile
+function saveProf(){localStorage.setItem('un',document.getElementById('pName')?.value||'');localStorage.setItem('ue',document.getElementById('pEmail')?.value||'');}
+function saveKey(val){localStorage.setItem('ak',val);window.ANTHROPIC_API_KEY=val;}
+async function testKey(){
+  const key=document.getElementById('pKey')?.value||localStorage.getItem('ak')||AK;
+  const el=document.getElementById('keyStatus');
+  if(el){el.textContent='⏳ Testing...';el.style.color='var(--muted)';}
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-request-allow-browser':'true'},body:JSON.stringify({model:'claude-sonnet-4-5-20250929',max_tokens:10,messages:[{role:'user',content:'Hi'}]})});
+    const data=await res.json();
+    if(el){el.textContent=data.content?'✅ AI connected — Dr. Smoothie AI active':'❌ Invalid key';el.style.color=data.content?'var(--emerald)':'#ef4444';}
+  }catch(e){if(el){el.textContent='❌ Connection failed';el.style.color='#ef4444';}}
+}
+
+// Toast
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// Init
+document.addEventListener('DOMContentLoaded',()=>{
+  checkOb();renderCats();renderVids('detox');
+  const key=localStorage.getItem('ak')||AK;
+  if(key){const inp=document.getElementById('pKey');if(inp)inp.value=key;window.ANTHROPIC_API_KEY=key;localStorage.setItem('ak',key);}
+  localStorage.setItem('ltx_key',LK);
+  const un=localStorage.getItem('un'),ue=localStorage.getItem('ue');
+  if(un&&document.getElementById('pName'))document.getElementById('pName').value=un;
+  if(ue&&document.getElementById('pEmail'))document.getElementById('pEmail').value=ue;
+  updateStreak();
+  setTimeout(()=>document.getElementById('notifDot')?.classList.add('show'),3000);
+  if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+});
+</script>
+</body>
 </html>

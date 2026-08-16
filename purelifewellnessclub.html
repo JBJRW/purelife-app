@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="theme-color" content="#080B0A">
+<meta name="description" content="PureLive Wellness Club — AI-powered smoothie concierge. Personalized plans, real results. Join thousands transforming their health.">
+<title>PureLive Wellness Club · Where Wellness Meets Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,600&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ═══════════════════════════════════════
+   PURELIFE WELLNESS CLUB — Landing v1.0
+   Design: Obsidian + Gold + Sage + Emerald
+   jorge desarrollador × Claude · 2026
+═══════════════════════════════════════ */
+:root {
+  --obsidian:#080B0A; --deep:#0D1210; --surface:#111815;
+  --surface2:#162019; --surface3:#1C2920;
+  --gold:#C9A84C; --gold2:#E8C96A; --gold3:#F5E09A;
+  --cream:#F4EFE6; --cream2:#E8E0D0;
+  --sage:#4A7C59; --emerald:#00C97B;
+  --muted:#6B7E74;
+  --border:rgba(201,168,76,.15);
+  --border2:rgba(201,168,76,.08);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'DM Sans',system-ui,sans-serif;
+  background:var(--obsidian);color:var(--cream);
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* GRAIN */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;opacity:.35;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:0 40px;height:64px;
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(8,11,10,.88);
+  backdrop-filter:blur(24px) saturate(180%);
+  border-bottom:1px solid var(--border2);
+  transition:background .3s ease;
+}
+.nav-brand{display:flex;align-items:center;gap:12px;text-decoration:none;}
+.nav-logo{
+  width:36px;height:36px;border-radius:10px;
+  background:linear-gradient(145deg,var(--gold2),var(--gold));
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+  box-shadow:0 2px 12px rgba(201,168,76,.3);
+}
+.nav-name{
+  font-family:'Cormorant Garamond',serif;font-size:18px;
+  font-weight:400;letter-spacing:-.02em;color:var(--cream);
+}
+.nav-name em{font-style:italic;color:var(--gold2);}
+.nav-links{display:flex;align-items:center;gap:28px;}
+.nav-links a{
+  font-size:13px;font-weight:500;color:var(--muted);
+  text-decoration:none;transition:color .15s ease;
+}
+.nav-links a:hover{color:var(--gold2);}
+.nav-cta{
+  padding:9px 20px;border-radius:50px;border:none;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:var(--obsidian);font-family:'DM Sans',sans-serif;
+  font-size:13px;font-weight:700;cursor:pointer;
+  transition:all .2s ease;
+  box-shadow:0 3px 12px rgba(201,168,76,.3);
+}
+.nav-cta:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(201,168,76,.4);}
+.nav-mobile-menu{display:none;cursor:pointer;color:var(--muted);}
+
+/* ── HERO ── */
+.hero{
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:100px 24px 80px;
+  position:relative;overflow:hidden;text-align:center;
+}
+.orb{position:absolute;border-radius:50%;filter:blur(120px);pointer-events:none;}
+.orb-1{width:700px;height:700px;background:radial-gradient(circle,rgba(74,124,89,.22),transparent 70%);top:-200px;left:-250px;animation:drift 14s ease-in-out infinite alternate;}
+.orb-2{width:600px;height:600px;background:radial-gradient(circle,rgba(201,168,76,.13),transparent 70%);bottom:-150px;right:-200px;animation:drift 10s ease-in-out infinite alternate;animation-delay:-5s;}
+.orb-3{width:400px;height:400px;background:radial-gradient(circle,rgba(0,201,123,.08),transparent 70%);top:40%;left:55%;animation:drift 8s ease-in-out infinite alternate;animation-delay:-9s;}
+@keyframes drift{0%{transform:translate(0,0) scale(1);}100%{transform:translate(40px,-50px) scale(1.12);}}
+.hex-grid{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(201,168,76,.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(201,168,76,.04) 1px,transparent 1px);
+  background-size:60px 60px;
+  mask-image:radial-gradient(ellipse at center,black 10%,transparent 75%);
+  -webkit-mask-image:radial-gradient(ellipse at center,black 10%,transparent 75%);
+}
+.hero-inner{position:relative;z-index:2;max-width:680px;}
+
+.hero-kicker{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:6px 14px;border-radius:50px;
+  background:rgba(201,168,76,.1);border:1px solid var(--border);
+  font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--gold2);font-weight:600;margin-bottom:28px;
+  animation:fadeUp .7s ease both;
+}
+.kicker-dot{width:6px;height:6px;border-radius:50%;background:var(--emerald);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+
+.hero-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(2.8rem,7vw,5.2rem);font-weight:300;
+  letter-spacing:-.04em;line-height:1.05;
+  color:var(--cream);margin-bottom:20px;
+  animation:fadeUp .8s .1s ease both;
+}
+.hero-title em{font-style:italic;color:transparent;
+  background:linear-gradient(135deg,var(--gold3),var(--gold),var(--sage));
+  -webkit-background-clip:text;background-clip:text;
+}
+.hero-sub{
+  font-size:17px;color:var(--muted);line-height:1.7;
+  margin-bottom:40px;max-width:520px;margin-left:auto;margin-right:auto;
+  animation:fadeUp .8s .2s ease both;
+}
+
+/* Live counter strip */
+.live-strip{
+  display:flex;align-items:center;justify-content:center;gap:32px;
+  padding:16px 28px;border-radius:16px;
+  background:rgba(22,32,25,.6);border:1px solid var(--border);
+  backdrop-filter:blur(12px);margin-bottom:36px;flex-wrap:wrap;
+  animation:fadeUp .8s .3s ease both;
+}
+.live-stat{text-align:center;}
+.live-num{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.8rem;font-weight:300;color:var(--gold2);
+  letter-spacing:-.04em;display:block;line-height:1;
+}
+.live-lbl{font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-top:3px;}
+.live-divider{width:1px;height:36px;background:var(--border);}
+
+/* Hero CTA */
+.hero-ctas{
+  display:flex;gap:12px;justify-content:center;flex-wrap:wrap;
+  animation:fadeUp .8s .4s ease both;
+}
+.btn-primary{
+  padding:16px 32px;border-radius:50px;border:none;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:var(--obsidian);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;
+  cursor:pointer;box-shadow:0 6px 24px rgba(201,168,76,.4);
+  transition:all .2s ease;letter-spacing:-.01em;
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(201,168,76,.5);}
+.btn-secondary{
+  padding:16px 32px;border-radius:50px;
+  border:1px solid var(--border);background:transparent;
+  color:var(--cream2);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;
+  cursor:pointer;transition:all .2s ease;
+}
+.btn-secondary:hover{border-color:var(--gold);color:var(--gold2);}
+
+/* scroll hint */
+.scroll-hint{
+  position:absolute;bottom:32px;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  animation:fadeIn 1s 1.2s ease both;
+}
+.scroll-line{width:1px;height:48px;background:linear-gradient(to bottom,var(--gold),transparent);}
+.scroll-txt{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);}
+
+/* ── SECTION SHARED ── */
+.section{padding:100px 24px;}
+.section-inner{max-width:1100px;margin:0 auto;}
+.section-header{margin-bottom:60px;}
+.section-eyebrow{
+  display:flex;align-items:center;gap:10px;margin-bottom:14px;
+}
+.ey-line{width:24px;height:1px;background:var(--gold);}
+.ey-text{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:600;}
+.section-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(2rem,4vw,3rem);font-weight:300;
+  letter-spacing:-.04em;color:var(--cream);line-height:1.15;
+}
+.section-title em{font-style:italic;color:var(--gold2);}
+.section-sub{font-size:15px;color:var(--muted);line-height:1.7;margin-top:12px;max-width:540px;}
+
+/* ── HOW IT WORKS ── */
+.hiw-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;}
+.hiw-card{
+  padding:32px 28px;border-radius:24px;
+  background:var(--surface2);border:1px solid var(--border2);
+  position:relative;overflow:hidden;
+  transition:transform .2s ease,border-color .2s ease;
+}
+.hiw-card:hover{transform:translateY(-4px);border-color:var(--border);}
+.hiw-card::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at top left,var(--glow,rgba(201,168,76,.06)),transparent 60%);
+}
+.hiw-num{
+  font-family:'Cormorant Garamond',serif;font-size:3.5rem;font-weight:300;
+  color:rgba(201,168,76,.15);letter-spacing:-.06em;
+  line-height:1;margin-bottom:16px;
+}
+.hiw-icon{font-size:2rem;margin-bottom:12px;display:block;}
+.hiw-title{
+  font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:400;
+  color:var(--cream);letter-spacing:-.02em;margin-bottom:8px;
+}
+.hiw-desc{font-size:14px;color:var(--muted);line-height:1.65;}
+.hiw-card.gold{--glow:rgba(201,168,76,.1);}
+.hiw-card.sage{--glow:rgba(74,124,89,.1);}
+.hiw-card.emerald{--glow:rgba(0,201,123,.08);}
+
+/* ── APP PREVIEW ── */
+.app-section{background:var(--deep);border-top:1px solid var(--border2);border-bottom:1px solid var(--border2);}
+.app-inner{
+  display:grid;grid-template-columns:1fr 1fr;gap:80px;
+  align-items:center;max-width:1100px;margin:0 auto;padding:100px 24px;
+}
+.app-phone{
+  position:relative;margin:0 auto;
+  width:280px;
+}
+.phone-frame{
+  width:280px;height:560px;border-radius:40px;overflow:hidden;
+  background:var(--surface);border:2px solid var(--border);
+  box-shadow:0 40px 100px rgba(0,0,0,.5),0 0 0 1px var(--border2);
+  position:relative;
+}
+.phone-notch{
+  position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:80px;height:20px;background:var(--obsidian);
+  border-radius:0 0 14px 14px;z-index:10;
+}
+/* Phone screen content */
+.phone-screen{
+  width:100%;height:100%;
+  background:linear-gradient(170deg,var(--obsidian),var(--surface2));
+  display:flex;flex-direction:column;padding:28px 16px 16px;
+}
+.ps-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 0 14px;border-bottom:1px solid var(--border2);
+  margin-bottom:14px;
+}
+.ps-brand{font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--cream);}
+.ps-brand em{color:var(--gold2);font-style:italic;}
+.ps-fab{
+  width:32px;height:32px;border-radius:9px;
+  background:linear-gradient(135deg,var(--gold2),var(--gold));
+  display:flex;align-items:center;justify-content:center;font-size:14px;
+}
+/* Vitality ring mini */
+.ps-ring{
+  display:flex;align-items:center;gap:12px;
+  padding:12px;background:rgba(201,168,76,.06);
+  border:1px solid var(--border2);border-radius:16px;
+  margin-bottom:12px;
+}
+.mini-ring{width:48px;height:48px;flex-shrink:0;position:relative;}
+.mini-ring svg{width:100%;height:100%;transform:rotate(-90deg);}
+.mini-ring-bg{fill:none;stroke:rgba(201,168,76,.1);stroke-width:4;}
+.mini-ring-fill{fill:none;stroke:url(#mg);stroke-width:4;stroke-linecap:round;stroke-dasharray:132;stroke-dashoffset:35;}
+.mini-ring-center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--gold2);}
+.ps-ring-info{}
+.ps-ring-lbl{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);font-weight:600;}
+.ps-ring-val{font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--cream);letter-spacing:-.02em;}
+/* Cat grid mini */
+.ps-cats{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px;}
+.ps-cat{
+  border-radius:12px;padding:10px 8px;
+  position:relative;overflow:hidden;
+  aspect-ratio:1/1.1;
+}
+.ps-cat-bg{position:absolute;inset:0;border-radius:inherit;}
+.ps-cat-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.7),transparent);}
+.ps-cat-cont{position:absolute;bottom:8px;left:8px;}
+.ps-cat-ico{font-size:14px;}
+.ps-cat-name{font-size:9px;color:white;font-weight:600;}
+/* Chat bubble on phone */
+.ps-chat{
+  margin-top:auto;
+  background:rgba(22,32,25,.8);border:1px solid var(--border2);
+  border-radius:12px;padding:10px;
+}
+.ps-msg{font-size:10px;color:var(--cream2);line-height:1.5;margin-bottom:6px;}
+.ps-msg.user{
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:var(--obsidian);padding:6px 10px;border-radius:12px 12px 3px 12px;
+  font-weight:600;align-self:flex-end;display:inline-block;margin-left:auto;
+}
+.ps-msg.bot{
+  background:var(--surface3);border:1px solid var(--border2);
+  padding:6px 10px;border-radius:3px 12px 12px 12px;
+}
+.ps-msgs{display:flex;flex-direction:column;gap:5px;}
+
+/* App features list */
+.app-features{}
+.app-feat{
+  display:flex;align-items:flex-start;gap:16px;
+  padding:20px 0;border-bottom:1px solid var(--border2);
+}
+.app-feat:last-child{border-bottom:none;}
+.af-icon{
+  width:44px;height:44px;border-radius:14px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:1.3rem;
+  background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.15);
+}
+.af-title{font-size:15px;font-weight:600;color:var(--cream);margin-bottom:4px;}
+.af-desc{font-size:13px;color:var(--muted);line-height:1.6;}
+
+/* ── PLANS ── */
+.plans-section{padding:100px 24px;}
+.plans-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:20px;max-width:900px;margin:0 auto;
+}
+.plan-card{
+  border-radius:28px;padding:36px 28px;
+  background:var(--surface2);border:1px solid var(--border2);
+  position:relative;overflow:hidden;
+  transition:all .3s ease;
+}
+.plan-card:hover{transform:translateY(-5px);border-color:var(--border);}
+.plan-card.featured{
+  background:linear-gradient(160deg,var(--surface2),var(--surface3));
+  border-color:var(--gold);transform:scale(1.03);
+}
+.plan-card.featured:hover{transform:scale(1.03) translateY(-5px);}
+.plan-badge{
+  display:inline-block;padding:4px 12px;border-radius:50px;
+  font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;
+  margin-bottom:20px;
+}
+.plan-badge.seed{background:rgba(74,124,89,.2);color:var(--sage);border:1px solid rgba(74,124,89,.3);}
+.plan-badge.bloom{background:rgba(201,168,76,.2);color:var(--gold2);border:1px solid var(--border);}
+.plan-badge.canopy{background:rgba(0,201,123,.2);color:var(--emerald);border:1px solid rgba(0,201,123,.3);}
+.plan-emoji{font-size:2.2rem;display:block;margin-bottom:14px;}
+.plan-name{
+  font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:300;
+  color:var(--cream);letter-spacing:-.03em;margin-bottom:4px;
+}
+.plan-price{
+  font-family:'Cormorant Garamond',serif;font-size:2.8rem;font-weight:300;
+  color:var(--gold2);line-height:1;letter-spacing:-.06em;
+}
+.plan-price span{font-size:1rem;color:var(--muted);font-family:'DM Sans',sans-serif;font-weight:400;}
+.plan-desc{font-size:13px;color:var(--muted);margin:12px 0 24px;line-height:1.6;}
+.plan-perks{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:28px;}
+.plan-perks li{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--cream2);}
+.perk-check{color:var(--emerald);font-weight:700;flex-shrink:0;}
+.plan-btn{
+  width:100%;padding:14px;border-radius:50px;border:none;cursor:pointer;
+  font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;
+  transition:all .2s ease;
+}
+.plan-btn.primary{
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:var(--obsidian);box-shadow:0 4px 16px rgba(201,168,76,.3);
+}
+.plan-btn.primary:hover{box-shadow:0 8px 24px rgba(201,168,76,.4);}
+.plan-btn.ghost{
+  background:transparent;color:var(--cream2);
+  border:1px solid var(--border);
+}
+.plan-btn.ghost:hover{border-color:var(--gold);color:var(--gold2);}
+
+/* ── DOWNLOAD ── */
+.download-section{
+  background:var(--surface2);border-top:1px solid var(--border2);border-bottom:1px solid var(--border2);
+  padding:80px 24px;text-align:center;
+}
+.dl-inner{max-width:600px;margin:0 auto;}
+.dl-title{
+  font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,4vw,2.8rem);font-weight:300;
+  color:var(--cream);letter-spacing:-.04em;margin-bottom:12px;
+}
+.dl-title em{font-style:italic;color:var(--gold2);}
+.dl-sub{font-size:15px;color:var(--muted);line-height:1.7;margin-bottom:36px;}
+.dl-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+.dl-btn{
+  display:flex;align-items:center;gap:12px;
+  padding:16px 28px;border-radius:16px;
+  border:1px solid var(--border);background:var(--surface3);
+  color:var(--cream);font-family:'DM Sans',sans-serif;
+  font-size:14px;font-weight:600;cursor:pointer;
+  text-decoration:none;transition:all .2s ease;min-width:180px;
+}
+.dl-btn:hover{border-color:var(--gold);background:rgba(201,168,76,.06);}
+.dl-btn svg{width:28px;height:28px;fill:currentColor;flex-shrink:0;}
+.dl-btn-sub{font-size:10px;color:var(--muted);display:block;font-weight:400;}
+.dl-btn-name{font-size:15px;font-weight:700;}
+.dl-pwa{
+  margin-top:20px;font-size:13px;color:var(--muted);cursor:pointer;
+  display:inline-flex;align-items:center;gap:6px;
+  border-bottom:1px solid var(--border);padding-bottom:2px;
+  transition:color .15s ease;
+}
+.dl-pwa:hover{color:var(--gold2);}
+
+/* ── TESTIMONIALS ── */
+.test-section{padding:100px 24px;background:var(--deep);border-top:1px solid var(--border2);}
+.test-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+  gap:20px;max-width:1100px;margin:0 auto;
+}
+.tc{
+  background:var(--surface2);border:1px solid var(--border2);
+  border-radius:24px;overflow:hidden;
+  transition:transform .2s ease,border-color .2s ease;
+}
+.tc:hover{transform:translateY(-4px);border-color:var(--border);}
+.tc-head{padding:20px 20px 0;display:flex;align-items:center;gap:12px;}
+.tc-av{
+  width:42px;height:42px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;font-weight:700;color:var(--obsidian);flex-shrink:0;
+}
+.tc-name{font-size:14px;font-weight:600;color:var(--cream);}
+.tc-loc{font-size:12px;color:var(--muted);}
+.tc-badge{
+  margin-left:auto;padding:3px 10px;border-radius:50px;
+  font-size:10px;font-weight:700;
+}
+.tc-body{padding:16px 20px;}
+.tc-quote{
+  font-size:14px;color:var(--cream2);line-height:1.7;
+  margin-bottom:12px;font-style:italic;
+}
+.tc-result{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:5px 14px;border-radius:50px;
+  background:rgba(0,201,123,.08);border:1px solid rgba(0,201,123,.2);
+  font-size:11px;font-weight:600;color:var(--emerald);
+}
+.stars{color:var(--gold);font-size:13px;margin-bottom:10px;}
+
+/* ── EMAIL CAPTURE ── */
+.email-section{
+  padding:100px 24px;text-align:center;
+  position:relative;overflow:hidden;
+}
+.email-orb1{position:absolute;width:500px;height:500px;border-radius:50%;filter:blur(120px);background:radial-gradient(circle,rgba(74,124,89,.2),transparent 70%);top:-100px;left:-100px;}
+.email-orb2{position:absolute;width:400px;height:400px;border-radius:50%;filter:blur(100px);background:radial-gradient(circle,rgba(201,168,76,.12),transparent 70%);bottom:-50px;right:-50px;}
+.email-inner{position:relative;z-index:2;max-width:540px;margin:0 auto;}
+.email-kicker{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:5px 14px;border-radius:50px;
+  background:rgba(0,201,123,.1);border:1px solid rgba(0,201,123,.25);
+  font-size:10px;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--emerald);font-weight:600;margin-bottom:24px;
+}
+.email-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(2rem,4vw,3rem);font-weight:300;
+  color:var(--cream);letter-spacing:-.04em;line-height:1.15;
+  margin-bottom:14px;
+}
+.email-title em{font-style:italic;color:var(--gold2);}
+.email-sub{font-size:15px;color:var(--muted);line-height:1.7;margin-bottom:32px;}
+.email-form{display:flex;gap:10px;max-width:440px;margin:0 auto 16px;}
+.email-inp{
+  flex:1;padding:14px 20px;border-radius:50px;
+  border:1px solid var(--border);background:var(--surface2);
+  color:var(--cream);font-family:'DM Sans',sans-serif;font-size:14px;
+  outline:none;transition:border-color .15s ease;
+}
+.email-inp::placeholder{color:var(--muted);}
+.email-inp:focus{border-color:var(--gold);}
+.email-submit{
+  padding:14px 24px;border-radius:50px;border:none;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:var(--obsidian);font-family:'DM Sans',sans-serif;
+  font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap;
+  transition:all .2s ease;box-shadow:0 4px 16px rgba(201,168,76,.3);
+  flex-shrink:0;
+}
+.email-submit:hover{box-shadow:0 8px 24px rgba(201,168,76,.4);}
+.email-privacy{font-size:12px;color:var(--muted);}
+.email-social-proof{
+  margin-top:24px;display:flex;align-items:center;justify-content:center;gap:10px;
+  font-size:13px;color:var(--muted);
+}
+.email-avatars{display:flex;}
+.email-av{
+  width:28px;height:28px;border-radius:50%;border:2px solid var(--obsidian);
+  margin-left:-8px;display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;color:var(--obsidian);
+}
+.email-av:first-child{margin-left:0;}
+#emailStatus{
+  margin-top:12px;font-size:13px;font-weight:600;
+  color:var(--emerald);display:none;
+}
+
+/* ── FOOTER ── */
+footer{
+  padding:60px 24px 40px;
+  border-top:1px solid var(--border2);
+  background:var(--deep);
+}
+.footer-inner{
+  max-width:1100px;margin:0 auto;
+  display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;
+}
+.footer-brand{}
+.footer-logo{
+  display:flex;align-items:center;gap:10px;margin-bottom:16px;
+}
+.footer-logo-ico{
+  width:36px;height:36px;border-radius:10px;
+  background:linear-gradient(145deg,var(--gold2),var(--gold));
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+}
+.footer-brand-name{font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:var(--cream);}
+.footer-brand-name em{font-style:italic;color:var(--gold2);}
+.footer-desc{font-size:13px;color:var(--muted);line-height:1.7;max-width:260px;}
+.footer-col h4{font-size:11px;font-weight:700;color:var(--cream);letter-spacing:.1em;text-transform:uppercase;margin-bottom:16px;}
+.footer-col a{
+  display:block;font-size:13px;color:var(--muted);
+  text-decoration:none;margin-bottom:10px;
+  transition:color .15s ease;
+}
+.footer-col a:hover{color:var(--gold2);}
+.footer-bottom{
+  max-width:1100px;margin:48px auto 0;
+  padding-top:24px;border-top:1px solid var(--border2);
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:12px;
+}
+.footer-copy{font-size:12px;color:var(--muted);}
+.footer-credit{font-size:11px;color:var(--muted);opacity:.6;}
+
+/* NOTIFICATION banner */
+.notif-banner{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);
+  background:var(--surface3);border:1px solid var(--border);
+  border-radius:16px;padding:12px 20px;
+  display:flex;align-items:center;gap:12px;
+  box-shadow:0 16px 40px rgba(0,0,0,.4);z-index:9999;
+  font-size:13px;font-weight:500;color:var(--cream);
+  opacity:0;pointer-events:none;white-space:nowrap;
+  transition:all .4s cubic-bezier(0.16,1,.3,1);
+  max-width:360px;
+}
+.notif-banner.show{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:all;}
+.notif-av{font-size:20px;flex-shrink:0;}
+.notif-txt{}
+.notif-name{font-weight:700;color:var(--gold2);}
+.notif-close{margin-left:auto;cursor:pointer;color:var(--muted);font-size:16px;padding:2px 6px;}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+
+/* Reveal on scroll */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+.reveal-delay-1{transition-delay:.1s;}
+.reveal-delay-2{transition-delay:.2s;}
+.reveal-delay-3{transition-delay:.3s;}
+
+/* MOBILE */
+@media(max-width:768px){
+  nav{padding:0 20px;}
+  .nav-links{display:none;}
+  .nav-mobile-menu{display:block;}
+  .app-inner{grid-template-columns:1fr;gap:48px;padding:60px 24px;}
+  .app-phone{order:-1;}
+  .plans-grid{grid-template-columns:1fr;}
+  .plan-card.featured{transform:none;}
+  .footer-inner{grid-template-columns:1fr 1fr;}
+  .footer-brand{grid-column:1/-1;}
+  .footer-bottom{flex-direction:column;text-align:center;}
+  .test-grid{grid-template-columns:1fr;}
+  .email-form{flex-direction:column;}
+  .email-submit{border-radius:50px;}
+  .live-strip{gap:20px;}
+  .live-divider{display:none;}
+  .hero-ctas{flex-direction:column;align-items:center;}
+  .btn-primary,.btn-secondary{width:100%;max-width:320px;}
+}
+
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:var(--obsidian);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+a{color:inherit;text-decoration:none;}
+button{font-family:'DM Sans',sans-serif;}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-brand" href="#">
+    <div class="nav-logo">🥤</div>
+    <div class="nav-name">PureLive <em>Wellness Club</em></div>
+  </a>
+  <div class="nav-links">
+    <a href="#how">How it works</a>
+    <a href="#app">The App</a>
+    <a href="#plans">Plans</a>
+    <a href="#community">Community</a>
+  </div>
+  <button class="nav-cta" onclick="scrollToEmail()">Join Free →</button>
+  <div class="nav-mobile-menu" onclick="showToast('Menu — coming soon')">☰</div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="hex-grid"></div>
+
+  <div class="hero-inner">
+    <div class="hero-kicker">
+      <div class="kicker-dot"></div>
+      <span id="liveJoining">847 people joined today</span>
+    </div>
+
+    <h1 class="hero-title">
+      Wellness that<br>knows <em>you</em>
+    </h1>
+    <p class="hero-sub">
+      AI-powered smoothie plans personalized to your body, goals, and health conditions. Not a diet. A lifestyle — designed by intelligence, built for humans.
+    </p>
+
+    <!-- Live counters -->
+    <div class="live-strip">
+      <div class="live-stat">
+        <span class="live-num" id="memberCount">12,847</span>
+        <span class="live-lbl">Active members</span>
+      </div>
+      <div class="live-divider"></div>
+      <div class="live-stat">
+        <span class="live-num" id="countryCount">47</span>
+        <span class="live-lbl">Countries</span>
+      </div>
+      <div class="live-divider"></div>
+      <div class="live-stat">
+        <span class="live-num" id="smoothieCount">284K</span>
+        <span class="live-lbl">Smoothies served</span>
+      </div>
+      <div class="live-divider"></div>
+      <div class="live-stat">
+        <span class="live-num">4.9★</span>
+        <span class="live-lbl">App rating</span>
+      </div>
+    </div>
+
+    <div class="hero-ctas">
+      <button class="btn-primary" onclick="scrollToEmail()">Start Free Today →</button>
+      <button class="btn-secondary" onclick="openApp()">Open Dr. Smoothie AI</button>
+    </div>
+  </div>
+
+  <div class="scroll-hint">
+    <div class="scroll-line"></div>
+    <div class="scroll-txt">Scroll</div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section" id="how">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <div class="section-eyebrow"><div class="ey-line"></div><span class="ey-text">How it works</span></div>
+      <div class="section-title">From analysis to<br><em>transformation</em></div>
+      <div class="section-sub">Four steps. Completely personalized. Results you can feel.</div>
+    </div>
+    <div class="hiw-grid">
+      <div class="hiw-card gold reveal reveal-delay-1">
+        <div class="hiw-num">01</div>
+        <span class="hiw-icon">📋</span>
+        <div class="hiw-title">Physical Analysis</div>
+        <div class="hiw-desc">Enter your age, weight, height and health conditions. We calculate your BMI and build your complete wellness profile in under 60 seconds.</div>
+      </div>
+      <div class="hiw-card sage reveal reveal-delay-2">
+        <div class="hiw-num">02</div>
+        <span class="hiw-icon">🤖</span>
+        <div class="hiw-title">AI Designs Your Plan</div>
+        <div class="hiw-desc">Dr. Smoothie AI analyzes your profile against thousands of nutritional patterns to create a smoothie protocol uniquely designed for your body.</div>
+      </div>
+      <div class="hiw-card emerald reveal reveal-delay-3">
+        <div class="hiw-num">03</div>
+        <span class="hiw-icon">🥤</span>
+        <div class="hiw-title">Daily Personalized Recipes</div>
+        <div class="hiw-desc">Receive smoothies matched to your goal — weight loss, energy, detox, heart health, diabetes-friendly. Each with ingredients, quantities and timing.</div>
+      </div>
+      <div class="hiw-card gold reveal">
+        <div class="hiw-num">04</div>
+        <span class="hiw-icon">📈</span>
+        <div class="hiw-title">Track & Transform</div>
+        <div class="hiw-desc">Daily streaks, check-ins and reminders keep you consistent. Ask Dr. AI anything, anytime. Watch your vitality score rise week by week.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- APP PREVIEW -->
+<section class="app-section" id="app">
+  <div class="app-inner">
+    <!-- Phone mockup -->
+    <div class="app-phone reveal">
+      <div class="phone-frame">
+        <div class="phone-notch"></div>
+        <!-- Screen content -->
+        <div style="padding:28px 14px 14px;height:100%;display:flex;flex-direction:column;background:linear-gradient(170deg,var(--obsidian),var(--surface2));">
+          <!-- Header -->
+          <div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:12px;border-bottom:1px solid var(--border2);margin-bottom:12px;">
+            <div style="font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--cream)">Dr. Smoothie <em style="color:var(--gold2);font-style:italic">AI</em></div>
+            <div style="width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--gold2),var(--gold));display:flex;align-items:center;justify-content:center;font-size:13px;">💬</div>
+          </div>
+          <!-- Vitality ring -->
+          <div style="display:flex;align-items:center;gap:10px;padding:10px;background:rgba(201,168,76,.06);border:1px solid var(--border2);border-radius:14px;margin-bottom:10px;">
+            <div style="width:44px;height:44px;position:relative;flex-shrink:0;">
+              <svg width="44" height="44" viewBox="0 0 100 100" style="transform:rotate(-90deg)">
+                <defs>
+                  <linearGradient id="mg" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:#C9A84C"/>
+                    <stop offset="100%" style="stop-color:#4A7C59"/>
+                  </linearGradient>
+                </defs>
+                <circle fill="none" stroke="rgba(201,168,76,0.1)" stroke-width="10" cx="50" cy="50" r="40"/>
+                <circle fill="none" stroke="url(#mg)" stroke-width="10" stroke-linecap="round" stroke-dasharray="251" stroke-dashoffset="63" cx="50" cy="50" r="40"/>
+              </svg>
+              <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--gold2)">74%</div>
+            </div>
+            <div>
+              <div style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);font-weight:600">Daily Vitality</div>
+              <div style="font-family:'Cormorant Garamond',serif;font-size:1rem;color:var(--cream)">Your <em style="font-style:italic;color:var(--gold2)">Wellness</em></div>
+            </div>
+          </div>
+          <!-- Category grid -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;">
+            <div style="border-radius:12px;overflow:hidden;position:relative;aspect-ratio:1/1.1;background:linear-gradient(145deg,#052e16,#15803d);">
+              <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.7),transparent)"></div>
+              <div style="position:absolute;bottom:8px;left:8px"><div style="font-size:16px">♻️</div><div style="font-size:9px;color:white;font-weight:600">Detox</div></div>
+            </div>
+            <div style="border-radius:12px;overflow:hidden;position:relative;aspect-ratio:1/1.1;background:linear-gradient(145deg,#7c2d12,#c2410c);">
+              <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.7),transparent)"></div>
+              <div style="position:absolute;bottom:8px;left:8px"><div style="font-size:16px">⚖️</div><div style="font-size:9px;color:white;font-weight:600">Weight</div></div>
+            </div>
+            <div style="border-radius:12px;overflow:hidden;position:relative;aspect-ratio:1/1.1;background:linear-gradient(145deg,#1e1b4b,#4338ca);">
+              <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.7),transparent)"></div>
+              <div style="position:absolute;bottom:8px;left:8px"><div style="font-size:16px">💪</div><div style="font-size:9px;color:white;font-weight:600">Fitness</div></div>
+            </div>
+            <div style="border-radius:12px;overflow:hidden;position:relative;aspect-ratio:1/1.1;background:linear-gradient(145deg,#713f12,#ca8a04);">
+              <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.7),transparent)"></div>
+              <div style="position:absolute;bottom:8px;left:8px"><div style="font-size:16px">⚡</div><div style="font-size:9px;color:white;font-weight:600">Energy</div></div>
+            </div>
+          </div>
+          <!-- Chat preview -->
+          <div style="margin-top:auto;background:rgba(22,32,25,.8);border:1px solid var(--border2);border-radius:12px;padding:10px;">
+            <div style="font-size:10px;color:var(--cream2);line-height:1.5;background:var(--surface3);border:1px solid var(--border2);padding:7px 10px;border-radius:4px 12px 12px 12px;margin-bottom:6px">Based on your BMI of 24.2 and energy goal, I recommend the Sunrise Energy Blend 🌿</div>
+            <div style="font-size:10px;font-weight:600;color:var(--obsidian);background:linear-gradient(135deg,var(--gold),var(--gold2));padding:6px 10px;border-radius:12px 12px 4px 12px;text-align:right">What ingredients do I need?</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Features -->
+    <div class="app-features reveal reveal-delay-1">
+      <div class="section-eyebrow" style="margin-bottom:16px"><div class="ey-line"></div><span class="ey-text">The App</span></div>
+      <div class="section-title" style="margin-bottom:8px">Everything in<br>one <em>place</em></div>
+      <div class="section-sub" style="margin-bottom:36px">Dr. Smoothie AI is your complete wellness companion — available on iOS, Android, and web.</div>
+
+      <div class="app-feat">
+        <div class="af-icon">📋</div>
+        <div><div class="af-title">Physical Profile + BMI</div><div class="af-desc">4-step analysis calculates your BMI and builds a personalized wellness protocol matched to your body and conditions.</div></div>
+      </div>
+      <div class="app-feat">
+        <div class="af-icon">🤖</div>
+        <div><div class="af-title">AI Chat — 24/7 Concierge</div><div class="af-desc">Ask Dr. Smoothie AI anything. Real Claude AI with wellness expertise, available any time of day or night.</div></div>
+      </div>
+      <div class="app-feat">
+        <div class="af-icon">🎬</div>
+        <div><div class="af-title">Kai — AI Video Generator</div><div class="af-desc">Generate professional 4K smoothie content with LTX 2.3. Your social media, automated by AI.</div></div>
+      </div>
+      <div class="app-feat">
+        <div class="af-icon">🌿</div>
+        <div><div class="af-title">Daily Routines + Streaks</div><div class="af-desc">Smart reminders, daily check-ins, and streak tracking keep you consistent and motivated every single day.</div></div>
+      </div>
+
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:28px;">
+        <button class="btn-primary" onclick="openApp()">Open App →</button>
+        <button class="btn-secondary" onclick="scrollToEmail()">Join Waitlist</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PLANS -->
+<section class="plans-section" id="plans">
+  <div class="section-inner">
+    <div class="section-header reveal" style="text-align:center">
+      <div class="section-eyebrow" style="justify-content:center"><div class="ey-line"></div><span class="ey-text">Membership</span></div>
+      <div class="section-title" style="font-size:clamp(2rem,4vw,3rem)">Choose your <em>plan</em></div>
+      <div class="section-sub" style="margin:12px auto 0;text-align:center">Start free. Upgrade when you're ready. No contracts. Cancel anytime.</div>
+    </div>
+    <div class="plans-grid reveal">
+      <!-- Seed -->
+      <div class="plan-card">
+        <div class="plan-badge seed">Seed</div>
+        <span class="plan-emoji">🌱</span>
+        <div class="plan-name">Seed</div>
+        <div class="plan-price">Free<span>/mo</span></div>
+        <div class="plan-desc">Perfect for starting your wellness journey. No credit card required.</div>
+        <ul class="plan-perks">
+          <li><span class="perk-check">✓</span> 3 smoothie recipes daily</li>
+          <li><span class="perk-check">✓</span> Physical analysis + BMI</li>
+          <li><span class="perk-check">✓</span> Basic AI chat (10 msgs/day)</li>
+          <li><span class="perk-check">✓</span> Daily reminders</li>
+          <li><span class="perk-check">✓</span> Community access</li>
+        </ul>
+        <button class="plan-btn ghost" onclick="scrollToEmail()">Start Free →</button>
+      </div>
+      <!-- Bloom (featured) -->
+      <div class="plan-card featured">
+        <div class="plan-badge bloom">★ Most Popular</div>
+        <span class="plan-emoji">🌸</span>
+        <div class="plan-name">Bloom</div>
+        <div class="plan-price">$4<span>.99/mo</span></div>
+        <div class="plan-desc">Full AI power. Unlimited plans. The complete wellness experience.</div>
+        <ul class="plan-perks">
+          <li><span class="perk-check">✓</span> Unlimited smoothie recipes</li>
+          <li><span class="perk-check">✓</span> Full AI chat — unlimited</li>
+          <li><span class="perk-check">✓</span> Claude AI personalized analysis</li>
+          <li><span class="perk-check">✓</span> Shopping lists + quantities</li>
+          <li><span class="perk-check">✓</span> Video tutorials — all categories</li>
+          <li><span class="perk-check">✓</span> Priority support</li>
+        </ul>
+        <button class="plan-btn primary" onclick="scrollToEmail()">Join Bloom →</button>
+      </div>
+      <!-- Canopy -->
+      <div class="plan-card">
+        <div class="plan-badge canopy">Canopy</div>
+        <span class="plan-emoji">🌳</span>
+        <div class="plan-name">Canopy</div>
+        <div class="plan-price">$9<span>.99/mo</span></div>
+        <div class="plan-desc">Full concierge experience. AI video, Kai generator and premium tools.</div>
+        <ul class="plan-perks">
+          <li><span class="perk-check">✓</span> Everything in Bloom</li>
+          <li><span class="perk-check">✓</span> Kai AI video generator (4K)</li>
+          <li><span class="perk-check">✓</span> Multi-agent pipeline</li>
+          <li><span class="perk-check">✓</span> HeyGen video avatar (coming)</li>
+          <li><span class="perk-check">✓</span> Nutrition deep analysis</li>
+          <li><span class="perk-check">✓</span> White-glove onboarding</li>
+        </ul>
+        <button class="plan-btn ghost" onclick="scrollToEmail()">Join Canopy →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DOWNLOAD -->
+<section class="download-section">
+  <div class="dl-inner reveal">
+    <div class="dl-title">Your wellness,<br><em>everywhere you go</em></div>
+    <div class="dl-sub">Download Dr. Smoothie AI on iOS or Android. Or open instantly in your browser — no installation needed.</div>
+    <div class="dl-btns">
+      <a class="dl-btn" href="https://apps.apple.com/search?term=dr+smoothie+wellness" target="_blank">
+        <svg viewBox="0 0 24 24"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+        <div><div class="dl-btn-sub">Download on the</div><div class="dl-btn-name">App Store</div></div>
+      </a>
+      <a class="dl-btn" href="https://play.google.com/store/search?q=smoothie+wellness+ai" target="_blank">
+        <svg viewBox="0 0 24 24"><path d="M3.18 23.76c.38.21.8.24 1.19.09l11.9-6.87-2.62-2.63zM20.7 10.37L17.5 8.57l-2.93 2.93 2.93 2.93 3.22-1.86c.92-.53.92-1.67-.02-2.2zM2.14 1.24C2.05 1.46 2 1.71 2 2v20c0 .29.05.54.14.76l.07.07 11.2-11.2v-.26L2.21 1.17z"/></svg>
+        <div><div class="dl-btn-sub">Get it on</div><div class="dl-btn-name">Google Play</div></div>
+      </a>
+    </div>
+    <div class="dl-pwa" onclick="openApp()">🌐 Open in browser — instant access</div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="test-section" id="community">
+  <div class="section-inner">
+    <div class="section-header reveal" style="text-align:center">
+      <div class="section-eyebrow" style="justify-content:center"><div class="ey-line"></div><span class="ey-text">Community</span></div>
+      <div class="section-title">Real people,<br><em>real results</em></div>
+    </div>
+    <div class="test-grid">
+      <div class="tc reveal">
+        <div class="tc-head">
+          <div class="tc-av" style="background:linear-gradient(145deg,var(--gold),var(--sage))">M</div>
+          <div><div class="tc-name">Maria G.</div><div class="tc-loc">Miami, FL · Bloom member</div></div>
+          <div class="tc-badge" style="background:rgba(0,201,123,.1);color:var(--emerald);border:1px solid rgba(0,201,123,.2)">⭐ Featured</div>
+        </div>
+        <div class="tc-body">
+          <div class="stars">★★★★★</div>
+          <div class="tc-quote">"30 days on the detox plan and I feel like a completely different person. More energy, better sleep, and I lost 4kg without starving or counting calories. Dr. AI recommended exactly what I needed."</div>
+          <div class="tc-result">🌿 -4kg in 30 days · Energy +40%</div>
+        </div>
+      </div>
+      <div class="tc reveal reveal-delay-1">
+        <div class="tc-head">
+          <div class="tc-av" style="background:linear-gradient(145deg,#6366f1,#4f46e5)">C</div>
+          <div><div class="tc-name">Carlos M.</div><div class="tc-loc">Bogotá, CO · Canopy member</div></div>
+          <div class="tc-badge" style="background:rgba(99,102,241,.1);color:#818cf8;border:1px solid rgba(99,102,241,.2)">💪 Fitness</div>
+        </div>
+        <div class="tc-body">
+          <div class="stars">★★★★★</div>
+          <div class="tc-quote">"The pre-workout smoothie changed my training completely. I have 30% more endurance and recover twice as fast. The AI knew exactly what my body needed based on my profile."</div>
+          <div class="tc-result">💪 +30% athletic performance</div>
+        </div>
+      </div>
+      <div class="tc reveal reveal-delay-2">
+        <div class="tc-head">
+          <div class="tc-av" style="background:linear-gradient(145deg,#d97706,#b45309)">A</div>
+          <div><div class="tc-name">Ana P.</div><div class="tc-loc">Madrid, ES · Bloom member</div></div>
+          <div class="tc-badge" style="background:rgba(217,119,6,.1);color:#fbbf24;border:1px solid rgba(217,119,6,.2)">💧 Diabetic</div>
+        </div>
+        <div class="tc-body">
+          <div class="stars">★★★★★</div>
+          <div class="tc-quote">"As a diabetic I was afraid of smoothies. PureLive created a plan specifically for my condition. My blood sugar is now stable and my doctor was impressed with my progress."</div>
+          <div class="tc-result">💧 Stable blood sugar · Doctor approved</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EMAIL CAPTURE -->
+<section class="email-section" id="email-section">
+  <div class="email-orb1"></div>
+  <div class="email-orb2"></div>
+  <div class="email-inner reveal">
+    <div class="email-kicker">
+      <div class="kicker-dot"></div>
+      <span>Limited early access</span>
+    </div>
+    <h2 class="email-title">Join the <em>club</em><br>today for free</h2>
+    <p class="email-sub">No credit card. No commitment. Just your personal wellness journey — personalized by AI, starting in 60 seconds.</p>
+    <div class="email-form">
+      <input class="email-inp" type="email" id="emailInput" placeholder="your@email.com" onkeydown="if(event.key==='Enter')joinClub()">
+      <button class="email-submit" onclick="joinClub()">Join Free →</button>
+    </div>
+    <div class="email-privacy">🔒 No spam. Unsubscribe anytime.</div>
+    <div id="emailStatus">✅ You're in! Check your email for next steps 🌿</div>
+    <div class="email-social-proof">
+      <div class="email-avatars">
+        <div class="email-av" style="background:linear-gradient(135deg,var(--gold),var(--sage))">M</div>
+        <div class="email-av" style="background:linear-gradient(135deg,#6366f1,#4f46e5)">C</div>
+        <div class="email-av" style="background:linear-gradient(135deg,#d97706,#b45309)">A</div>
+        <div class="email-av" style="background:linear-gradient(135deg,var(--sage),var(--emerald))">R</div>
+        <div class="email-av" style="background:linear-gradient(135deg,#be123c,#9f1239)">L</div>
+      </div>
+      <span>Join <strong id="memberCountFooter">12,847</strong> members already transforming their health</span>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <div class="footer-logo-ico">🥤</div>
+        <div class="footer-brand-name">PureLive <em>Wellness Club</em></div>
+      </div>
+      <div class="footer-desc">AI-powered wellness concierge. Personalized smoothie plans for every body, every goal, every lifestyle. Powered by Claude AI.</div>
+    </div>
+    <div class="footer-col">
+      <h4>Product</h4>
+      <a href="#app">Dr. Smoothie AI</a>
+      <a href="#how">How it works</a>
+      <a href="#plans">Pricing</a>
+      <a href="https://jbjrw.github.io/purelife-app" target="_blank">Open App</a>
+    </div>
+    <div class="footer-col">
+      <h4>Plans</h4>
+      <a href="#plans" onclick="scrollToEmail()">Seed — Free</a>
+      <a href="#plans" onclick="scrollToEmail()">Bloom — $4.99</a>
+      <a href="#plans" onclick="scrollToEmail()">Canopy — $9.99</a>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <a href="#community">Community</a>
+      <a href="mailto:hello@purelifewellnessclub.org">Contact</a>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2026 PureLive Wellness Club · JRMB Food Network LLC · purelifewellnessclub.org</div>
+    <div class="footer-credit">jorge desarrollador × Claude · Built with ❤️ and AI</div>
+  </div>
+</footer>
+
+<!-- LIVE NOTIFICATION BANNER -->
+<div class="notif-banner" id="notifBanner">
+  <div class="notif-av" id="notifAv">👤</div>
+  <div class="notif-txt">
+    <span class="notif-name" id="notifName">Maria from Miami</span>
+    <span id="notifAction"> just joined PureLive</span>
+  </div>
+  <div class="notif-close" onclick="document.getElementById('notifBanner').classList.remove('show')">×</div>
+</div>
+
+<div id="globalToast" style="
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:var(--surface3);color:var(--cream);border:1px solid var(--border);
+  padding:11px 22px;border-radius:50px;font-size:13px;font-weight:600;
+  z-index:10000;opacity:0;pointer-events:none;white-space:nowrap;
+  box-shadow:0 8px 24px rgba(0,0,0,.4);
+  transition:all .3s cubic-bezier(0.16,1,.3,1);">
+</div>
+
+<script>
+// ═══════════════════════════════════
+// PURELIFE WELLNESS CLUB — Scripts
+// ═══════════════════════════════════
+
+// ── LIVE COUNTERS ──
+// Deterministic counter based on date — grows daily
+function getLiveCount() {
+  const base = 11843;
+  const startDate = new Date('2026-01-01');
+  const today = new Date();
+  const days = Math.floor((today - startDate) / 86400000);
+  const dailyGrowth = Math.floor(Math.sin(days * 0.7) * 80 + 120);
+  return base + (days * 147) + dailyGrowth;
+}
+
+function formatNum(n) {
+  if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
+  if (n >= 1000) return (n/1000).toFixed(1) + 'K';
+  return n.toLocaleString();
+}
+
+function animateCounter(el, target, duration=2000) {
+  const start = 0;
+  const startTime = performance.now();
+  const isFormatted = target > 999;
+  
+  function update(currentTime) {
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const current = Math.floor(start + (target - start) * eased);
+    
+    if (isFormatted) {
+      el.textContent = formatNum(current);
+    } else {
+      el.textContent = current.toLocaleString();
+    }
+    
+    if (progress < 1) requestAnimationFrame(update);
+    else el.textContent = isFormatted ? formatNum(target) : target.toLocaleString();
+  }
+  requestAnimationFrame(update);
+}
+
+// Init counters when visible
+const memberBase = getLiveCount();
+const smoothieBase = memberBase * 22;
+
+const counterObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting && !e.target.dataset.animated) {
+      e.target.dataset.animated = '1';
+      const el = e.target;
+      const target = parseInt(el.dataset.target);
+      animateCounter(el, target);
+    }
+  });
+}, { threshold: 0.3 });
+
+window.addEventListener('load', () => {
+  document.getElementById('memberCount').dataset.target = memberBase;
+  document.getElementById('countryCount').dataset.target = 47;
+  document.getElementById('smoothieCount').dataset.target = smoothieBase;
+  document.getElementById('memberCountFooter').textContent = formatNum(memberBase);
+  document.getElementById('liveJoining').textContent = Math.floor(memberBase * 0.07 / 30) + ' people joined today';
+  
+  document.querySelectorAll('#memberCount, #countryCount, #smoothieCount').forEach(el => {
+    counterObserver.observe(el);
+  });
+});
+
+// ── SCROLL REVEAL ──
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      revealObserver.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+// ── NAV SCROLL ──
+window.addEventListener('scroll', () => {
+  const nav = document.querySelector('nav');
+  if (window.scrollY > 60) {
+    nav.style.background = 'rgba(8,11,10,.97)';
+  } else {
+    nav.style.background = 'rgba(8,11,10,.88)';
+  }
+});
+
+// ── EMAIL CAPTURE ──
+function joinClub() {
+  const email = document.getElementById('emailInput').value.trim();
+  if (!email || !email.includes('@')) {
+    showToast('⚠️ Please enter a valid email');
+    return;
+  }
+  
+  // Save locally
+  localStorage.setItem('pl_email', email);
+  localStorage.setItem('pl_joined', new Date().toISOString());
+  
+  // Show success
+  document.getElementById('emailStatus').style.display = 'block';
+  document.getElementById('emailInput').value = '';
+  showToast('🌿 Welcome to PureLive! Opening the app...');
+  
+  // Open app after 1.5s
+  setTimeout(() => openApp(), 1500);
+}
+
+// ── NAVIGATION ──
+function scrollToEmail() {
+  document.getElementById('email-section').scrollIntoView({ behavior: 'smooth' });
+}
+
+function openApp() {
+  window.open('https://jbjrw.github.io/purelife-app/', '_blank');
+}
+
+// ── LIVE NOTIFICATIONS ──
+const notifData = [
+  { av: '👩', name: 'Maria from Miami', action: ' just joined PureLive 🌿' },
+  { av: '👨', name: 'Carlos from Bogotá', action: ' started the Detox plan ♻️' },
+  { av: '👩', name: 'Ana from Madrid', action: ' lost 2kg this week ⚖️' },
+  { av: '👨', name: 'Raj from Mumbai', action: ' just joined PureLive 🌿' },
+  { av: '👩', name: 'Sophie from Paris', action: ' completed 7-day streak 🔥' },
+  { av: '👨', name: 'James from London', action: ' upgraded to Bloom plan ⭐' },
+  { av: '👩', name: 'Lucia from Buenos Aires', action: ' generated her smoothie plan 🥤' },
+  { av: '👨', name: 'Kevin from Toronto', action: ' just joined PureLive 🌿' },
+];
+
+let notifIdx = 0;
+function showNotif() {
+  const data = notifData[notifIdx % notifData.length];
+  notifIdx++;
+  document.getElementById('notifAv').textContent = data.av;
+  document.getElementById('notifName').textContent = data.name;
+  document.getElementById('notifAction').textContent = data.action;
+  
+  const banner = document.getElementById('notifBanner');
+  banner.classList.add('show');
+  setTimeout(() => banner.classList.remove('show'), 4000);
+}
+
+// Show first notification after 4s, then every 12s
+setTimeout(() => {
+  showNotif();
+  setInterval(showNotif, 12000);
+}, 4000);
+
+// ── LIVE MEMBER COUNT UPDATE (subtle, every 45s) ──
+setInterval(() => {
+  const current = parseInt(document.getElementById('memberCount').textContent.replace(/,/g,'').replace('K','000').replace('.',''));
+  const increment = Math.floor(Math.random() * 3) + 1;
+  // Just animate the joining text
+  const joining = parseInt(document.getElementById('liveJoining').textContent);
+}, 45000);
+
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.getElementById('globalToast');
+  t.textContent = msg;
+  t.style.opacity = '1';
+  t.style.transform = 'translateX(-50%) translateY(0)';
+  setTimeout(() => {
+    t.style.opacity = '0';
+    t.style.transform = 'translateX(-50%) translateY(80px)';
+  }, 2800);
+}
+
+// ── SMOOTH ANCHOR SCROLL ──
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+  });
+});
+</script>
+</body>
+</html>
