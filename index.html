@@ -2034,14 +2034,14 @@ button{font-family:'DM Sans',sans-serif;}
     <div><div class="streak-num" id="streakNum">0</div><div class="streak-lbl">day streak</div></div>
     <div class="streak-cta">Check in →</div>
   </div>
-  <div class="alarms-list">
+  <div class="alarms-list" id="alarmsList">
     <div class="alarm-item on" id="al-1"><div class="al-emoji">🌅</div><div style="flex:1"><div class="al-name">Morning Smoothie</div><div class="al-time">7:00 AM · Mon–Fri</div></div><button class="toggle on" onclick="toggleAl(this,'al-1')"></button></div>
     <div class="alarm-item on" id="al-2"><div class="al-emoji">🛒</div><div style="flex:1"><div class="al-name">Buy Ingredients</div><div class="al-time">6:00 PM · Sunday</div></div><button class="toggle on" onclick="toggleAl(this,'al-2')"></button></div>
     <div class="alarm-item" id="al-3"><div class="al-emoji">🌙</div><div style="flex:1"><div class="al-name">Evening Check-in</div><div class="al-time">8:00 PM · Daily</div></div><button class="toggle" onclick="toggleAl(this,'al-3')"></button></div>
     <div class="alarm-item" id="al-4"><div class="al-emoji">💧</div><div style="flex:1"><div class="al-name">Hydration</div><div class="al-time">2:00 PM · Daily</div></div><button class="toggle" onclick="toggleAl(this,'al-4')"></button></div>
   </div>
   <div style="padding:0 20px 20px">
-    <button class="btn-ghost btn-full" onclick="showToast('⏰ Add reminder — coming soon')">+ Add reminder</button>
+    <button class="btn-ghost btn-full" onclick="addReminder()">+ Add reminder</button>
   </div>
 </div>
 
@@ -2058,10 +2058,8 @@ button{font-family:'DM Sans',sans-serif;}
   <div class="kai-bd">
     <div class="field-lbl">Model</div>
     <div class="km-grid">
-      <div class="km-btn on" data-m="ltx-2-3-fast" onclick="setKM(this)"><div class="km-icon">⚡</div><div class="km-name">LTX Fast</div><div class="km-tag">FREE</div></div>
-      <div class="km-btn" data-m="ltx-2-3-pro" onclick="setKM(this)"><div class="km-icon">🌟</div><div class="km-name">LTX Pro</div><div class="km-tag">4K</div></div>
-      <div class="km-btn" data-m="seedance" onclick="setKM(this)"><div class="km-icon">🌱</div><div class="km-name">Seedance</div><div class="km-tag">HGF</div></div>
-      <div class="km-btn" data-m="kling" onclick="setKM(this)"><div class="km-icon">🎬</div><div class="km-name">Kling</div><div class="km-tag">HGF</div></div>
+      <div class="km-btn on" data-m="kling" onclick="setKM(this)"><div class="km-icon">🎬</div><div class="km-name">Kling</div><div class="km-tag">Bloom+</div></div>
+      <div class="km-btn" data-m="veo3" onclick="setKM(this)"><div class="km-icon">🌟</div><div class="km-name">Veo3</div><div class="km-tag">Canopy</div></div>
     </div>
     <div class="field-lbl">Describe your content</div>
     <textarea class="kai-inp" id="kaiPrompt" placeholder="A fresh green smoothie poured in slow motion, tropical fruits, golden hour, cinematic 4K..."></textarea>
@@ -2188,7 +2186,7 @@ const sb=supabase.createClient('https://slcvymfgcpoafjufaplx.supabase.co','sb_pu
 let currentUser=null,currentSession=null;
 </script>
 <script>
-let lang='en',chatHistory=[],qStep=1,kaiModel='ltx-2-3-fast',vidUrl=null;
+let lang='en',chatHistory=[],qStep=1,kaiModel='kling',vidUrl=null;
 let Q={age:30,weight:70,height:170,bmi:24.2,gender:'male',activity:'sedentary',health:['none'],goal:'energy'};
 
 const VID_DATA = {
@@ -2327,7 +2325,7 @@ const CATS=[
 ];
 
 function navGo(p){showPage(p);}
-function showPage(p){document.querySelectorAll('.page').forEach(function(pg){pg.classList.remove('active');pg.style.opacity='0';});var t=document.getElementById('page-'+p);if(t){t.classList.add('active');t.style.opacity='1';t.style.transform='translateY(0)';t.scrollTop=0;}document.querySelectorAll('.nav-btn,.nav-fab').forEach(function(b){b.classList.remove('on');});var btn=document.querySelector('[data-p="'+p+'"]');if(btn)btn.classList.add('on');if(p==='home'){try{renderHome();}catch(e){}try{renderCatsScroll();}catch(e){}}if(p==='menu')try{renderRecipes();}catch(e){}if(p==='videos')try{renderVids('detox');}catch(e){}if(p==='routine')try{updateStreak();}catch(e){}if(p==='quiz')try{calcBMI();}catch(e){}}
+function showPage(p){document.querySelectorAll('.page').forEach(function(pg){pg.classList.remove('active');pg.style.opacity='0';});var t=document.getElementById('page-'+p);if(t){t.classList.add('active');t.style.opacity='1';t.style.transform='translateY(0)';t.scrollTop=0;}document.querySelectorAll('.nav-btn,.nav-fab').forEach(function(b){b.classList.remove('on');});var btn=document.querySelector('[data-p="'+p+'"]');if(btn)btn.classList.add('on');if(p==='home'){try{renderHome();}catch(e){}try{renderCatsScroll();}catch(e){}}if(p==='menu')try{renderRecipes();}catch(e){}if(p==='videos')try{renderVids('detox');}catch(e){}if(p==='routine'){try{updateStreak();}catch(e){}try{loadReminders();}catch(e){}}if(p==='quiz')try{calcBMI();}catch(e){}}
 
 const LANGS=['en','es','pt','fr'],FLAGS={en:'🇺🇸',es:'🇪🇸',pt:'🇧🇷',fr:'🇫🇷'};
 function cycleLang(){lang=LANGS[(LANGS.indexOf(lang)+1)%LANGS.length];document.getElementById('langFlag').textContent=FLAGS[lang];document.getElementById('langCode').textContent=lang.toUpperCase();showToast(FLAGS[lang]+' '+lang.toUpperCase());}
@@ -2520,6 +2518,34 @@ function toggleAl(btn,id){
   document.getElementById(id)?.classList.toggle('on',btn.classList.contains('on'));
   showToast(btn.classList.contains('on')?'⏰ Reminder on':'🔕 Reminder off');
   if(btn.classList.contains('on')&&'Notification' in window&&Notification.permission==='default')Notification.requestPermission();
+  if(currentUser&&btn.dataset.rid)sb.from('reminders').update({is_active:btn.classList.contains('on')}).eq('id',btn.dataset.rid).then(()=>{});
+}
+async function addReminder(){
+  if(!currentUser){showToast('🔒 Sign in (Profile) to save reminders');return;}
+  const title=prompt('Reminder title (e.g. Morning Smoothie):');
+  if(!title)return;
+  const time=prompt('Time, 24h format HH:MM (e.g. 07:00):','07:00');
+  if(!time||!/^\d{1,2}:\d{2}$/.test(time)){showToast('⚠️ Invalid time format');return;}
+  const [h,m]=time.split(':').map(Number);
+  const now=new Date();const sched=new Date();sched.setHours(h,m,0,0);
+  if(sched<=now)sched.setDate(sched.getDate()+1);
+  const {error}=await sb.from('reminders').insert({user_id:currentUser.id,title,scheduled_at:sched.toISOString(),recurrence:'daily',is_active:true});
+  if(error){showToast('❌ '+error.message);return;}
+  showToast('⏰ Reminder saved!');
+  if('Notification' in window&&Notification.permission==='default')Notification.requestPermission();
+  loadReminders();
+}
+async function loadReminders(){
+  if(!currentUser)return;
+  const {data,error}=await sb.from('reminders').select('*').eq('user_id',currentUser.id).order('scheduled_at');
+  if(error||!data)return;
+  const list=document.getElementById('alarmsList');if(!list)return;
+  if(data.length===0){list.innerHTML='<div style="padding:16px;text-align:center;color:var(--muted);font-size:13px">No reminders yet — add your first one below</div>';return;}
+  list.innerHTML=data.map(r=>{
+    const dt=new Date(r.scheduled_at);
+    const timeStr=dt.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})+' · '+(r.recurrence==='daily'?'Daily':r.recurrence||'Once');
+    return `<div class="alarm-item${r.is_active?' on':''}" id="al-${r.id}"><div class="al-emoji">⏰</div><div style="flex:1"><div class="al-name">${r.title}</div><div class="al-time">${timeStr}</div></div><button class="toggle${r.is_active?' on':''}" data-rid="${r.id}" onclick="toggleAl(this,'al-${r.id}')"></button></div>`;
+  }).join('');
 }
 
 // Kai
@@ -2528,7 +2554,23 @@ function switchKai(btn,tab){document.querySelectorAll('.kai-tab').forEach(t=>t.c
 async function kaiGen(){
   const prompt=document.getElementById('kaiPrompt')?.value.trim();
   if(!prompt){showToast('⚠️ Describe your content first');return;}
-  showToast('🎬 Video AI is being upgraded to our secure pipeline — check back soon!');
+  if(!currentUser){showToast('🔒 Sign in (Profile) to generate videos');return;}
+  const btn=document.getElementById('kaiBtn'),st=document.getElementById('kaiSt'),stm=document.getElementById('kaiStMsg');
+  btn.disabled=true;btn.textContent='⏳ Generating...';st.style.display='block';stm.textContent='🎬 Generating with '+(kaiModel==='veo3'?'Veo3':'Kling')+'…';
+  try{
+    const res=await fetch('/api/video',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({category:'smoothie',pipeline:kaiModel,lang,custom_prompt:prompt+', cinematic wellness brand, professional quality',userId:currentUser.id,accessToken:currentSession?.access_token})});
+    const data=await res.json();
+    if(!res.ok){
+      if(data.error==='upgrade_required')throw new Error('Upgrade to '+(data.upgrade_to||'a paid')+' plan to unlock this model');
+      if(data.error==='monthly_limit_reached')throw new Error(`Monthly limit reached (${data.count}/${data.limit}) for your plan`);
+      throw new Error(data.error||data.detail||'Generation failed');
+    }
+    vidUrl=data.output_url;
+    const vid=document.getElementById('kaiVid'),resEl=document.getElementById('kaiRes');
+    if(vid&&vidUrl){vid.src=vidUrl;vid.style.display='block';resEl.style.display='block';}
+    st.style.display='none';showToast('✅ Video ready!');
+  }catch(e){stm.textContent='⚠️ Error';showToast('❌ '+(e.message||'Error'));}
+  btn.disabled=false;btn.textContent='✨ Generate with Kai';
 }
 function approveVid(){if(!vidUrl)return;showToast('✅ Video saved!');}
 
@@ -2572,6 +2614,7 @@ function updateAuthUI(){
     const shown=document.getElementById('authEmailShown');if(shown)shown.textContent=currentUser.email;
     localStorage.setItem('ue',currentUser.email);
     loadProfileFromSupabase();
+    loadReminders();
   }else{
     if(out)out.style.display='block';if(inEl)inEl.style.display='none';
   }
