@@ -1381,6 +1381,284 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 input[type=number]{-moz-appearance:textfield;}
 a{text-decoration:none;color:inherit;}
 button{font-family:'DM Sans',sans-serif;}
+
+/* ═══════════════════════════════════════
+   HOME CINEMATOGRÁFICO v4.1
+   Emil Kowalski × Impeccable × Taste
+═══════════════════════════════════════ */
+
+/* HERO */
+.hero-cin{
+  min-height:55vw;max-height:360px;
+  position:relative;overflow:hidden;
+  display:flex;flex-direction:column;
+  justify-content:flex-end;
+  padding:32px 20px 24px;
+}
+.hc-orb{position:absolute;border-radius:50%;filter:blur(100px);pointer-events:none;}
+.hc-orb1{width:380px;height:380px;top:-140px;left:-120px;background:radial-gradient(circle,rgba(74,124,89,.28),transparent 70%);animation:drift 14s ease-in-out infinite alternate;}
+.hc-orb2{width:300px;height:300px;bottom:-80px;right:-80px;background:radial-gradient(circle,rgba(201,168,76,.18),transparent 70%);animation:drift 10s ease-in-out infinite alternate;animation-delay:-5s;}
+.hc-orb3{width:200px;height:200px;top:30%;left:50%;background:radial-gradient(circle,rgba(0,201,123,.1),transparent 70%);animation:drift 8s ease-in-out infinite alternate;animation-delay:-8s;}
+.hc-hex{
+  position:absolute;inset:0;
+  background-image:linear-gradient(rgba(201,168,76,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(201,168,76,.04) 1px,transparent 1px);
+  background-size:48px 48px;
+  mask-image:radial-gradient(ellipse at 50% 60%,black 20%,transparent 80%);
+  -webkit-mask-image:radial-gradient(ellipse at 50% 60%,black 20%,transparent 80%);
+}
+
+.hc-inner{position:relative;z-index:2;}
+.hc-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:5px 12px;border-radius:50px;
+  background:rgba(201,168,76,.1);border:1px solid var(--border);
+  font-size:11px;font-weight:600;color:var(--gold2);
+  letter-spacing:.04em;margin-bottom:16px;
+  animation:fadeUp .5s ease both;
+}
+.hc-badge-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--emerald);flex-shrink:0;
+  animation:pulse 2s infinite;
+}
+
+.hc-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(2.4rem,8.5vw,3.2rem);
+  font-weight:300;letter-spacing:-.04em;line-height:1.1;
+  color:var(--cream);margin-bottom:12px;
+  animation:fadeUp .5s .08s ease both;
+}
+.hct-line1{display:block;}
+.hct-line2{display:block;}
+.hc-title em{
+  font-style:italic;color:transparent;
+  background:linear-gradient(135deg,var(--gold3),var(--gold),var(--sage));
+  -webkit-background-clip:text;background-clip:text;
+  display:inline-block;
+}
+
+.hc-sub{
+  font-size:14px;color:var(--muted);line-height:1.65;
+  margin-bottom:22px;max-width:300px;
+  animation:fadeUp .5s .16s ease both;
+}
+
+.hc-ctas{
+  display:flex;gap:8px;
+  animation:fadeUp .5s .24s ease both;
+}
+.hc-btn-primary{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:12px 18px;border-radius:50px;border:none;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:var(--obsidian);font-family:'DM Sans',sans-serif;
+  font-size:13px;font-weight:700;cursor:pointer;
+  box-shadow:0 4px 16px rgba(201,168,76,.35);
+  transition:transform .08s ease,box-shadow .15s ease;
+}
+.hc-btn-primary:active{transform:scale(0.95);}
+.hc-btn-primary:hover{box-shadow:0 8px 24px rgba(201,168,76,.45);}
+.hc-btn-ghost{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:12px 16px;border-radius:50px;
+  border:1px solid var(--border);background:rgba(22,32,25,.8);
+  backdrop-filter:blur(12px);
+  color:var(--cream2);font-family:'DM Sans',sans-serif;
+  font-size:13px;font-weight:600;cursor:pointer;
+  transition:all .15s ease;
+}
+.hc-btn-ghost:active{transform:scale(0.95);}
+.hc-btn-ghost:hover{border-color:var(--gold);color:var(--gold2);}
+
+/* Stats pills */
+.hc-stats{
+  position:relative;z-index:2;
+  display:flex;align-items:center;gap:0;
+  padding:12px 16px;margin-top:16px;
+  background:rgba(13,18,16,.7);
+  backdrop-filter:blur(20px);
+  border:1px solid var(--border2);border-radius:16px;
+  animation:fadeUp .5s .32s ease both;
+  width:fit-content;
+}
+.hc-stat{text-align:center;padding:0 14px;}
+.hc-stat-num{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.4rem;font-weight:300;color:var(--gold2);
+  display:block;letter-spacing:-.03em;line-height:1;
+}
+.hc-stat-lbl{font-size:9px;color:var(--muted);font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-top:2px;display:block;}
+.hc-stat-div{width:1px;height:28px;background:var(--border);}
+
+/* VITALITY RING — big version */
+.vring-section{
+  margin:0 20px;
+  padding:20px;
+  background:linear-gradient(145deg,var(--surface2),rgba(22,32,25,.6));
+  border:1px solid var(--border);border-radius:24px;
+  display:flex;align-items:center;gap:16px;
+  cursor:pointer;position:relative;overflow:hidden;
+  transition:transform .08s ease;
+}
+.vring-section:active{transform:scale(0.98);}
+.vring-section::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 20% 50%,rgba(201,168,76,.06),transparent 60%);
+  pointer-events:none;
+}
+
+/* Pulse rings */
+.vring-pulse{
+  position:absolute;left:20px;top:50%;transform:translateY(-50%);
+  width:100px;height:100px;border-radius:50%;
+  border:1px solid rgba(201,168,76,.2);
+  pointer-events:none;
+}
+.vring-pulse1{animation:ringPulse 3s ease-out infinite;}
+.vring-pulse2{animation:ringPulse 3s ease-out infinite .8s;}
+.vring-pulse3{animation:ringPulse 3s ease-out infinite 1.6s;}
+@keyframes ringPulse{
+  0%{transform:translateY(-50%) scale(1);opacity:.5;}
+  100%{transform:translateY(-50%) scale(1.8);opacity:0;}
+}
+
+.vring-big{
+  width:100px;height:100px;flex-shrink:0;
+  position:relative;z-index:1;
+}
+.vring-big svg{width:100%;height:100%;transform:rotate(-90deg);}
+.vring-big-center{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+.vring-big-emoji{font-size:1.6rem;margin-bottom:2px;}
+.vring-big-pct{
+  font-family:'Cormorant Garamond',serif;
+  font-size:14px;font-weight:300;color:var(--gold2);
+  letter-spacing:-.02em;line-height:1;
+}
+.vring-big-lbl{font-size:8px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;}
+
+.vring-info{flex:1;position:relative;z-index:1;}
+.vri-eyebrow{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:4px;}
+.vri-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.2rem;font-weight:300;color:var(--cream);
+  letter-spacing:-.03em;line-height:1.2;margin-bottom:8px;
+}
+.vri-title em{font-style:italic;color:var(--gold2);}
+.vri-streak{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 10px;border-radius:50px;
+  background:rgba(201,168,76,.08);border:1px solid var(--border);
+  font-size:11px;font-weight:600;color:var(--gold2);
+  margin-bottom:6px;
+}
+.vri-tap{font-size:11px;color:var(--muted);}
+
+/* CATEGORIES horizontal scroll */
+.cats-section{padding:20px 0 4px;}
+.cats-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;margin-bottom:12px;
+}
+.cats-eyebrow{
+  display:flex;align-items:center;gap:8px;
+  font-size:10px;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--gold);font-weight:600;
+}
+.cats-ey-line{width:16px;height:1px;background:var(--gold);opacity:.6;}
+.cats-see-all{font-size:12px;color:var(--muted);cursor:pointer;}
+
+.cats-scroll{
+  display:flex;gap:10px;
+  padding:4px 20px 16px;
+  overflow-x:auto;scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+}
+.cats-scroll::-webkit-scrollbar{display:none;}
+
+.cat-chip{
+  flex-shrink:0;
+  width:100px;height:130px;
+  border-radius:20px;overflow:hidden;
+  position:relative;cursor:pointer;
+  border:1px solid var(--border2);
+  transition:transform .15s ease,box-shadow .15s ease;
+  animation:fadeUp .4s ease both;
+}
+.cat-chip:nth-child(1){animation-delay:0ms;}
+.cat-chip:nth-child(2){animation-delay:50ms;}
+.cat-chip:nth-child(3){animation-delay:100ms;}
+.cat-chip:nth-child(4){animation-delay:150ms;}
+.cat-chip:nth-child(5){animation-delay:200ms;}
+.cat-chip:nth-child(6){animation-delay:250ms;}
+.cat-chip:active{transform:scale(0.94);}
+.cat-chip:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(0,0,0,.5);}
+
+.cat-chip-bg{position:absolute;inset:0;}
+.cat-chip-ov{
+  position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(8,11,10,.9) 0%,rgba(8,11,10,.1) 55%,transparent 100%);
+}
+.cat-chip-cnt{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:10px 8px;
+}
+.cat-chip-ico{font-size:20px;margin-bottom:5px;}
+.cat-chip-name{
+  font-family:'Cormorant Garamond',serif;
+  font-size:13px;font-weight:400;color:white;
+  letter-spacing:-.01em;line-height:1.1;
+}
+.cat-chip-sub{font-size:9px;color:rgba(244,239,230,.55);margin-top:2px;}
+
+/* FEATURED SMOOTHIE */
+.featured-strip{
+  margin:12px 20px 0;
+  padding:16px;
+  background:var(--surface2);
+  border:1px solid var(--border2);
+  border-radius:20px;
+  cursor:pointer;
+  transition:all .15s ease;
+}
+.featured-strip:active{transform:scale(0.98);}
+.featured-strip:hover{border-color:var(--border);}
+.fs-eyebrow{
+  display:flex;align-items:center;gap:8px;
+  font-size:9px;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--gold);font-weight:600;margin-bottom:12px;
+}
+.fs-card{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.fs-left{display:flex;align-items:center;gap:12px;}
+.fs-emoji{font-size:2rem;flex-shrink:0;}
+.fs-name{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.1rem;font-weight:300;color:var(--cream);
+  letter-spacing:-.02em;margin-bottom:3px;
+}
+.fs-meta{font-size:11px;color:var(--muted);line-height:1.4;}
+.fs-tag{
+  font-size:11px;font-weight:700;color:var(--gold2);
+  white-space:nowrap;border:1px solid var(--border);
+  padding:5px 10px;border-radius:50px;
+  background:rgba(201,168,76,.08);
+}
+
+/* Word cycle animation */
+@keyframes wordIn{
+  from{opacity:0;transform:translateY(10px);}
+  to{opacity:1;transform:translateY(0);}
+}
+@keyframes wordOut{
+  from{opacity:1;transform:translateY(0);}
+  to{opacity:0;transform:translateY(-10px);}
+}
+.word-cycling{animation:wordIn .3s ease both;}
+
 </style>
 </head>
 <body>
@@ -1409,57 +1687,147 @@ button{font-family:'DM Sans',sans-serif;}
 
 <!-- HOME -->
 <div id="page-home" class="page active">
-  <div class="home-hero">
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="hex-bg"></div>
-    <div class="home-hero-inner">
-      <div class="home-eyebrow">
-        <div class="eyebrow-line"></div>
-        <span class="eyebrow-text">AI Wellness · Personalized</span>
+
+  <!-- ── HERO CINEMATOGRÁFICO ── -->
+  <div class="hero-cin">
+    <!-- Background layers -->
+    <div class="hc-orb hc-orb1"></div>
+    <div class="hc-orb hc-orb2"></div>
+    <div class="hc-orb hc-orb3"></div>
+    <div class="hc-hex"></div>
+
+    <!-- Content -->
+    <div class="hc-inner">
+      <!-- Live badge -->
+      <div class="hc-badge">
+        <div class="hc-badge-dot"></div>
+        <span id="hcLive">12,847 members active today</span>
       </div>
-      <h1 class="home-title">Your <em>Wellness</em><br>Starts Here</h1>
-      <p class="home-sub">Tell me your goal. I'll create your perfect smoothie plan, personalized for your body.</p>
-      <div class="home-cta">
-        <button class="ha-pill gold" onclick="navGo('quiz')">📋 My Analysis</button>
-        <button class="ha-pill" onclick="navGo('menu')">🥤 Recipes</button>
-        <button class="ha-pill" onclick="navGo('community')">🌿 Stories</button>
+
+      <!-- Animated headline -->
+      <h1 class="hc-title">
+        <span class="hct-line1">Wellness that</span>
+        <span class="hct-line2">knows <em id="cycleWord">you</em></span>
+      </h1>
+
+      <p class="hc-sub">AI-powered smoothie plans personalized to your body, goals and conditions. Not a diet — a lifestyle.</p>
+
+      <!-- CTAs -->
+      <div class="hc-ctas">
+        <button class="hc-btn-primary" onclick="navGo('quiz')">
+          <span>📋</span> Start My Analysis
+        </button>
+        <button class="hc-btn-ghost" onclick="navGo('chat')">
+          <span>🤖</span> Ask Dr. AI
+        </button>
+      </div>
+    </div>
+
+    <!-- Floating stat pills -->
+    <div class="hc-stats">
+      <div class="hc-stat">
+        <span class="hc-stat-num" id="hsStat1">12.8K</span>
+        <span class="hc-stat-lbl">Members</span>
+      </div>
+      <div class="hc-stat-div"></div>
+      <div class="hc-stat">
+        <span class="hc-stat-num">47</span>
+        <span class="hc-stat-lbl">Countries</span>
+      </div>
+      <div class="hc-stat-div"></div>
+      <div class="hc-stat">
+        <span class="hc-stat-num">4.9★</span>
+        <span class="hc-stat-lbl">Rating</span>
       </div>
     </div>
   </div>
 
-  <!-- Vitality ring -->
-  <div class="vitality-strip" onclick="openCheckin()">
-    <div class="vring">
-      <svg viewBox="0 0 100 100">
+  <!-- ── VITALITY RING — CENTER STAGE ── -->
+  <div class="vring-section" onclick="openCheckin()">
+    <!-- Pulse rings behind -->
+    <div class="vring-pulse vring-pulse1"></div>
+    <div class="vring-pulse vring-pulse2"></div>
+    <div class="vring-pulse vring-pulse3"></div>
+
+    <!-- Ring -->
+    <div class="vring-big">
+      <svg viewBox="0 0 200 200">
         <defs>
-          <linearGradient id="vGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <linearGradient id="vGradBig" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" style="stop-color:#C9A84C"/>
+            <stop offset="50%" style="stop-color:#E8C96A"/>
             <stop offset="100%" style="stop-color:#4A7C59"/>
           </linearGradient>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+            <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
         </defs>
-        <circle class="vring-bg" cx="50" cy="50" r="35"/>
-        <circle class="vring-fill" id="vRingFill" cx="50" cy="50" r="35"/>
+        <!-- Track -->
+        <circle fill="none" stroke="rgba(201,168,76,0.08)" stroke-width="10" cx="100" cy="100" r="85"/>
+        <!-- Progress -->
+        <circle fill="none" stroke="url(#vGradBig)" stroke-width="10"
+          stroke-linecap="round" filter="url(#glow)"
+          stroke-dasharray="534" stroke-dashoffset="134"
+          id="vRingBig" cx="100" cy="100" r="85"
+          style="transform:rotate(-90deg);transform-origin:center;transition:stroke-dashoffset 1.5s ease"/>
+        <!-- Inner decorative ring -->
+        <circle fill="none" stroke="rgba(201,168,76,0.06)" stroke-width="1" cx="100" cy="100" r="72"/>
       </svg>
-      <div class="vring-inner">
-        <div style="font-size:1.6rem">🥤</div>
-        <div class="vring-pct" id="vPct">74%</div>
+      <!-- Center content -->
+      <div class="vring-big-center">
+        <div class="vring-big-emoji">🥤</div>
+        <div class="vring-big-pct" id="vBigPct">74%</div>
+        <div class="vring-big-lbl">Vitality</div>
       </div>
     </div>
-    <div class="vitality-info">
-      <div class="vi-label">Daily Vitality</div>
-      <div class="vi-title">Your <em>Wellness</em></div>
-      <div class="vi-sub" id="vSub">Tap to check in today</div>
+
+    <!-- Info beside ring -->
+    <div class="vring-info">
+      <div class="vri-eyebrow">Daily Progress</div>
+      <div class="vri-title">Your <em>Wellness</em><br>Score</div>
+      <div class="vri-streak" id="vStreakLine">
+        <span>🔥</span>
+        <span id="vStreakTxt">Start your streak</span>
+      </div>
+      <div class="vri-tap">Tap to check in →</div>
     </div>
   </div>
 
-  <div class="sec-row">
-    <div class="sec-eyebrow">Wellness Goals</div>
-    <span class="sec-link" onclick="navGo('menu')">See all</span>
+  <!-- ── CATEGORIES — Horizontal scroll ── -->
+  <div class="cats-section">
+    <div class="cats-header">
+      <div class="cats-eyebrow">
+        <div class="cats-ey-line"></div>
+        <span>Wellness Goals</span>
+      </div>
+      <span class="cats-see-all" onclick="navGo('menu')">See all</span>
+    </div>
+    <!-- Horizontal scroll strip -->
+    <div class="cats-scroll" id="catsScroll"></div>
   </div>
-  <div class="cat-grid" id="catGrid"></div>
 
-  <!-- Download -->
+  <!-- ── FEATURED SMOOTHIE OF THE DAY ── -->
+  <div class="featured-strip" id="featuredStrip">
+    <div class="fs-eyebrow">
+      <div class="cats-ey-line"></div>
+      <span>Today's Recommendation</span>
+    </div>
+    <div class="fs-card" onclick="navGo('quiz')">
+      <div class="fs-left">
+        <div class="fs-emoji" id="fsEmoji">🥬</div>
+        <div>
+          <div class="fs-name" id="fsName">Green Energy Blast</div>
+          <div class="fs-meta" id="fsMeta">Spinach · Banana · Ginger · Coconut water</div>
+        </div>
+      </div>
+      <div class="fs-right">
+        <div class="fs-tag">Personalize →</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── DOWNLOAD ── -->
   <div class="dl-strip">
     <div class="dl-title">Get the <em>App</em></div>
     <div class="dl-sub">iOS & Android · Free to download</div>
@@ -1475,29 +1843,18 @@ button{font-family:'DM Sans',sans-serif;}
     </div>
   </div>
 
-  <!-- Tiers -->
+  <!-- ── PLANS ── -->
   <div class="tiers-strip">
     <div class="tiers-title">Join PureLife <em>Club</em></div>
     <p class="tiers-sub">Thousands transforming their wellness with personalized AI smoothie plans.</p>
     <div class="tiers-grid">
-      <div class="tier-pill" onclick="showToast('Seed plan — coming soon')">
-        <div class="tier-pill-name">Seed</div>
-        <div class="tier-pill-price">Free<span>/mo</span></div>
-        <div class="tier-pill-feat">3 recipes</div>
-      </div>
-      <div class="tier-pill featured" onclick="showToast('Bloom plan — coming soon')">
-        <div class="tier-pill-name">Bloom</div>
-        <div class="tier-pill-price">$4<span>.99</span></div>
-        <div class="tier-pill-feat">Unlimited AI</div>
-      </div>
-      <div class="tier-pill" onclick="showToast('Canopy plan — coming soon')">
-        <div class="tier-pill-name">Canopy</div>
-        <div class="tier-pill-price">$9<span>.99</span></div>
-        <div class="tier-pill-feat">Concierge</div>
-      </div>
+      <div class="tier-pill" onclick="showToast('Seed plan — coming soon')"><div class="tier-pill-name">Seed</div><div class="tier-pill-price">Free<span>/mo</span></div><div class="tier-pill-feat">3 recipes</div></div>
+      <div class="tier-pill featured" onclick="showToast('Bloom plan — coming soon')"><div class="tier-pill-name">Bloom</div><div class="tier-pill-price">$4<span>.99</span></div><div class="tier-pill-feat">Unlimited AI</div></div>
+      <div class="tier-pill" onclick="showToast('Canopy plan — coming soon')"><div class="tier-pill-name">Canopy</div><div class="tier-pill-price">$9<span>.99</span></div><div class="tier-pill-feat">Concierge</div></div>
     </div>
     <button class="btn-gold btn-full" onclick="showToast('🌿 Joining waitlist...')">Start Free — No card needed</button>
   </div>
+
   <div style="height:32px"></div>
 </div>
 
@@ -1979,6 +2336,8 @@ function skipOb(){document.getElementById('onboarding').classList.add('hidden');
 
 // Home
 function renderHome(){
+  renderCatsScroll();
+  updateVitalityBig();
   renderCats();
   const streak=parseInt(localStorage.getItem('streak')||'0');
   const pct=Math.min(74+streak*2,100);
@@ -2215,7 +2574,95 @@ function showToast(msg){
 }
 
 // Init
+
+// ── HOME CINEMATOGRÁFICO JS ──
+const CYCLE_WORDS = ['you','your body','your goals','your health','science'];
+let cycleIdx = 0;
+
+function startWordCycle() {
+  const el = document.getElementById('cycleWord');
+  if (!el) return;
+  setInterval(() => {
+    el.style.animation = 'none';
+    el.offsetHeight; // force reflow
+    cycleIdx = (cycleIdx + 1) % CYCLE_WORDS.length;
+    el.textContent = CYCLE_WORDS[cycleIdx];
+    el.style.animation = 'wordIn .4s ease both';
+  }, 2800);
+}
+
+const DAILY_SMOOTHIES = [
+  {emoji:'🥬', name:'Green Energy Blast', meta:'Spinach · Banana · Ginger · Coconut water'},
+  {emoji:'🍓', name:'Berry Antioxidant', meta:'Blueberry · Strawberry · Açaí · Almond milk'},
+  {emoji:'🍊', name:'Citrus Immunity Boost', meta:'Orange · Turmeric · Ginger · Honey'},
+  {emoji:'🥑', name:'Creamy Detox Green', meta:'Avocado · Spinach · Cucumber · Lime'},
+  {emoji:'🍌', name:'Pre-Workout Power', meta:'Banana · Oats · Peanut butter · Cacao'},
+  {emoji:'🫐', name:'Heart Health Berry', meta:'Blueberry · Pomegranate · Flaxseed · Oat milk'},
+  {emoji:'🥥', name:'Tropical Energy Wave', meta:'Mango · Pineapple · Coconut · Chia seeds'},
+];
+
+function setDailySmoothie() {
+  const day = new Date().getDay();
+  const sm = DAILY_SMOOTHIES[day];
+  const emoji = document.getElementById('fsEmoji');
+  const name = document.getElementById('fsName');
+  const meta = document.getElementById('fsMeta');
+  if(emoji) emoji.textContent = sm.emoji;
+  if(name) name.textContent = sm.name;
+  if(meta) meta.textContent = sm.meta;
+}
+
+function renderCatsScroll() {
+  const scroll = document.getElementById('catsScroll');
+  if (!scroll || scroll.children.length > 0) return;
+  scroll.innerHTML = CATS.map((c,i) => `
+    <div class="cat-chip" onclick="navGo('menu')" style="animation-delay:${i*50}ms">
+      <div class="cat-chip-bg" style="background:${c.g}"></div>
+      <div class="cat-chip-ov"></div>
+      <div class="cat-chip-cnt">
+        <div class="cat-chip-ico">${c.icon}</div>
+        <div class="cat-chip-name">${c.name}</div>
+        <div class="cat-chip-sub">${c.sub}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function updateVitalityBig() {
+  const streak = parseInt(localStorage.getItem('streak') || '0');
+  const pct = Math.min(74 + streak * 2, 100);
+  
+  // Update big ring
+  const ring = document.getElementById('vRingBig');
+  if (ring) {
+    const c = 2 * Math.PI * 85;
+    ring.style.strokeDasharray = c;
+    ring.style.strokeDashoffset = c - (c * pct / 100);
+  }
+  
+  const pctEl = document.getElementById('vBigPct');
+  if (pctEl) pctEl.textContent = pct + '%';
+  
+  const streakTxt = document.getElementById('vStreakTxt');
+  if (streakTxt) {
+    streakTxt.textContent = streak > 0 ? streak + ' day streak!' : 'Start your streak';
+  }
+  
+  // Live badge
+  const badge = document.getElementById('hcLive');
+  if (badge) {
+    const base = 11843;
+    const days = Math.floor((new Date() - new Date('2026-01-01')) / 86400000);
+    const count = base + (days * 147);
+    badge.textContent = Math.floor(count/1000*10)/10 + 'K members active today';
+  }
+}
+
 document.addEventListener('DOMContentLoaded',()=>{
+  startWordCycle();
+  setDailySmoothie();
+  updateVitalityBig();
+  renderCatsScroll();
   checkOb();renderCats();renderVids('detox');
   const key=localStorage.getItem('ak')||AK;
   if(key){const inp=document.getElementById('pKey');if(inp)inp.value=key;window.ANTHROPIC_API_KEY=key;localStorage.setItem('ak',key);}
