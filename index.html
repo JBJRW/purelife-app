@@ -2086,7 +2086,6 @@ button{font-family:'DM Sans',sans-serif;}
     <div class="prof-section">
       <div class="prof-row"><div class="prof-row-lbl">Name</div><input id="pName" placeholder="Your name" oninput="saveProf()"></div>
       <div class="prof-row"><div class="prof-row-lbl">Email</div><input type="email" id="pEmail" placeholder="your@email.com" oninput="saveProf()"></div>
-      <div class="prof-row"><div class="prof-row-lbl">Anthropic API Key</div><input type="password" id="pKey" placeholder="sk-ant-..." oninput="saveKey(this.value)" style="font-family:monospace;font-size:12px"></div>
     </div>
     <button class="btn-gold btn-full" onclick="testKey()" style="margin-bottom:10px">🤖 Test AI Connection</button>
     <div id="keyStatus" style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:20px"></div>
@@ -2173,7 +2172,6 @@ button{font-family:'DM Sans',sans-serif;}
 <div id="toast"></div>
 
 <script>
-const AK="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";
 const LK="ltxv_jko5XTZ7Nqd9xIQ0ugf90n7TFjbRRk_VNiMrSWTwSaK0Ndm9-OtZ_6-E8LPe7RX-sJ5OSanCnpuyc-h9ZM0jiCLu5MXGRaGerkWUBnVFGN4GZ8g32wQM9yCdXo-RMbSUfoXhQ-Sry43eLBuSKKNB_QRWQwIKlx5a2URO4HPR-4sDRjoh";
 let lang='en',chatHistory=[],qStep=1,kaiModel='ltx-2-3-fast',vidUrl=null;
 let Q={age:30,weight:70,height:170,bmi:24.2,gender:'male',activity:'sedentary',health:['none'],goal:'energy'};
@@ -2380,12 +2378,13 @@ async function sendMsg(){
   t.innerHTML='<div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
   msgs.appendChild(t);msgs.scrollTop=msgs.scrollHeight;
   try{
-    const res=await fetch('https://dr-smoothie-proxy.waracaojr2012.workers.dev',{method:'POST',headers:{'Content-Type':'application/json','anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-5-20250929',max_tokens:400,system:'You are Dr. Smoothie AI, warm wellness concierge for PureLife Wellness Club. Recommend personalized smoothies. Be concise (2-3 sentences), warm, specific. End with: 🌿 Dr. Smoothie AI — General wellness guidance only',messages:chatHistory})});
+    const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,history:chatHistory.slice(0,-1),lang})});
     const data=await res.json();t.remove();
-    const reply=data.content?.[0]?.text||"I'm ready to help! Tell me your wellness goal. 🌿";
+    if(!res.ok)throw new Error(data.error||'chat error');
+    const reply=data.reply||"I'm ready to help! Tell me your wellness goal. 🌿";
     addMsg(reply,'bot');chatHistory.push({role:'assistant',content:reply});
     if(chatHistory.length>20)chatHistory=chatHistory.slice(-20);
-  }catch(e){t.remove();addMsg("Set your API key in Profile → Settings to activate Dr. AI. 🌿",'bot');}
+  }catch(e){t.remove();addMsg("Dr. Smoothie AI is taking a quick break — try again in a moment. 🌿",'bot');}
 }
 function sendQ(text){document.getElementById('chatInp').value=text;sendMsg();}
 
@@ -2421,15 +2420,14 @@ async function runAnalysis(){
   let match=SMOOTHIE_DB[Q.goal]||SMOOTHIE_DB.energy||{};
   if(Q.health.includes('diabetes'))match=SMOOTHIE_DB.diabetes||SMOOTHIE_DB.energy;
   if(Q.health.includes('hypertension'))match=SMOOTHIE_DB.heart||SMOOTHIE_DB.energy;
-  const key=localStorage.getItem('ak')||AK;
-  if(key&&key.startsWith('sk-')){
-    try{
-      const res=await fetch('https://dr-smoothie-proxy.waracaojr2012.workers.dev',{method:'POST',headers:{'Content-Type':'application/json','anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-5-20250929',max_tokens:150,system:'Return ONLY valid JSON: {name,why,ings}. No markdown.',messages:[{role:'user',content:`Profile: age=${Q.age}, weight=${Q.weight}kg, BMI=${Q.bmi}, goal=${Q.goal}, health=${Q.health.join(',')}. Suggest perfect smoothie.`}]})});
-      const data=await res.json();
-      const parsed=JSON.parse(data.content?.[0]?.text?.replace(/```json|```/g,'').trim()||'{}');
+  try{
+    const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:`Return ONLY valid JSON, no markdown, no explanation: {"name":"...","why":"...","ings":"..."}. Profile: age=${Q.age}, weight=${Q.weight}kg, BMI=${Q.bmi}, goal=${Q.goal}, health=${Q.health.join(',')}. Suggest the perfect smoothie for this profile.`,history:[],lang})});
+    const data=await res.json();
+    if(res.ok&&data.reply){
+      const parsed=JSON.parse(data.reply.replace(/```json|```/g,'').trim());
       if(parsed.name)match={...match,...parsed};
-    }catch(e){}
-  }
+    }
+  }catch(e){}
   showQResult(match);btn.textContent='🌿 Analyze my profile';btn.disabled=false;
 }
 function showQResult(match){
@@ -2561,15 +2559,13 @@ async function startCheckout(tier){
     else{showToast('❌ '+(data.error||'Checkout error, try again'));}
   }catch(e){showToast('❌ Network error, try again');}
 }
-function saveKey(val){localStorage.setItem('ak',val);window.ANTHROPIC_API_KEY=val;}
 async function testKey(){
-  const key=document.getElementById('pKey')?.value||localStorage.getItem('ak')||AK;
   const el=document.getElementById('keyStatus');
   if(el){el.textContent='⏳ Testing...';el.style.color='var(--muted)';}
   try{
-    const res=await fetch('https://dr-smoothie-proxy.waracaojr2012.workers.dev',{method:'POST',headers:{'Content-Type':'application/json','anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-5-20250929',max_tokens:10,messages:[{role:'user',content:'Hi'}]})});
+    const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'Hi',history:[],lang})});
     const data=await res.json();
-    if(el){el.textContent=data.content?'✅ AI connected — Dr. Smoothie AI active':'❌ Invalid key';el.style.color=data.content?'var(--emerald)':'#ef4444';}
+    if(el){el.textContent=(res.ok&&data.reply)?'✅ AI connected — Dr. Smoothie AI active':'❌ Connection issue';el.style.color=(res.ok&&data.reply)?'var(--emerald)':'#ef4444';}
   }catch(e){if(el){el.textContent='❌ Connection failed';el.style.color='#ef4444';}}
 }
 
@@ -2679,8 +2675,6 @@ document.addEventListener('DOMContentLoaded',()=>{
   checkOb();
   // Trigger home render
   renderHome();
-  const key=localStorage.getItem('ak')||AK;
-  if(key){const inp=document.getElementById('pKey');if(inp)inp.value=key;window.ANTHROPIC_API_KEY=key;localStorage.setItem('ak',key);}
   localStorage.setItem('ltx_key',LK);
   const un=localStorage.getItem('un'),ue=localStorage.getItem('ue');
   if(un&&document.getElementById('pName'))document.getElementById('pName').value=un;
