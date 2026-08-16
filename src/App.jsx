@@ -1653,7 +1653,7 @@ export default function App() {
   }
 
   if (screen === 'comingsoon') {
-    return <LandingScreen onStart={() => setScreen('splash')} />;
+    return <LandingScreen onStart={() => setScreen('splash')} lang={lang} onLangChange={handleLangChange} />;
   }
 
   if (screen === 'splash') {

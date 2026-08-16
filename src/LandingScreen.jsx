@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import LanguageSelector from "./components/LanguageSelector";
 
 // ═══════════════════════════════════════════════════
 //  PURELIFE LANDING — Fiel traducción de purelife-final.html
@@ -49,7 +50,7 @@ const AI_REPLIES = [
   "Detecto que tu nivel de vitalidad está en 74%. Con el protocolo de 7 días que diseñé para ti, podemos llevarlo al 90%+ en 2 semanas. ¿Empezamos?",
 ];
 
-export default function LandingScreen({ onStart }) {
+export default function LandingScreen({ onStart, lang, onLangChange }) {
   const [chatMessages, setChatMessages] = useState([
     { type: "ai", text: "¡Hola! Soy Dr. Smoothie AI 🌿 Tu asesor nutricional inteligente. ¿Cómo te sientes hoy? Puedo diseñarte un protocolo personalizado basado en tus síntomas y objetivos." },
     { type: "user", text: "Me siento con poca energía en las mañanas, ¿qué me recomiendas?" },
@@ -127,17 +128,13 @@ export default function LandingScreen({ onStart }) {
   return (
     <div style={{ background: "var(--obsidian)", color: "var(--cream)", fontFamily: "'DM Sans', sans-serif", overflowX: "hidden" }}>
 
-      {/* ── PREVIEW HEADER ── */}
-      <div style={{ background: "var(--deep)", borderBottom: "1px solid var(--border)", padding: "16px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 100, backdropFilter: "blur(20px)" }}>
-        <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.1rem", color: "var(--gold2)", fontStyle: "italic" }}>✦ PureLife Wellness Club — Redesign Preview</div>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          {["Agente UI/UX", "Agente Backend", "Agente AI"].map(a => (
-            <span key={a} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(201,168,76,0.12)", border: "1px solid var(--border)", borderRadius: 40, padding: "4px 12px", fontSize: "0.65rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--gold2)", fontWeight: 600 }}>
-              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--emerald)", display: "inline-block", animation: "pulse 2s infinite" }} />
-              {a}
-            </span>
-          ))}
+      {/* ── HEADER ── */}
+      <div style={{ background: "var(--deep)", borderBottom: "1px solid var(--border)", padding: "14px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 100, backdropFilter: "blur(20px)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <img src="/purelife-logo.png" alt="PureLife" style={{ width: 28, height: 28, borderRadius: "50%", objectFit: "cover" }} />
+          <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.05rem", color: "var(--gold2)", fontStyle: "italic" }}>PureLife</span>
         </div>
+        <LanguageSelector lang={lang} onChange={onLangChange} />
       </div>
 
       {/* ═══ SPLASH ═══ */}
