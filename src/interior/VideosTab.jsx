@@ -9,6 +9,7 @@ import ModerationPanel from './ModerationPanel';
 function FullscreenPlayer({ video, lang, onClose, liked, onLike, reporterId }) {
   const videoRef = useRef(null);
   const [toast, setToast] = useState('');
+  const [needsTapForSound, setNeedsTapForSound] = useState(false);
 
   const showToast = (msg) => {
     setToast(msg);
@@ -25,10 +26,28 @@ function FullscreenPlayer({ video, lang, onClose, liked, onLike, reporterId }) {
   useEffect(() => {
     const el = videoRef.current;
     if (!el) return;
+    setNeedsTapForSound(false);
     el.muted = false;
     const p = el.play();
-    if (p?.catch) p.catch(() => {});
+    if (p?.catch) {
+      p.catch(() => {
+        // El navegador bloqueó el autoplay con sonido (política estándar sin
+        // gesto directo del usuario en este mismo tick). Reproducimos mudo
+        // y mostramos un botón para activar el audio con un toque real.
+        el.muted = true;
+        el.play().catch(() => {});
+        setNeedsTapForSound(true);
+      });
+    }
   }, [video?.id]);
+
+  const unmute = () => {
+    const el = videoRef.current;
+    if (!el) return;
+    el.muted = false;
+    el.play().catch(() => {});
+    setNeedsTapForSound(false);
+  };
 
   if (!video) return null;
 
@@ -49,9 +68,27 @@ function FullscreenPlayer({ video, lang, onClose, liked, onLike, reporterId }) {
         controls
         playsInline
         loop
+        onClick={needsTapForSound ? unmute : undefined}
         style={{ width: '100%', height: '100%', objectFit: 'contain' }}
       />
       <div style={{ position: 'absolute', inset: 0, background: IT.scrim, pointerEvents: 'none' }} />
+
+      {needsTapForSound && (
+        <button
+          onClick={unmute}
+          className="it-tap"
+          style={{
+            position: 'absolute', top: 'max(18px, env(safe-area-inset-top))', left: 16, zIndex: 5,
+            display: 'flex', alignItems: 'center', gap: 6,
+            padding: '8px 14px', borderRadius: 20,
+            background: 'rgba(11,15,13,.75)', backdropFilter: 'blur(6px)',
+            border: `1px solid ${IT.divider}`, color: IT.cream, fontSize: 13,
+            cursor: 'pointer',
+          }}
+        >
+          🔇 {tui(lang, 'tapForSound') || 'Tap for sound'}
+        </button>
+      )}
 
       <button
         onClick={onClose}
