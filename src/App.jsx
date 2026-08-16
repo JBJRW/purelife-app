@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { loadLang, saveLang, tui } from './i18n';
 import ComingSoonPage from './comingsoonpage';
+import LandingScreen from './LandingScreen';
 import VideoAgent from './pages/VideoAgent';
 import RecipesScreen from './pages/RecipesScreen';
 import MapScreen from './pages/MapScreen';
@@ -1576,7 +1577,7 @@ export default function App() {
   }
 
   if (screen === 'comingsoon') {
-    return <ComingSoonPage onEnterApp={() => setScreen('splash')} lang={lang} onLangChange={handleLangChange} />;
+    return <LandingScreen onStart={() => setScreen('splash')} />;
   }
 
   if (screen === 'splash') {
