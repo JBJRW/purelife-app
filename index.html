@@ -1659,406 +1659,9 @@ button{font-family:'DM Sans',sans-serif;}
 }
 .word-cycling{animation:wordIn .3s ease both;}
 
-
-/* ═══════════════════════════════════════
-   INTRO SEQUENCE — Cinematográfica
-═══════════════════════════════════════ */
-#intro-seq {
-  position: fixed;
-  inset: 0;
-  z-index: 2000;
-  background: var(--obsidian);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-#intro-seq.done {
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.6s ease;
-}
-
-/* Background orbs for intro */
-.intro-orb1 {
-  position: absolute;
-  width: 500px; height: 500px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(74,124,89,.2), transparent 70%);
-  filter: blur(120px);
-  top: -150px; left: -150px;
-  animation: drift 10s ease-in-out infinite alternate;
-  pointer-events: none;
-}
-.intro-orb2 {
-  position: absolute;
-  width: 400px; height: 400px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(201,168,76,.15), transparent 70%);
-  filter: blur(100px);
-  bottom: -100px; right: -100px;
-  animation: drift 8s ease-in-out infinite alternate;
-  animation-delay: -4s;
-  pointer-events: none;
-}
-.intro-hex {
-  position: absolute; inset: 0;
-  background-image:
-    linear-gradient(rgba(201,168,76,.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(201,168,76,.04) 1px, transparent 1px);
-  background-size: 48px 48px;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.8s ease;
-}
-.intro-hex.show { opacity: 1; }
-
-/* Skip button */
-.intro-skip {
-  position: absolute;
-  top: 20px; right: 20px;
-  padding: 6px 14px;
-  border-radius: 50px;
-  border: 1px solid var(--border);
-  background: rgba(22,32,25,.6);
-  color: var(--muted);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 12px; font-weight: 600;
-  cursor: pointer;
-  transition: all .15s ease;
-  backdrop-filter: blur(8px);
-  z-index: 10;
-}
-.intro-skip:hover { color: var(--gold2); border-color: var(--gold); }
-
-/* ── SLIDE 1 — Logo ── */
-.intro-s1 {
-  position: absolute; inset: 0;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  padding: 40px;
-  opacity: 1;
-}
-.intro-s1.exit { animation: introFadeOut .4s ease forwards; }
-
-.intro-logo-wrap {
-  position: relative;
-  margin-bottom: 24px;
-}
-.intro-logo-svg {
-  width: 120px; height: 120px;
-  border-radius: 50%;
-  display: block;
-  animation: logoPulse 2s ease-in-out infinite;
-  filter: drop-shadow(0 0 20px rgba(201,168,76,.3));
-}
-.intro-logo-svg svg { border-radius: 50%; }
-@keyframes logoPulse {
-  0%,100% { box-shadow: 0 0 0 0 rgba(201,168,76,0); }
-  50%      { box-shadow: 0 0 0 16px rgba(201,168,76,.15), 0 0 0 32px rgba(201,168,76,.06); }
-}
-.intro-logo-ring {
-  position: absolute;
-  inset: -8px;
-  border-radius: 50%;
-  border: 1px solid rgba(201,168,76,.3);
-  animation: ringExpand 2s ease-in-out infinite;
-}
-.intro-logo-ring2 {
-  position: absolute;
-  inset: -16px;
-  border-radius: 50%;
-  border: 1px solid rgba(201,168,76,.15);
-  animation: ringExpand 2s ease-in-out infinite .3s;
-}
-@keyframes ringExpand {
-  0%   { transform: scale(0.95); opacity: 0; }
-  50%  { opacity: 1; }
-  100% { transform: scale(1.05); opacity: 0; }
-}
-.intro-brand {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 2.2rem; font-weight: 300;
-  letter-spacing: -.04em;
-  color: var(--cream);
-  text-align: center;
-  animation: introFadeIn .6s .3s ease both;
-}
-.intro-brand em { font-style: italic; color: var(--gold2); }
-.intro-tagline {
-  font-size: 11px;
-  letter-spacing: .2em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-top: 8px;
-  text-align: center;
-  animation: introFadeIn .6s .5s ease both;
-}
-
-/* ── SLIDE 2 — Impact phrase ── */
-.intro-s2 {
-  position: absolute; inset: 0;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  padding: 40px 28px;
-  opacity: 0;
-  transition: opacity .5s ease;
-}
-.intro-s2.active { opacity: 1; }
-.intro-s2.exit   { opacity: 0; }
-
-.intro-phrase {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(2rem, 9vw, 3rem);
-  font-weight: 300;
-  letter-spacing: -.04em;
-  line-height: 1.15;
-  color: var(--cream);
-  text-align: center;
-  margin-bottom: 20px;
-}
-.intro-phrase em {
-  font-style: italic;
-  background: linear-gradient(135deg, var(--gold3), var(--gold), var(--sage));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-.intro-phrase .word {
-  display: inline-block;
-  opacity: 0;
-  transform: translateY(16px);
-  transition: opacity .35s ease, transform .35s ease;
-}
-.intro-phrase .word.gold {
-  font-style: italic;
-  background: linear-gradient(135deg, var(--gold3), var(--gold), var(--sage));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-.intro-sub-line {
-  font-size: 14px;
-  color: var(--muted);
-  text-align: center;
-  max-width: 280px;
-  line-height: 1.65;
-  opacity: 0;
-  transition: opacity .5s ease;
-}
-
-/* ── SLIDE 3 — Social proof + CTA ── */
-.intro-s3 {
-  position: absolute; inset: 0;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  padding: 32px 24px;
-  gap: 0;
-  opacity: 0;
-  transition: opacity .5s ease;
-}
-.intro-s3.active { opacity: 1; }
-.intro-s3.exit   { opacity: 0; }
-
-.intro-social {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-  margin-bottom: 36px;
-  width: 100%;
-  max-width: 340px;
-}
-.intro-stat-row {
-  display: flex;
-  gap: 0;
-  width: 100%;
-  background: rgba(22,32,25,.7);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  overflow: hidden;
-  backdrop-filter: blur(12px);
-  animation: fadeUp .5s .1s ease both;
-}
-.intro-stat {
-  flex: 1;
-  padding: 16px 8px;
-  text-align: center;
-  border-right: 1px solid var(--border2);
-}
-.intro-stat:last-child { border-right: none; }
-.intro-stat-num {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.8rem; font-weight: 300;
-  color: var(--gold2); letter-spacing: -.04em;
-  display: block; line-height: 1;
-}
-.intro-stat-lbl {
-  font-size: 9px; color: var(--muted);
-  font-weight: 600; letter-spacing: .1em;
-  text-transform: uppercase; margin-top: 4px;
-  display: block;
-}
-
-.intro-avatars-row {
-  display: flex; align-items: center; gap: 10px;
-  animation: fadeUp .5s .2s ease both;
-}
-.intro-avatars { display: flex; }
-.intro-av {
-  width: 32px; height: 32px; border-radius: 50%;
-  border: 2px solid var(--obsidian);
-  margin-left: -10px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 13px; font-weight: 700; color: var(--obsidian);
-}
-.intro-av:first-child { margin-left: 0; }
-.intro-av-txt {
-  font-size: 13px; color: var(--cream2); font-weight: 500;
-  max-width: 200px; line-height: 1.4;
-}
-.intro-av-txt strong { color: var(--gold2); }
-
-.intro-cta-btn {
-  width: 100%; max-width: 340px;
-  height: 54px; border-radius: 50px; border: none;
-  background: linear-gradient(135deg, var(--gold), var(--gold2));
-  color: var(--obsidian);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 16px; font-weight: 700;
-  cursor: pointer; letter-spacing: -.01em;
-  box-shadow: 0 6px 28px rgba(201,168,76,.45);
-  transition: transform .08s ease, box-shadow .15s ease;
-  animation: fadeUp .5s .3s ease both;
-}
-.intro-cta-btn:active { transform: scale(0.97); }
-.intro-cta-btn:hover { box-shadow: 0 10px 36px rgba(201,168,76,.55); }
-
-.intro-already {
-  font-size: 13px; color: var(--muted);
-  background: none; border: none;
-  cursor: pointer; margin-top: 12px;
-  font-family: 'DM Sans', sans-serif;
-  animation: fadeUp .5s .4s ease both;
-}
-.intro-already:hover { color: var(--gold2); }
-
-/* Keyframes */
-@keyframes introFadeIn  { from { opacity:0; transform:scale(.98); } to { opacity:1; transform:scale(1); } }
-@keyframes introFadeOut { from { opacity:1; transform:scale(1); }   to { opacity:0; transform:scale(1.02); } }
-
 </style>
 </head>
 <body>
-
-
-<!-- ═══════════════════════════════════════
-     INTRO SEQUENCE CINEMATOGRÁFICA
-═══════════════════════════════════════ -->
-<div id="intro-seq">
-  <div class="intro-orb1"></div>
-  <div class="intro-orb2"></div>
-  <div class="intro-hex" id="introHex"></div>
-
-  <!-- Skip siempre disponible -->
-  <button class="intro-skip" onclick="skipIntro()">Skip →</button>
-
-  <!-- SLIDE 1 — Logo + brand -->
-  <div class="intro-s1" id="iS1">
-    <div class="intro-logo-wrap">
-      <div class="intro-logo-ring2"></div>
-      <div class="intro-logo-ring"></div>
-      <div class="intro-logo-svg">
-      <svg viewBox="0 0 120 120" width="120" height="120">
-        <!-- Dark green circle background -->
-        <circle cx="60" cy="60" r="58" fill="#1a4a2a"/>
-        <!-- Gold border ring -->
-        <circle cx="60" cy="60" r="56" fill="none" stroke="#C9A84C" stroke-width="2.5" opacity="0.8"/>
-        <!-- Network dots and lines -->
-        <g opacity="0.35" stroke="white" stroke-width="0.8">
-          <line x1="60" y1="10" x2="100" y2="35"/><line x1="60" y1="10" x2="20" y2="35"/>
-          <line x1="100" y1="35" x2="110" y2="75"/><line x1="20" y1="35" x2="10" y2="75"/>
-          <line x1="110" y1="75" x2="85" y2="108"/><line x1="10" y1="75" x2="35" y2="108"/>
-          <line x1="85" y1="108" x2="35" y2="108"/><line x1="60" y1="10" x2="110" y2="75"/>
-          <line x1="20" y1="35" x2="110" y2="75"/><line x1="60" y1="10" x2="85" y2="108"/>
-        </g>
-        <g fill="white" opacity="0.5">
-          <circle cx="60" cy="10" r="3"/><circle cx="100" cy="35" r="2.5"/>
-          <circle cx="20" cy="35" r="2.5"/><circle cx="110" cy="75" r="2.5"/>
-          <circle cx="10" cy="75" r="2.5"/><circle cx="85" cy="108" r="2.5"/>
-          <circle cx="35" cy="108" r="2.5"/>
-        </g>
-        <!-- Gold leaf -->
-        <g transform="translate(60,52) scale(0.85)">
-          <!-- Main stem -->
-          <line x1="0" y1="14" x2="0" y2="-20" stroke="#C9A84C" stroke-width="2.5" stroke-linecap="round"/>
-          <!-- Left leaves -->
-          <ellipse cx="-10" cy="2" rx="10" ry="6" fill="#C9A84C" transform="rotate(-35,-10,2)"/>
-          <ellipse cx="-7" cy="-10" rx="9" ry="5.5" fill="#C9A84C" transform="rotate(-20,-7,-10)"/>
-          <!-- Right leaves -->
-          <ellipse cx="10" cy="-2" rx="10" ry="6" fill="#E8C96A" transform="rotate(35,10,-2)"/>
-          <ellipse cx="7" cy="-14" rx="9" ry="5.5" fill="#E8C96A" transform="rotate(20,7,-14)"/>
-        </g>
-        <!-- PureLive text -->
-        <text x="60" y="90" text-anchor="middle" font-family="DM Sans, sans-serif" font-size="13" font-weight="700" fill="white" letter-spacing="0.5">PureLife</text>
-      </svg>
-    </div>
-    </div>
-    <div class="intro-brand">PureLive <em>Wellness Club</em></div>
-    <div class="intro-tagline">Where wellness meets intelligence</div>
-  </div>
-
-  <!-- SLIDE 2 — Frase de impacto -->
-  <div class="intro-s2" id="iS2">
-    <div class="intro-phrase" id="introPhrase">
-      <span class="word">Your</span>&#32;
-      <span class="word">body</span>&#32;
-      <span class="word">deserves</span>&#32;
-      <span class="word gold">intelligence</span>
-    </div>
-    <div class="intro-sub-line" id="introSubLine">
-      Not another diet. An AI that understands <em>you</em> — your goals, your health, your life.
-    </div>
-  </div>
-
-  <!-- SLIDE 3 — Social proof + CTA -->
-  <div class="intro-s3" id="iS3">
-    <div class="intro-social">
-      <div class="intro-stat-row">
-        <div class="intro-stat">
-          <span class="intro-stat-num" id="iStatMembers">12.8K</span>
-          <span class="intro-stat-lbl">Members</span>
-        </div>
-        <div class="intro-stat">
-          <span class="intro-stat-num">47</span>
-          <span class="intro-stat-lbl">Countries</span>
-        </div>
-        <div class="intro-stat">
-          <span class="intro-stat-num">4.9★</span>
-          <span class="intro-stat-lbl">Rating</span>
-        </div>
-      </div>
-      <div class="intro-avatars-row">
-        <div class="intro-avatars">
-          <div class="intro-av" style="background:linear-gradient(135deg,var(--gold),var(--sage))">M</div>
-          <div class="intro-av" style="background:linear-gradient(135deg,#6366f1,#4f46e5)">C</div>
-          <div class="intro-av" style="background:linear-gradient(135deg,#d97706,#b45309)">A</div>
-          <div class="intro-av" style="background:linear-gradient(135deg,var(--sage),var(--emerald))">R</div>
-          <div class="intro-av" style="background:linear-gradient(135deg,#be123c,#9f1239)">L</div>
-        </div>
-        <div class="intro-av-txt"><strong>+847 people</strong> joined this week</div>
-      </div>
-    </div>
-
-    <button class="intro-cta-btn" onclick="enterApp()">
-      Start My Journey →
-    </button>
-    <button class="intro-already" onclick="skipIntro()">
-      I already have an account
-    </button>
-  </div>
-</div>
 
 <div id="app">
 
@@ -2543,7 +2146,7 @@ button{font-family:'DM Sans',sans-serif;}
 </div>
 
 <!-- ONBOARDING -->
-<div id="onboarding" class="hidden">
+<div id="onboarding">
   <div class="ob-orb1"></div><div class="ob-orb2"></div>
   <div class="ob-inner">
     <div class="ob-logo">🥤</div>
@@ -2731,22 +2334,33 @@ const LANGS=['en','es','pt','fr'],FLAGS={en:'🇺🇸',es:'🇪🇸',pt:'🇧�
 function cycleLang(){lang=LANGS[(LANGS.indexOf(lang)+1)%LANGS.length];document.getElementById('langFlag').textContent=FLAGS[lang];document.getElementById('langCode').textContent=lang.toUpperCase();showToast(FLAGS[lang]+' '+lang.toUpperCase());}
 
 // Onboarding
-function checkOb(){if(!localStorage.getItem('ob_done'))document.getElementById('onboarding').classList.remove('hidden');else document.getElementById('onboarding').classList.add('hidden');}
+function checkOb(){
+  const ob=document.getElementById('onboarding');
+  if(!ob)return;
+  if(localStorage.getItem('ob_done')){
+    ob.classList.add('hidden');
+    renderHome();
+    renderCatsScroll();
+  } else {
+    ob.classList.remove('hidden');
+  }
+}
 function startApp(){
-  const ob = document.getElementById('onboarding');
-  if(ob) ob.classList.add('hidden');
+  const ob=document.getElementById('onboarding');
+  if(ob)ob.classList.add('hidden');
   localStorage.setItem('ob_done','1');
   showPage('home');
   renderHome();
-  showToast('🌿 Welcome to PureLive!');
-  setTimeout(()=>navGo('quiz'), 1200);
+  renderCatsScroll();
+  showToast('🌿 Welcome! Tap Analysis to start');
 }
 function skipOb(){
-  const ob = document.getElementById('onboarding');
-  if(ob) ob.classList.add('hidden');
+  const ob=document.getElementById('onboarding');
+  if(ob)ob.classList.add('hidden');
   localStorage.setItem('ob_done','1');
   showPage('home');
   renderHome();
+  renderCatsScroll();
 }
 
 // Home
@@ -3073,101 +2687,7 @@ function updateVitalityBig() {
   }
 }
 
-
-// ═══════════════════════════════════════
-// INTRO SEQUENCE JS
-// ═══════════════════════════════════════
-let introPlaying = true;
-
-function runIntro() {
-  // Check if already seen (show every time for now — remove after testing)
-  // if (localStorage.getItem('intro_seen')) { endIntro(); return; }
-  
-  const seq = document.getElementById('intro-seq');
-  if (!seq) return;
-
-  const s1 = document.getElementById('iS1');
-  const s2 = document.getElementById('iS2');
-  const s3 = document.getElementById('iS3');
-  const hex = document.getElementById('introHex');
-
-  // Update member count
-  const base = 11843;
-  const days = Math.floor((new Date() - new Date('2026-01-01')) / 86400000);
-  const count = base + (days * 147);
-  const el = document.getElementById('iStatMembers');
-  if (el) el.textContent = (Math.floor(count/100)/10).toFixed(1) + 'K';
-
-  // SLIDE 1 — Logo visible immediately
-  setTimeout(() => hex.classList.add('show'), 600);
-
-  // SLIDE 2 — Frase (1600ms)
-  setTimeout(() => {
-    if (!introPlaying) return;
-    s1.classList.remove('active');
-    s1.classList.add('exit');
-    setTimeout(() => {
-      s2.classList.add('active');
-      // Animate words one by one
-      const words = s2.querySelectorAll('.word');
-      words.forEach((w, i) => {
-        setTimeout(() => {
-          w.style.opacity = '1';
-          w.style.transform = 'translateY(0)';
-        }, 80 + i * 200);
-      });
-      setTimeout(() => {
-        const subLine = document.getElementById('introSubLine');
-    if(subLine){ subLine.style.opacity='1'; }
-      }, words.length * 180 + 200);
-    }, 350);
-  }, 1600);
-
-  // SLIDE 3 — Social proof (3800ms)
-  setTimeout(() => {
-    if (!introPlaying) return;
-    s2.classList.remove('active');
-    s2.classList.add('exit');
-    setTimeout(() => {
-      s3.classList.add('active');
-    }, 350);
-  }, 3800);
-}
-
-function enterApp() {
-  introPlaying = false;
-  localStorage.setItem('intro_seen', '1');
-  const seq = document.getElementById('intro-seq');
-  if (seq) seq.classList.add('done');
-  // Show onboarding if first time, else show home
-  if (!localStorage.getItem('ob_done')) {
-    setTimeout(() => {
-      document.getElementById('onboarding')?.classList.remove('hidden');
-    }, 600);
-  } else {
-    setTimeout(() => {
-      showPage('home');
-      renderHome();
-    }, 600);
-  }
-}
-
-function skipIntro() {
-  introPlaying = false;
-  localStorage.setItem('intro_seen', '1');
-  const seq = document.getElementById('intro-seq');
-  if (seq) { seq.style.opacity = '0'; seq.style.pointerEvents = 'none'; }
-  if (!localStorage.getItem('ob_done')) {
-    document.getElementById('onboarding')?.classList.remove('hidden');
-  } else {
-    showPage('home');
-    renderHome();
-  }
-}
-
-
 document.addEventListener('DOMContentLoaded',()=>{
-  runIntro();
   // Init all data first
   renderCats();
   renderCatsScroll();
