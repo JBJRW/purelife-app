@@ -2083,6 +2083,17 @@ button{font-family:'DM Sans',sans-serif;}
     <div class="pg-title">Settings & <em>Profile</em></div>
   </div>
   <div style="padding:20px">
+    <div id="authLoggedOut" class="prof-section" style="text-align:center;padding:16px">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:10px">Sign in to save your profile, plan and progress across devices</div>
+      <input type="email" id="authEmail" placeholder="your@email.com" style="margin-bottom:8px">
+      <button class="btn-gold btn-full" onclick="sendMagicLink()">✉️ Send magic link</button>
+      <div id="authStatus" style="font-size:12px;color:var(--muted);margin-top:8px"></div>
+    </div>
+    <div id="authLoggedIn" class="prof-section" style="display:none;text-align:center;padding:16px">
+      <div style="font-size:13px;color:var(--cream)">Signed in as <span id="authEmailShown" style="color:var(--gold2)"></span></div>
+      <div id="authTierShown" style="font-size:11px;color:var(--muted);margin-top:4px"></div>
+      <button class="btn-ghost btn-full" onclick="signOutUser()" style="margin-top:10px">Sign out</button>
+    </div>
     <div class="prof-section">
       <div class="prof-row"><div class="prof-row-lbl">Name</div><input id="pName" placeholder="Your name" oninput="saveProf()"></div>
       <div class="prof-row"><div class="prof-row-lbl">Email</div><input type="email" id="pEmail" placeholder="your@email.com" oninput="saveProf()"></div>
@@ -2171,6 +2182,11 @@ button{font-family:'DM Sans',sans-serif;}
 
 <div id="toast"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+const sb=supabase.createClient('https://slcvymfgcpoafjufaplx.supabase.co','sb_publishable_xYcEM0-Ki2WGVsVDNBIgtw_U2TwxcLA');
+let currentUser=null,currentSession=null;
+</script>
 <script>
 let lang='en',chatHistory=[],qStep=1,kaiModel='ltx-2-3-fast',vidUrl=null;
 let Q={age:30,weight:70,height:170,bmi:24.2,gender:'male',activity:'sedentary',health:['none'],goal:'energy'};
@@ -2377,7 +2393,7 @@ async function sendMsg(){
   t.innerHTML='<div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
   msgs.appendChild(t);msgs.scrollTop=msgs.scrollHeight;
   try{
-    const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,history:chatHistory.slice(0,-1),lang})});
+    const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,history:chatHistory.slice(0,-1),lang,userId:currentUser?.id,accessToken:currentSession?.access_token})});
     const data=await res.json();t.remove();
     if(!res.ok)throw new Error(data.error||'chat error');
     const reply=data.reply||"I'm ready to help! Tell me your wellness goal. 🌿";
@@ -2515,11 +2531,51 @@ function shareMyStory(){
 }
 
 // Profile
-function saveProf(){localStorage.setItem('un',document.getElementById('pName')?.value||'');localStorage.setItem('ue',document.getElementById('pEmail')?.value||'');}
+function saveProf(){localStorage.setItem('un',document.getElementById('pName')?.value||'');localStorage.setItem('ue',document.getElementById('pEmail')?.value||'');if(currentUser)sb.from('profiles').update({full_name:document.getElementById('pName')?.value||''}).eq('id',currentUser.id).then(()=>{});}
+
+// Auth real (Supabase Auth · magic link)
+async function sendMagicLink(){
+  const email=document.getElementById('authEmail')?.value.trim();
+  const st=document.getElementById('authStatus');
+  if(!email||!email.includes('@')){if(st)st.textContent='⚠️ Enter a valid email';return;}
+  if(st){st.textContent='⏳ Sending...';st.style.color='var(--muted)';}
+  const {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:window.location.origin}});
+  if(st){
+    if(error){st.textContent='❌ '+error.message;st.style.color='#ef4444';}
+    else{st.textContent='📧 Check your email for the login link!';st.style.color='var(--emerald)';}
+  }
+}
+async function signOutUser(){await sb.auth.signOut();}
+async function loadProfileFromSupabase(){
+  if(!currentUser)return;
+  const {data}=await sb.from('profiles').select('*').eq('id',currentUser.id).single();
+  if(data){
+    if(data.full_name){const inp=document.getElementById('pName');if(inp)inp.value=data.full_name;localStorage.setItem('un',data.full_name);}
+    const tierEl=document.getElementById('authTierShown');
+    if(tierEl)tierEl.textContent='Plan: '+(data.membership_tier?data.membership_tier.charAt(0).toUpperCase()+data.membership_tier.slice(1):'Free');
+  }
+}
+function updateAuthUI(){
+  const out=document.getElementById('authLoggedOut'),inEl=document.getElementById('authLoggedIn');
+  if(currentUser){
+    if(out)out.style.display='none';if(inEl)inEl.style.display='block';
+    const emailInp=document.getElementById('pEmail');if(emailInp)emailInp.value=currentUser.email;
+    const shown=document.getElementById('authEmailShown');if(shown)shown.textContent=currentUser.email;
+    localStorage.setItem('ue',currentUser.email);
+    loadProfileFromSupabase();
+  }else{
+    if(out)out.style.display='block';if(inEl)inEl.style.display='none';
+  }
+}
+sb.auth.onAuthStateChange((event,session)=>{
+  currentSession=session;currentUser=session?.user||null;
+  updateAuthUI();
+  if(event==='SIGNED_IN')showToast('🌿 Welcome back!');
+});
 
 // Checkout real (Stripe) — Seed/Bloom/Canopy
 async function startCheckout(tier){
-  let email=localStorage.getItem('ue');
+  let email=currentUser?.email||localStorage.getItem('ue');
   if(!email||!email.includes('@')){
     email=prompt('Enter your email to continue to checkout:');
     if(!email||!email.includes('@')){showToast('Valid email required');return;}
@@ -2531,7 +2587,7 @@ async function startCheckout(tier){
     const res=await fetch('/api/stripe-checkout',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({email,tier,name})
+      body:JSON.stringify({email,tier,name,userId:currentUser?.id})
     });
     const data=await res.json();
     if(res.ok&&data.url){window.location.href=data.url;}
