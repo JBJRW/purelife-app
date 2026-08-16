@@ -44,6 +44,24 @@ export function AuthProvider({ children }) {
     return { data, error };
   };
 
+  const signInWithGoogle = async () => {
+    if (!supabase) return { data: null, error: new Error('Supabase not configured') };
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin },
+    });
+    return { data, error };
+  };
+
+  const signInWithMagicLink = async (email) => {
+    if (!supabase) return { data: null, error: new Error('Supabase not configured') };
+    const { data, error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: window.location.origin, shouldCreateUser: true },
+    });
+    return { data, error };
+  };
+
   const signOut = async () => {
     if (!supabase) return;
     await supabase.auth.signOut();
@@ -65,7 +83,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, signUp, signIn, signOut, resetPasswordForEmail, updatePassword, isPasswordRecovery, supabase }}>
+    <AuthContext.Provider value={{ user, session, loading, signUp, signIn, signInWithGoogle, signInWithMagicLink, signOut, resetPasswordForEmail, updatePassword, isPasswordRecovery, supabase }}>
       {children}
     </AuthContext.Provider>
   );

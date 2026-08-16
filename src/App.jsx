@@ -1284,7 +1284,7 @@ function DashboardScreen({ user, hermes, lang = 'en' }) {
 }
 
 // ── SCREEN: LOGIN / REGISTRO ─────────────────────────────────
-function AuthScreen({ onAuth, signIn, signUp, resetPasswordForEmail, lang = 'en' }) {
+function AuthScreen({ onAuth, signIn, signUp, signInWithGoogle, signInWithMagicLink, resetPasswordForEmail, lang = 'en' }) {
   const [mode, setMode] = useState('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -1292,6 +1292,33 @@ function AuthScreen({ onAuth, signIn, signUp, resetPasswordForEmail, lang = 'en'
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [resetSent, setResetSent] = useState(false);
+  const [magicSent, setMagicSent] = useState(false);
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+
+  const handleGoogle = async () => {
+    setLoading(true); setError('');
+    try {
+      const { error: oauthError } = await signInWithGoogle();
+      if (oauthError) setError(oauthError.message || tui(lang,'authExtra','authGenericError'));
+      // Si no hay error, el navegador redirige a Google — no hace falta más acá.
+    } catch {
+      setError(tui(lang,'authExtra','connectionErrorSupabase'));
+      setLoading(false);
+    }
+  };
+
+  const handleMagicLink = async () => {
+    if (!email) { setError(tui(lang,'authExtra','emailFirst')); return; }
+    setLoading(true); setError('');
+    try {
+      const { error: magicError } = await signInWithMagicLink(email);
+      if (magicError) setError(magicError.message || tui(lang,'authExtra','sendFailed'));
+      else setMagicSent(true);
+    } catch {
+      setError(tui(lang,'authExtra','connectionError'));
+    }
+    setLoading(false);
+  };
 
   const handleAuth = async () => {
     if (!email || !password) { setError(tui(lang,'authExtra','fieldsRequired')); return; }
@@ -1393,6 +1420,54 @@ function AuthScreen({ onAuth, signIn, signUp, resetPasswordForEmail, lang = 'en'
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <motion.button
+            onClick={handleGoogle}
+            disabled={loading}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+              width: '100%', padding: '14px', borderRadius: 12,
+              background: '#fff', color: '#1f1f1f', border: 'none',
+              fontSize: 15, fontWeight: 600, cursor: loading ? 'default' : 'pointer',
+              opacity: loading ? 0.7 : 1,
+            }}>
+            <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.9c1.7-1.57 2.7-3.88 2.7-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.8.54-1.84.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.95v2.33A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.95 10.7A5.4 5.4 0 0 1 3.67 9c0-.59.1-1.17.28-1.7V4.97H.95A9 9 0 0 0 0 9c0 1.45.35 2.83.95 4.03l3-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.46 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .95 4.97l3 2.33C4.66 5.17 6.65 3.58 9 3.58z"/></svg>
+            {tui(lang,'authExtra','continueWithGoogle') || 'Continue with Google'}
+          </motion.button>
+
+          {magicSent ? (
+            <p style={{ color: C.light, fontSize: 14, textAlign: 'center', margin: '4px 0' }}>
+              📧 {tui(lang,'authExtra','magicLinkSentPrefix') || 'Check your inbox —'} <strong>{email}</strong>
+            </p>
+          ) : (
+            <>
+              <input value={email} onChange={e => setEmail(e.target.value)}
+                type="email" placeholder={tui(lang,'email')} style={inputStyle}
+                onKeyDown={e => e.key === 'Enter' && handleMagicLink()} />
+              <Btn onClick={handleMagicLink} disabled={loading} style={{ width: '100%', fontSize: 15, padding: '14px' }}>
+                {loading ? tui(lang,'authExtra','sending') : '✉️ ' + (tui(lang,'authExtra','sendMagicLink') || 'Send magic link — no password')}
+              </Btn>
+            </>
+          )}
+
+          {error && (
+            <p style={{ color: '#FF6B6B', fontSize: 13, margin: 0, textAlign: 'center' }}>{error}</p>
+          )}
+
+          <motion.button
+            onClick={() => setShowPasswordForm(v => !v)}
+            whileHover={{ scale: 1.02 }}
+            style={{
+              background: 'none', border: 'none', color: C.muted,
+              cursor: 'pointer', fontSize: 13, textAlign: 'center', padding: '4px 0',
+            }}>
+            {showPasswordForm ? (tui(lang,'authExtra','hidePasswordOption') || 'Hide') : (tui(lang,'authExtra','usePasswordInstead') || 'Use a password instead')}
+          </motion.button>
+        </div>
+
+        {showPasswordForm && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 14, paddingTop: 14, borderTop: `1px solid ${C.glassBorder || 'rgba(255,255,255,0.1)'}` }}>
           {mode === 'signup' && (
             <input value={name} onChange={e => setName(e.target.value)}
               placeholder={tui(lang,'name')} style={inputStyle} />
@@ -1423,22 +1498,23 @@ function AuthScreen({ onAuth, signIn, signUp, resetPasswordForEmail, lang = 'en'
           <Btn onClick={handleAuth} disabled={loading} style={{ width: '100%', fontSize: 16, padding: '15px', marginTop: 4 }}>
             {loading ? tui(lang,'authExtra','processing') : mode === 'login' ? tui(lang,'loginBtn') : tui(lang,'registerBtn')}
           </Btn>
-        </div>
 
-        <p style={{ color: C.muted, fontSize: 14, textAlign: 'center', marginTop: 20 }}>
-          {mode === 'login' ? tui(lang,'authExtra','noAccountPrefix') : tui(lang,'authExtra','hasAccountPrefix')}
-          <motion.button
-            onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 22 }}
-            style={{
-              background: 'none', border: 'none', color: C.light,
-              cursor: 'pointer', fontWeight: 700, fontSize: 14,
-            }}>
-            {mode === 'login' ? tui(lang,'authExtra','signUpFree') : tui(lang,'loginBtn')}
-          </motion.button>
-        </p>
+          <p style={{ color: C.muted, fontSize: 14, textAlign: 'center', margin: 0 }}>
+            {mode === 'login' ? tui(lang,'authExtra','noAccountPrefix') : tui(lang,'authExtra','hasAccountPrefix')}
+            <motion.button
+              onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 22 }}
+              style={{
+                background: 'none', border: 'none', color: C.light,
+                cursor: 'pointer', fontWeight: 700, fontSize: 14,
+              }}>
+              {mode === 'login' ? tui(lang,'authExtra','signUpFree') : tui(lang,'loginBtn')}
+            </motion.button>
+          </p>
+        </div>
+        )}
       </div>
     </div>
   );
@@ -1516,7 +1592,7 @@ export default function App() {
     document.documentElement.lang = lang;
   }, [lang]);
   const [goals, setGoals] = useState([]);
-  const { user: authUser, session, loading: authLoading, signIn, signUp, signOut, resetPasswordForEmail, updatePassword, isPasswordRecovery, supabase } = useAuth();
+  const { user: authUser, session, loading: authLoading, signIn, signUp, signInWithGoogle, signInWithMagicLink, signOut, resetPasswordForEmail, updatePassword, isPasswordRecovery, supabase } = useAuth();
 
   // Forma compatible con los componentes existentes (HomeScreen, VideoAgent, etc.)
   const user = authUser ? {
@@ -1591,7 +1667,7 @@ export default function App() {
   if (screen === 'auth') {
     return (
       <div style={{ background: C.dark, minHeight: '100vh', fontFamily: FONT_BODY }}>
-        <AuthScreen onAuth={handleAuth} signIn={signIn} signUp={signUp} resetPasswordForEmail={resetPasswordForEmail} lang={lang} />
+        <AuthScreen onAuth={handleAuth} signIn={signIn} signUp={signUp} signInWithGoogle={signInWithGoogle} signInWithMagicLink={signInWithMagicLink} resetPasswordForEmail={resetPasswordForEmail} lang={lang} />
       </div>
     );
   }

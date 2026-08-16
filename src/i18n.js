@@ -640,6 +640,9 @@ export const TUI = {
       newPasswordPlaceholder: 'New password', confirmPasswordPlaceholder: 'Confirm password',
       passwordMinError: 'Password must be at least 6 characters', passwordMismatchError: 'Passwords do not match',
       updateFailed: 'Could not update the password', saving: 'Saving...', savePassword: 'Save password',
+      continueWithGoogle: 'Continue with Google', sendMagicLink: 'Send magic link — no password',
+      magicLinkSentPrefix: 'Check your inbox —', usePasswordInstead: 'Use a password instead',
+      hidePasswordOption: 'Hide',
     },
     plansExtra: {
       kicker: 'Plans', headline: 'Your body. Your rhythm.', subheadline: 'Results in 21 days — or your money back.',
@@ -886,6 +889,9 @@ export const TUI = {
       newPasswordPlaceholder: 'Contraseña nueva', confirmPasswordPlaceholder: 'Confirmar contraseña',
       passwordMinError: 'La contraseña debe tener al menos 6 caracteres', passwordMismatchError: 'Las contraseñas no coinciden',
       updateFailed: 'No se pudo actualizar la contraseña', saving: 'Guardando...', savePassword: 'Guardar contraseña',
+      continueWithGoogle: 'Continuar con Google', sendMagicLink: 'Enviar enlace mágico — sin contraseña',
+      magicLinkSentPrefix: 'Revisa tu correo —', usePasswordInstead: 'Usar contraseña en su lugar',
+      hidePasswordOption: 'Ocultar',
     },
     plansExtra: {
       kicker: 'Planes', headline: 'Tu cuerpo. Tu ritmo.', subheadline: 'Resultados en 21 días — o te devolvemos tu dinero.',
