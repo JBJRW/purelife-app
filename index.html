@@ -2172,7 +2172,6 @@ button{font-family:'DM Sans',sans-serif;}
 <div id="toast"></div>
 
 <script>
-const LK="ltxv_jko5XTZ7Nqd9xIQ0ugf90n7TFjbRRk_VNiMrSWTwSaK0Ndm9-OtZ_6-E8LPe7RX-sJ5OSanCnpuyc-h9ZM0jiCLu5MXGRaGerkWUBnVFGN4GZ8g32wQM9yCdXo-RMbSUfoXhQ-Sry43eLBuSKKNB_QRWQwIKlx5a2URO4HPR-4sDRjoh";
 let lang='en',chatHistory=[],qStep=1,kaiModel='ltx-2-3-fast',vidUrl=null;
 let Q={age:30,weight:70,height:170,bmi:24.2,gender:'male',activity:'sedentary',health:['none'],goal:'energy'};
 
@@ -2504,27 +2503,7 @@ function switchKai(btn,tab){document.querySelectorAll('.kai-tab').forEach(t=>t.c
 async function kaiGen(){
   const prompt=document.getElementById('kaiPrompt')?.value.trim();
   if(!prompt){showToast('⚠️ Describe your content first');return;}
-  const btn=document.getElementById('kaiBtn'),st=document.getElementById('kaiSt'),stm=document.getElementById('kaiStMsg');
-  btn.disabled=true;btn.textContent='⏳ Generating...';st.style.display='block';stm.textContent='⚡ LTX 2.3 generating...';
-  try{
-    const key=localStorage.getItem('ltx_key')||LK;
-    const res=await fetch('https://api.ltx.video/v2/text-to-video',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({prompt:prompt+', cinematic wellness brand, professional quality',model:kaiModel,duration:8,resolution:'1920x1080',fps:24,generate_audio:true})});
-    const job=await res.json();if(!job.id)throw new Error('Submit failed');
-    stm.textContent='🎬 Rendering (~20s)...';
-    for(let i=0;i<40;i++){
-      await new Promise(r=>setTimeout(r,3000));
-      const poll=await fetch('https://api.ltx.video/v2/text-to-video/'+job.id,{headers:{'Authorization':'Bearer '+key}});
-      const data=await poll.json();
-      if(data.status==='completed'){
-        vidUrl=data.result?.video_url;
-        const vid=document.getElementById('kaiVid'),res=document.getElementById('kaiRes');
-        if(vid&&vidUrl){vid.src=vidUrl;vid.style.display='block';res.style.display='block';}
-        st.style.display='none';showToast('✅ Video ready!');break;
-      }
-      if(data.status==='failed')throw new Error('Failed');
-    }
-  }catch(e){stm.textContent='⚠️ Error';showToast('❌ '+(e.message||'Error'));}
-  btn.disabled=false;btn.textContent='✨ Generate with Kai';
+  showToast('🎬 Video AI is being upgraded to our secure pipeline — check back soon!');
 }
 function approveVid(){if(!vidUrl)return;showToast('✅ Video saved!');}
 
@@ -2675,7 +2654,6 @@ document.addEventListener('DOMContentLoaded',()=>{
   checkOb();
   // Trigger home render
   renderHome();
-  localStorage.setItem('ltx_key',LK);
   const un=localStorage.getItem('un'),ue=localStorage.getItem('ue');
   if(un&&document.getElementById('pName'))document.getElementById('pName').value=un;
   if(ue&&document.getElementById('pEmail'))document.getElementById('pEmail').value=ue;
