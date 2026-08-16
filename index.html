@@ -2140,7 +2140,7 @@ button{font-family:'DM Sans',sans-serif;}
 <div class="overlay" id="overlay" onclick="closeSheets()"></div>
 <div class="sheet" id="shopSheet">
   <div class="sheet-handle"></div>
-  <div class="sheet-hdr"><div class="sheet-ttl">Shopping List</div><button class="sheet-cls" onclick="closeSheets()">✕</button></div>
+  <div class="sheet-hdr"><div class="sheet-ttl" data-i18n="shopping_list">Shopping List</div><button class="sheet-cls" onclick="closeSheets()">✕</button></div>
   <div id="shopBody" style="padding-bottom:40px"></div>
 </div>
 <div class="sheet" id="checkinSheet">
@@ -2325,6 +2325,60 @@ const CATS=[
 ];
 
 function navGo(p){showPage(p);}
+
+// ---- i18n de contenido dinámico: recetas, ingredientes, categorías ----
+const SMOOTHIE_I18N={
+  es:{weight_loss:{name:'Metabolismo Express 🔥',why:'Diseñado para acelerar tu metabolismo y controlar el apetito'},
+    energy:{name:'Poder Mental Máximo ⚡',why:'Impulso de energía natural sin picos de azúcar'},
+    detox:{name:'Detox Supremo Verde ♻️',why:'Limpieza profunda para tu hígado y sistema digestivo'},
+    muscle:{name:'Bomba Pre-Entreno 💪',why:'Máxima energía y proteína para tu entrenamiento'},
+    heart:{name:'Escudo Cardíaco ❤️',why:'Omega-3 y antioxidantes para un corazón saludable'},
+    immunity:{name:'Fortaleza Inmune 🛡️',why:'Vitamina C y antioxidantes para fortalecer tu sistema inmunológico'},
+    diabetes:{name:'Balance de Azúcar Pro 💧',why:'Bajo índice glucémico — perfecto para el control de la glucosa'},
+    hypertension:{name:'Control de Presión 🩺',why:'Potasio y magnesio para regular la presión arterial'}},
+  fr:{weight_loss:{name:'Métabolisme Express 🔥',why:"Conçu pour stimuler votre métabolisme et contrôler l'appétit"},
+    energy:{name:'Puissance Mentale Max ⚡',why:"Regain d'énergie naturel sans pics de sucre"},
+    detox:{name:'Détox Suprême Verte ♻️',why:'Nettoyage profond pour votre foie et votre système digestif'},
+    muscle:{name:'Bombe Pré-Entraînement 💪',why:'Énergie et protéines maximales pour votre entraînement'},
+    heart:{name:'Bouclier Cardio ❤️',why:'Oméga-3 et antioxydants pour un cœur en bonne santé'},
+    immunity:{name:'Forteresse Immunitaire 🛡️',why:'Vitamine C et antioxydants pour renforcer votre système immunitaire'},
+    diabetes:{name:'Équilibre Glycémique Pro 💧',why:'Faible indice glycémique — parfait pour contrôler la glycémie'},
+    hypertension:{name:'Contrôle de la Tension 🩺',why:'Potassium et magnésium pour réguler la tension artérielle'}},
+  pt:{weight_loss:{name:'Metabolismo Expresso 🔥',why:'Desenvolvido para acelerar seu metabolismo e controlar o apetite'},
+    energy:{name:'Potência Mental Máxima ⚡',why:'Energia natural sem picos de açúcar'},
+    detox:{name:'Detox Supremo Verde ♻️',why:'Limpeza profunda para seu fígado e sistema digestivo'},
+    muscle:{name:'Bomba Pré-Treino 💪',why:'Energia e proteína máximas para seu treino'},
+    heart:{name:'Escudo Cardíaco ❤️',why:'Ômega-3 e antioxidantes para um coração saudável'},
+    immunity:{name:'Fortaleza Imunológica 🛡️',why:'Vitamina C e antioxidantes para fortalecer seu sistema imunológico'},
+    diabetes:{name:'Equilíbrio de Açúcar Pro 💧',why:'Baixo índice glicêmico — perfeito para o controle da glicose'},
+    hypertension:{name:'Controle de Pressão 🩺',why:'Potássio e magnésio para regular a pressão arterial'}},
+  it:{weight_loss:{name:'Metabolismo Express 🔥',why:"Progettato per accelerare il tuo metabolismo e controllare l'appetito"},
+    energy:{name:'Potenza Mentale Max ⚡',why:'Energia naturale senza picchi di zucchero'},
+    detox:{name:'Detox Supremo Verde ♻️',why:'Pulizia profonda per il fegato e il sistema digestivo'},
+    muscle:{name:'Bomba Pre-Allenamento 💪',why:'Massima energia e proteine per il tuo allenamento'},
+    heart:{name:'Scudo Cardiaco ❤️',why:'Omega-3 e antiossidanti per un cuore sano'},
+    immunity:{name:'Fortezza Immunitaria 🛡️',why:'Vitamina C e antiossidanti per rafforzare il sistema immunitario'},
+    diabetes:{name:'Bilancio Zuccheri Pro 💧',why:'Basso indice glicemico — perfetto per il controllo della glicemia'},
+    hypertension:{name:'Controllo Pressione 🩺',why:'Potassio e magnesio per regolare la pressione sanguigna'}}
+};
+const ING_I18N={
+  es:{'spinach':{name:'Espinaca',qty:'2 tazas (60g)'},'banana':{name:'Banana',qty:'1 mediana'},'blueberries':{name:'Arándanos',qty:'1 taza (150g)'},'mango':{name:'Mango',qty:'½ mango'},'ginger':{name:'Jengibre',qty:'trozo de 2cm'},'lemon':{name:'Limón',qty:'1 limón'},'coconut water':{name:'Agua de coco',qty:'1 taza (240ml)'},'almond milk':{name:'Leche de almendras',qty:'1 taza (240ml)'},'oat milk':{name:'Leche de avena',qty:'1 taza (240ml)'},'coconut milk':{name:'Leche de coco',qty:'½ taza (120ml)'},'green tea':{name:'Té verde',qty:'1 taza preparada'},'matcha':{name:'Matcha',qty:'1 cdta'},'cucumber':{name:'Pepino',qty:'½ pepino'},'avocado':{name:'Palta',qty:'¼ palta'},'oats':{name:'Avena',qty:'¼ taza (25g)'},'chia seeds':{name:'Semillas de chía',qty:'2 cdas'},'flaxseed':{name:'Linaza',qty:'1 cda'},'cinnamon':{name:'Canela',qty:'1 cdta'},'turmeric':{name:'Cúrcuma',qty:'½ cdta'},'maca':{name:'Maca',qty:'1 cdta'},'whey protein':{name:'Proteína whey',qty:'1 medida (30g)'},'peanut butter':{name:'Mantequilla de maní',qty:'2 cdas'},'walnuts':{name:'Nueces',qty:'¼ taza (30g)'},'cacao':{name:'Cacao',qty:'1 cda'},'mixed berries':{name:'Frutos rojos mixtos',qty:'1 taza (150g)'},'orange':{name:'Naranja',qty:'1 naranja'},'carrot':{name:'Zanahoria',qty:'1 mediana'},'beet':{name:'Remolacha',qty:'½ pequeña'},'celery':{name:'Apio',qty:'2 tallos'},'fresh mint':{name:'Menta fresca',qty:'un puñado'},'black pepper':{name:'Pimienta negra',qty:'una pizca'},'green apple':{name:'Manzana verde',qty:'½ manzana'}},
+  fr:{'spinach':{name:'Épinards',qty:'2 tasses (60g)'},'banana':{name:'Banane',qty:'1 moyenne'},'blueberries':{name:'Myrtilles',qty:'1 tasse (150g)'},'mango':{name:'Mangue',qty:'½ mangue'},'ginger':{name:'Gingembre',qty:'morceau de 2cm'},'lemon':{name:'Citron',qty:'1 citron'},'coconut water':{name:'Eau de coco',qty:'1 tasse (240ml)'},'almond milk':{name:"Lait d'amande",qty:'1 tasse (240ml)'},'oat milk':{name:"Lait d'avoine",qty:'1 tasse (240ml)'},'coconut milk':{name:'Lait de coco',qty:'½ tasse (120ml)'},'green tea':{name:'Thé vert',qty:'1 tasse infusée'},'matcha':{name:'Matcha',qty:'1 c. à c.'},'cucumber':{name:'Concombre',qty:'½ concombre'},'avocado':{name:'Avocat',qty:"¼ d'avocat"},'oats':{name:"Flocons d'avoine",qty:'¼ tasse (25g)'},'chia seeds':{name:'Graines de chia',qty:'2 c. à s.'},'flaxseed':{name:'Graines de lin',qty:'1 c. à s.'},'cinnamon':{name:'Cannelle',qty:'1 c. à c.'},'turmeric':{name:'Curcuma',qty:'½ c. à c.'},'maca':{name:'Maca',qty:'1 c. à c.'},'whey protein':{name:'Protéine whey',qty:'1 dose (30g)'},'peanut butter':{name:'Beurre de cacahuète',qty:'2 c. à s.'},'walnuts':{name:'Noix',qty:'¼ tasse (30g)'},'cacao':{name:'Cacao',qty:'1 c. à s.'},'mixed berries':{name:'Baies mélangées',qty:'1 tasse (150g)'},'orange':{name:'Orange',qty:'1 orange'},'carrot':{name:'Carotte',qty:'1 moyenne'},'beet':{name:'Betterave',qty:'½ petite'},'celery':{name:'Céleri',qty:'2 branches'},'fresh mint':{name:'Menthe fraîche',qty:'une poignée'},'black pepper':{name:'Poivre noir',qty:'une pincée'},'green apple':{name:'Pomme verte',qty:'½ pomme'}},
+  pt:{'spinach':{name:'Espinafre',qty:'2 xícaras (60g)'},'banana':{name:'Banana',qty:'1 média'},'blueberries':{name:'Mirtilos',qty:'1 xícara (150g)'},'mango':{name:'Manga',qty:'½ manga'},'ginger':{name:'Gengibre',qty:'pedaço de 2cm'},'lemon':{name:'Limão',qty:'1 limão'},'coconut water':{name:'Água de coco',qty:'1 xícara (240ml)'},'almond milk':{name:'Leite de amêndoa',qty:'1 xícara (240ml)'},'oat milk':{name:'Leite de aveia',qty:'1 xícara (240ml)'},'coconut milk':{name:'Leite de coco',qty:'½ xícara (120ml)'},'green tea':{name:'Chá verde',qty:'1 xícara preparada'},'matcha':{name:'Matcha',qty:'1 colher de chá'},'cucumber':{name:'Pepino',qty:'½ pepino'},'avocado':{name:'Abacate',qty:'¼ de abacate'},'oats':{name:'Aveia',qty:'¼ xícara (25g)'},'chia seeds':{name:'Sementes de chia',qty:'2 colheres de sopa'},'flaxseed':{name:'Linhaça',qty:'1 colher de sopa'},'cinnamon':{name:'Canela',qty:'1 colher de chá'},'turmeric':{name:'Cúrcuma',qty:'½ colher de chá'},'maca':{name:'Maca',qty:'1 colher de chá'},'whey protein':{name:'Whey protein',qty:'1 dose (30g)'},'peanut butter':{name:'Pasta de amendoim',qty:'2 colheres de sopa'},'walnuts':{name:'Nozes',qty:'¼ xícara (30g)'},'cacao':{name:'Cacau',qty:'1 colher de sopa'},'mixed berries':{name:'Frutas vermelhas mistas',qty:'1 xícara (150g)'},'orange':{name:'Laranja',qty:'1 laranja'},'carrot':{name:'Cenoura',qty:'1 média'},'beet':{name:'Beterraba',qty:'½ pequena'},'celery':{name:'Aipo',qty:'2 talos'},'fresh mint':{name:'Hortelã fresca',qty:'um punhado'},'black pepper':{name:'Pimenta-do-reino',qty:'uma pitada'},'green apple':{name:'Maçã verde',qty:'½ maçã'}},
+  it:{'spinach':{name:'Spinaci',qty:'2 tazze (60g)'},'banana':{name:'Banana',qty:'1 media'},'blueberries':{name:'Mirtilli',qty:'1 tazza (150g)'},'mango':{name:'Mango',qty:'½ mango'},'ginger':{name:'Zenzero',qty:'pezzo da 2cm'},'lemon':{name:'Limone',qty:'1 limone'},'coconut water':{name:'Acqua di cocco',qty:'1 tazza (240ml)'},'almond milk':{name:'Latte di mandorla',qty:'1 tazza (240ml)'},'oat milk':{name:"Latte d'avena",qty:'1 tazza (240ml)'},'coconut milk':{name:'Latte di cocco',qty:'½ tazza (120ml)'},'green tea':{name:'Tè verde',qty:'1 tazza preparato'},'matcha':{name:'Matcha',qty:'1 cucchiaino'},'cucumber':{name:'Cetriolo',qty:'½ cetriolo'},'avocado':{name:'Avocado',qty:'¼ di avocado'},'oats':{name:'Avena',qty:'¼ tazza (25g)'},'chia seeds':{name:'Semi di chia',qty:'2 cucchiai'},'flaxseed':{name:'Semi di lino',qty:'1 cucchiaio'},'cinnamon':{name:'Cannella',qty:'1 cucchiaino'},'turmeric':{name:'Curcuma',qty:'½ cucchiaino'},'maca':{name:'Maca',qty:'1 cucchiaino'},'whey protein':{name:'Proteine whey',qty:'1 misurino (30g)'},'peanut butter':{name:'Burro di arachidi',qty:'2 cucchiai'},'walnuts':{name:'Noci',qty:'¼ tazza (30g)'},'cacao':{name:'Cacao',qty:'1 cucchiaio'},'mixed berries':{name:'Frutti di bosco misti',qty:'1 tazza (150g)'},'orange':{name:'Arancia',qty:'1 arancia'},'carrot':{name:'Carota',qty:'1 media'},'beet':{name:'Barbabietola',qty:'½ piccola'},'celery':{name:'Sedano',qty:'2 gambi'},'fresh mint':{name:'Menta fresca',qty:'una manciata'},'black pepper':{name:'Pepe nero',qty:'un pizzico'},'green apple':{name:'Mela verde',qty:'½ mela'}}
+};
+const CAT_I18N={
+  es:{detox:{name:'Detox',sub:'Limpieza y reinicio'},weight:{name:'Bajar de peso',sub:'Quemar y tonificar'},fitness:{name:'Fitness',sub:'Fuerza y resistencia'},energy:{name:'Energía',sub:'Impulso natural'},heart:{name:'Salud del corazón',sub:'Apoyo cardiovascular'},diabetic:{name:'Diabético',sub:'Control de azúcar'}},
+  fr:{detox:{name:'Détox',sub:'Nettoyage et reset'},weight:{name:'Perte de poids',sub:'Brûler et tonifier'},fitness:{name:'Fitness',sub:'Force et endurance'},energy:{name:'Énergie',sub:'Regain naturel'},heart:{name:'Santé cardiaque',sub:'Soutien cardio'},diabetic:{name:'Diabétique',sub:'Contrôle du sucre'}},
+  pt:{detox:{name:'Detox',sub:'Limpeza e reinício'},weight:{name:'Perda de peso',sub:'Queimar e tonificar'},fitness:{name:'Fitness',sub:'Força e resistência'},energy:{name:'Energia',sub:'Impulso natural'},heart:{name:'Saúde do coração',sub:'Suporte cardiovascular'},diabetic:{name:'Diabético',sub:'Controle de açúcar'}},
+  it:{detox:{name:'Detox',sub:'Pulizia e reset'},weight:{name:'Perdita di peso',sub:'Brucia e tonifica'},fitness:{name:'Fitness',sub:'Forza e resistenza'},energy:{name:'Energia',sub:'Spinta naturale'},heart:{name:'Salute del cuore',sub:'Supporto cardiovascolare'},diabetic:{name:'Diabetico',sub:'Controllo zuccheri'}}
+};
+function smName(key){return(SMOOTHIE_I18N[lang]&&SMOOTHIE_I18N[lang][key]&&SMOOTHIE_I18N[lang][key].name)||(SMOOTHIE_DB[key]&&SMOOTHIE_DB[key].name)||key;}
+function smWhy(key){return(SMOOTHIE_I18N[lang]&&SMOOTHIE_I18N[lang][key]&&SMOOTHIE_I18N[lang][key].why)||(SMOOTHIE_DB[key]&&SMOOTHIE_DB[key].why)||'';}
+function ingName(ing){const k=ing.toLowerCase();return(ING_I18N[lang]&&ING_I18N[lang][k]&&ING_I18N[lang][k].name)||ing;}
+function ingQty(ing){const k=ing.toLowerCase();return(ING_I18N[lang]&&ING_I18N[lang][k]&&ING_I18N[lang][k].qty)||(ING_DB[k]&&ING_DB[k].qty)||'';}
+function catName(id){return(CAT_I18N[lang]&&CAT_I18N[lang][id]&&CAT_I18N[lang][id].name)||(CATS.find(c=>c.id===id)||{}).name||id;}
+function catSub(id){return(CAT_I18N[lang]&&CAT_I18N[lang][id]&&CAT_I18N[lang][id].sub)||(CATS.find(c=>c.id===id)||{}).sub||'';}
 function showPage(p){document.querySelectorAll('.page').forEach(function(pg){pg.classList.remove('active');pg.style.opacity='0';});var t=document.getElementById('page-'+p);if(t){t.classList.add('active');t.style.opacity='1';t.style.transform='translateY(0)';t.scrollTop=0;}document.querySelectorAll('.nav-btn,.nav-fab').forEach(function(b){b.classList.remove('on');});var btn=document.querySelector('[data-p="'+p+'"]');if(btn)btn.classList.add('on');if(p==='home'){try{renderHome();}catch(e){}try{renderCatsScroll();}catch(e){}}if(p==='menu')try{renderRecipes();}catch(e){}if(p==='videos')try{renderVids('detox');}catch(e){}if(p==='routine'){try{updateStreak();}catch(e){}try{loadReminders();}catch(e){}}if(p==='quiz')try{calcBMI();}catch(e){}}
 
 const LANGS=['en','es','fr','pt','it'],FLAGS={en:'🇺🇸',es:'🇪🇸',fr:'🇫🇷',pt:'🇧🇷',it:'🇮🇹'};
@@ -2338,7 +2392,7 @@ const I18N={
     eyebrow_quiz:'Wellness Analysis',title_quiz:'Your <em>Profile</em>',
     eyebrow_community:'Community',eyebrow_routine:'Daily Routine',title_routine:'Your <em>Reminders</em>',sub_routine:'Stay consistent · Never miss your smoothie',
     eyebrow_kai:'Kai · AI Generator',title_kai:'Generate <em>Content</em>',
-    eyebrow_account:'Your Account',title_account:'Settings & <em>Profile</em>',
+    eyebrow_account:'Your Account',title_account:'Settings & <em>Profile</em>',shopping_list:'Shopping List',
     cycle:['you','your body','your goals','your health','science']},
   es:{nav_home:'Inicio',nav_recipes:'Recetas',nav_ai:'Dr. IA',nav_analysis:'Análisis',nav_community:'Comunidad',
     hero_line1:'Bienestar que',hero_sub:'Planes de smoothies con IA, personalizados a tu cuerpo, objetivos y condiciones. No es una dieta — es un estilo de vida.',
@@ -2349,7 +2403,7 @@ const I18N={
     eyebrow_quiz:'Análisis de bienestar',title_quiz:'Tu <em>perfil</em>',
     eyebrow_community:'Comunidad',eyebrow_routine:'Rutina diaria',title_routine:'Tus <em>recordatorios</em>',sub_routine:'Mantené la constancia · Nunca te pierdas tu smoothie',
     eyebrow_kai:'Kai · Generador IA',title_kai:'Generar <em>contenido</em>',
-    eyebrow_account:'Tu cuenta',title_account:'Ajustes y <em>Perfil</em>',
+    eyebrow_account:'Tu cuenta',title_account:'Ajustes y <em>Perfil</em>',shopping_list:'Lista de compras',
     cycle:['vos','tu cuerpo','tus objetivos','tu salud','la ciencia']},
   fr:{nav_home:'Accueil',nav_recipes:'Recettes',nav_ai:'Dr. IA',nav_analysis:'Analyse',nav_community:'Communauté',
     hero_line1:'Le bien-être qui',hero_sub:'Des plans de smoothies alimentés par IA, personnalisés selon votre corps, vos objectifs et vos conditions. Pas un régime — un mode de vie.',
@@ -2360,7 +2414,7 @@ const I18N={
     eyebrow_quiz:'Analyse de bien-être',title_quiz:'Votre <em>profil</em>',
     eyebrow_community:'Communauté',eyebrow_routine:'Routine quotidienne',title_routine:'Vos <em>rappels</em>',sub_routine:'Restez régulier · Ne manquez jamais votre smoothie',
     eyebrow_kai:'Kai · Générateur IA',title_kai:'Générer du <em>contenu</em>',
-    eyebrow_account:'Votre compte',title_account:'Paramètres et <em>Profil</em>',
+    eyebrow_account:'Votre compte',title_account:'Paramètres et <em>Profil</em>',shopping_list:'Liste de courses',
     cycle:['vous','votre corps','vos objectifs','votre santé','la science']},
   pt:{nav_home:'Início',nav_recipes:'Receitas',nav_ai:'Dr. IA',nav_analysis:'Análise',nav_community:'Comunidade',
     hero_line1:'Bem-estar que',hero_sub:'Planos de smoothies com IA, personalizados para seu corpo, objetivos e condições. Não é dieta — é um estilo de vida.',
@@ -2371,7 +2425,7 @@ const I18N={
     eyebrow_quiz:'Análise de bem-estar',title_quiz:'Seu <em>perfil</em>',
     eyebrow_community:'Comunidade',eyebrow_routine:'Rotina diária',title_routine:'Seus <em>lembretes</em>',sub_routine:'Mantenha a constância · Nunca perca seu smoothie',
     eyebrow_kai:'Kai · Gerador IA',title_kai:'Gerar <em>conteúdo</em>',
-    eyebrow_account:'Sua conta',title_account:'Configurações e <em>Perfil</em>',
+    eyebrow_account:'Sua conta',title_account:'Configurações e <em>Perfil</em>',shopping_list:'Lista de compras',
     cycle:['você','seu corpo','seus objetivos','sua saúde','a ciência']},
   it:{nav_home:'Home',nav_recipes:'Ricette',nav_ai:'Dr. IA',nav_analysis:'Analisi',nav_community:'Community',
     hero_line1:'Il benessere che',hero_sub:'Piani di smoothie basati su IA, personalizzati in base al tuo corpo, obiettivi e condizioni. Non una dieta — uno stile di vita.',
@@ -2382,7 +2436,7 @@ const I18N={
     eyebrow_quiz:'Analisi del benessere',title_quiz:'Il tuo <em>profilo</em>',
     eyebrow_community:'Community',eyebrow_routine:'Routine quotidiana',title_routine:'I tuoi <em>promemoria</em>',sub_routine:'Resta costante · Non perdere mai il tuo smoothie',
     eyebrow_kai:'Kai · Generatore IA',title_kai:'Genera <em>contenuti</em>',
-    eyebrow_account:'Il tuo account',title_account:'Impostazioni e <em>Profilo</em>',
+    eyebrow_account:'Il tuo account',title_account:'Impostazioni e <em>Profilo</em>',shopping_list:'Lista della spesa',
     cycle:['te','il tuo corpo','i tuoi obiettivi','la tua salute','la scienza']}
 };
 function applyLang(){
@@ -2394,6 +2448,9 @@ function applyLang(){
   CYCLE_WORDS.length=0;dict.cycle.forEach(w=>CYCLE_WORDS.push(w));
   cycleIdx=0;const cw=document.getElementById('cycleWord');if(cw)cw.textContent=CYCLE_WORDS[0];
   localStorage.setItem('lang',lang);
+  try{renderRecipes();}catch(e){}
+  try{renderCats();}catch(e){}
+  try{renderCatsScroll();}catch(e){}
 }
 function cycleLang(){lang=LANGS[(LANGS.indexOf(lang)+1)%LANGS.length];document.getElementById('langFlag').textContent=FLAGS[lang];document.getElementById('langCode').textContent=lang.toUpperCase();showToast(FLAGS[lang]+' '+lang.toUpperCase());applyLang();}
 
@@ -2417,16 +2474,20 @@ function renderHome(){
 }
 function renderCats(){
   const g=document.getElementById('catGrid');
-  if(!g||g.children.length>0)return;
-  g.innerHTML=CATS.map((c,i)=>`<div class="cat-card" onclick="navGo('menu')" style="animation-delay:${i*55}ms"><div class="cat-bg" style="background:${c.g}"></div><div class="cat-overlay"></div><div class="cat-content"><div class="cat-icon">${c.icon}</div><div class="cat-name">${c.name}</div><div class="cat-sub">${c.sub}</div></div></div>`).join('');
+  if(!g)return;
+  g.innerHTML=CATS.map((c,i)=>`<div class="cat-card" onclick="navGo('menu')" style="animation-delay:${i*55}ms"><div class="cat-bg" style="background:${c.g}"></div><div class="cat-overlay"></div><div class="cat-content"><div class="cat-icon">${c.icon}</div><div class="cat-name">${catName(c.id)}</div><div class="cat-sub">${catSub(c.id)}</div></div></div>`).join('');
 }
 
 // Recipes
+const CAT_TO_SM={detox:'detox',weight:'weight_loss',fitness:'muscle',energy:'energy',heart:'heart',diabetic:'diabetes'};
 function renderRecipes(){
   const l=document.getElementById('recipeList');if(!l)return;
   l.innerHTML=CATS.map(c=>{
-    const sm=SMOOTHIE_DB[c.id]||SMOOTHIE_DB.energy||{};
-    return `<div class="recipe-card" onclick="openShop('${sm.name||c.name}',[${(sm.ings||[]).map(i=>"'"+i+"'").join(',')}])"><div class="recipe-card-inner"><div class="recipe-ico" style="background:${c.g}">${c.icon}</div><div style="flex:1;min-width:0"><div class="recipe-name">${sm.name||c.name+' Smoothie'}</div><div class="recipe-meta">${(sm.ings||[]).slice(0,3).join(', ')||c.sub}</div></div><div class="recipe-arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div></div></div>`;
+    const smKey=CAT_TO_SM[c.id]||c.id;
+    const sm=SMOOTHIE_DB[smKey]||{};
+    const dispName=smName(smKey)||sm.name||catName(c.id)+' Smoothie';
+    const dispIngs=(sm.ings||[]).map(ingName);
+    return `<div class="recipe-card" onclick="openShop('${dispName.replace(/'/g,"\\'")}',[${(sm.ings||[]).map(i=>"'"+i.replace(/'/g,"\\'")+"'").join(',')}])"><div class="recipe-card-inner"><div class="recipe-ico" style="background:${c.g}">${c.icon}</div><div style="flex:1;min-width:0"><div class="recipe-name">${dispName}</div><div class="recipe-meta">${dispIngs.slice(0,3).join(', ')||catSub(c.id)}</div></div><div class="recipe-arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div></div></div>`;
   }).join('');
 }
 
@@ -2541,9 +2602,9 @@ async function openShop(name,ings){
   const body=document.getElementById('shopBody');
   body.innerHTML=`<div style="padding:14px 20px;background:rgba(201,168,76,0.06);border-bottom:1px solid var(--border2)"><div style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:300;color:var(--cream);letter-spacing:-0.03em">${name}</div></div>`+
     ings.map((ing,i)=>{
-      const info=ING_DB[ing.toLowerCase()]||{emoji:'🌿',qty:'to taste'};
+      const info=ING_DB[ing.toLowerCase()]||{emoji:'🌿'};
       shopState[i]=false;
-      return `<div class="shop-item" id="si${i}" onclick="toggleShopItem(${i})"><div class="shop-chk" id="sc${i}"></div><div style="flex:1"><div class="shop-item-name">${ing}</div><div class="shop-item-qty">${info.qty}</div></div><div class="shop-emoji">${info.emoji}</div></div>`;
+      return `<div class="shop-item" id="si${i}" data-ing="${ing}" onclick="toggleShopItem(${i})"><div class="shop-chk" id="sc${i}"></div><div style="flex:1"><div class="shop-item-name">${ingName(ing)}</div><div class="shop-item-qty">${ingQty(ing)||'to taste'}</div></div><div class="shop-emoji">${info.emoji}</div></div>`;
     }).join('')+
     `<div style="padding:20px"><button class="btn-gold btn-full" onclick="shareShop('${name}')">📤 Share list</button></div>`;
   openSheet('shopSheet');
@@ -2770,15 +2831,15 @@ function setDailySmoothie() {
 
 function renderCatsScroll() {
   const scroll = document.getElementById('catsScroll');
-  if (!scroll || scroll.children.length > 0) return;
+  if (!scroll) return;
   scroll.innerHTML = CATS.map((c,i) => `
     <div class="cat-chip" onclick="navGo('menu')" style="animation-delay:${i*50}ms">
       <div class="cat-chip-bg" style="background:${c.g}"></div>
       <div class="cat-chip-ov"></div>
       <div class="cat-chip-cnt">
         <div class="cat-chip-ico">${c.icon}</div>
-        <div class="cat-chip-name">${c.name}</div>
-        <div class="cat-chip-sub">${c.sub}</div>
+        <div class="cat-chip-name">${catName(c.id)}</div>
+        <div class="cat-chip-sub">${catSub(c.id)}</div>
       </div>
     </div>
   `).join('');
