@@ -1710,19 +1710,19 @@ button{font-family:'DM Sans',sans-serif;}
 
       <!-- Animated headline -->
       <h1 class="hc-title">
-        <span class="hct-line1">Wellness that</span>
+        <span class="hct-line1" data-i18n="hero_line1">Wellness that</span>
         <span class="hct-line2">knows <em id="cycleWord">you</em></span>
       </h1>
 
-      <p class="hc-sub">AI-powered smoothie plans personalized to your body, goals and conditions. Not a diet — a lifestyle.</p>
+      <p class="hc-sub" data-i18n="hero_sub">AI-powered smoothie plans personalized to your body, goals and conditions. Not a diet — a lifestyle.</p>
 
       <!-- CTAs -->
       <div class="hc-ctas">
         <button class="hc-btn-primary" onclick="navGo('quiz')">
-          <span>📋</span> Start My Analysis
+          <span>📋</span> <span data-i18n="btn_analysis">Start My Analysis</span>
         </button>
         <button class="hc-btn-ghost" onclick="navGo('chat')">
-          <span>🤖</span> Ask Dr. AI
+          <span>🤖</span> <span data-i18n="btn_ask">Ask Dr. AI</span>
         </button>
       </div>
     </div>
@@ -1731,17 +1731,17 @@ button{font-family:'DM Sans',sans-serif;}
     <div class="hc-stats">
       <div class="hc-stat">
         <span class="hc-stat-num" id="hsStat1">12.8K</span>
-        <span class="hc-stat-lbl">Members</span>
+        <span class="hc-stat-lbl" data-i18n="stat_members">Members</span>
       </div>
       <div class="hc-stat-div"></div>
       <div class="hc-stat">
         <span class="hc-stat-num">47</span>
-        <span class="hc-stat-lbl">Countries</span>
+        <span class="hc-stat-lbl" data-i18n="stat_countries">Countries</span>
       </div>
       <div class="hc-stat-div"></div>
       <div class="hc-stat">
         <span class="hc-stat-num">4.9★</span>
-        <span class="hc-stat-lbl">Rating</span>
+        <span class="hc-stat-lbl" data-i18n="stat_rating">Rating</span>
       </div>
     </div>
   </div>
@@ -1782,19 +1782,19 @@ button{font-family:'DM Sans',sans-serif;}
       <div class="vring-big-center">
         <div class="vring-big-emoji">🥤</div>
         <div class="vring-big-pct" id="vBigPct">74%</div>
-        <div class="vring-big-lbl">Vitality</div>
+        <div class="vring-big-lbl" data-i18n="vitality">Vitality</div>
       </div>
     </div>
 
     <!-- Info beside ring -->
     <div class="vring-info">
-      <div class="vri-eyebrow">Daily Progress</div>
-      <div class="vri-title">Your <em>Wellness</em><br>Score</div>
+      <div class="vri-eyebrow" data-i18n="daily_progress">Daily Progress</div>
+      <div class="vri-title" data-i18n="wellness_score">Your <em>Wellness</em><br>Score</div>
       <div class="vri-streak" id="vStreakLine">
         <span>🔥</span>
-        <span id="vStreakTxt">Start your streak</span>
+        <span id="vStreakTxt" data-i18n="start_streak">Start your streak</span>
       </div>
-      <div class="vri-tap">Tap to check in →</div>
+      <div class="vri-tap" data-i18n="tap_checkin">Tap to check in →</div>
     </div>
   </div>
 
@@ -1865,9 +1865,9 @@ button{font-family:'DM Sans',sans-serif;}
 <!-- RECIPES -->
 <div id="page-menu" class="page">
   <div class="pg-header">
-    <div class="pg-eyebrow"><div class="pg-eyebrow-line"></div><span class="pg-eyebrow-text">Smoothie Recipes</span></div>
-    <div class="pg-title">Personalized <em>Recipes</em></div>
-    <div class="pg-sub">Curated for your wellness goals</div>
+    <div class="pg-eyebrow"><div class="pg-eyebrow-line"></div><span class="pg-eyebrow-text" data-i18n="eyebrow_recipes">Smoothie Recipes</span></div>
+    <div class="pg-title" data-i18n="title_recipes">Personalized <em>Recipes</em></div>
+    <div class="pg-sub" data-i18n="sub_recipes">Curated for your wellness goals</div>
   </div>
   <div class="recipe-list" id="recipeList"></div>
 </div>
@@ -1875,8 +1875,8 @@ button{font-family:'DM Sans',sans-serif;}
 <!-- VIDEOS -->
 <div id="page-videos" class="page">
   <div class="pg-header">
-    <div class="pg-eyebrow"><div class="pg-eyebrow-line"></div><span class="pg-eyebrow-text">Tutorial Videos</span></div>
-    <div class="pg-title">Learn to <em>Blend</em></div>
+    <div class="pg-eyebrow"><div class="pg-eyebrow-line"></div><span class="pg-eyebrow-text" data-i18n="eyebrow_videos">Tutorial Videos</span></div>
+    <div class="pg-title" data-i18n="title_videos">Learn to <em>Blend</em></div>
   </div>
   <div class="vid-tabs">
     <button class="vtab on" onclick="setVCat(this,'detox')">♻️ Detox</button>
@@ -1919,8 +1919,8 @@ button{font-family:'DM Sans',sans-serif;}
 <!-- QUIZ -->
 <div id="page-quiz" class="page">
   <div class="pg-header">
-    <div class="pg-eyebrow"><div class="pg-eyebrow-line"></div><span class="pg-eyebrow-text">Wellness Analysis</span></div>
-    <div class="pg-title">Your <em>Profile</em></div>
+    <div class="pg-eyebrow"><div class="pg-eyebrow-line"></div><span class="pg-eyebrow-text" data-i18n="eyebrow_quiz">Wellness Analysis</span></div>
+    <div class="pg-title" data-i18n="title_quiz">Your <em>Profile</em></div>
     <div class="quiz-prog"><div class="qp-bar"><div class="qp-fill" id="qpFill" style="width:25%"></div></div><span class="qp-txt" id="qpTxt">1 of 4</span></div>
   </div>
   <!-- Step 1 -->
@@ -2009,7 +2009,7 @@ button{font-family:'DM Sans',sans-serif;}
   <div class="comm-hero">
     <div class="comm-orb"></div>
     <div class="comm-inner">
-      <div class="pg-eyebrow" style="margin-bottom:12px"><div class="pg-eyebrow-line" style="background:var(--emerald)"></div><span class="pg-eyebrow-text" style="color:var(--emerald)">Community</span></div>
+      <div class="pg-eyebrow" style="margin-bottom:12px"><div class="pg-eyebrow-line" style="background:var(--emerald)"></div><span class="pg-eyebrow-text" style="color:var(--emerald)" data-i18n="eyebrow_community">Community</span></div>
       <div class="comm-title">Real <em>Transformations</em></div>
       <div class="comm-sub">Stories from the PureLife community. Your change inspires thousands.</div>
       <button class="comm-share" onclick="shareMyStory()">📱 Share my story</button>
@@ -2025,9 +2025,9 @@ button{font-family:'DM Sans',sans-serif;}
 <!-- ROUTINE -->
 <div id="page-routine" class="page">
   <div class="pg-header">
-    <div class="pg-eyebrow"><div class="pg-eyebrow-line"></div><span class="pg-eyebrow-text">Daily Routine</span></div>
-    <div class="pg-title">Your <em>Reminders</em></div>
-    <div class="pg-sub">Stay consistent · Never miss your smoothie</div>
+    <div class="pg-eyebrow"><div class="pg-eyebrow-line"></div><span class="pg-eyebrow-text" data-i18n="eyebrow_routine">Daily Routine</span></div>
+    <div class="pg-title" data-i18n="title_routine">Your <em>Reminders</em></div>
+    <div class="pg-sub" data-i18n="sub_routine">Stay consistent · Never miss your smoothie</div>
   </div>
   <div class="streak-card" onclick="openCheckin()">
     <div style="font-size:2.2rem">🔥</div>
@@ -2048,8 +2048,8 @@ button{font-family:'DM Sans',sans-serif;}
 <!-- KAI -->
 <div id="page-kai" class="page">
   <div class="pg-header">
-    <div class="pg-eyebrow"><div class="pg-eyebrow-line"></div><span class="pg-eyebrow-text">Kai · AI Generator</span></div>
-    <div class="pg-title">Generate <em>Content</em></div>
+    <div class="pg-eyebrow"><div class="pg-eyebrow-line"></div><span class="pg-eyebrow-text" data-i18n="eyebrow_kai">Kai · AI Generator</span></div>
+    <div class="pg-title" data-i18n="title_kai">Generate <em>Content</em></div>
   </div>
   <div class="kai-tabs">
     <button class="kai-tab on" onclick="switchKai(this,'image')">🖼 Images</button>
@@ -2077,8 +2077,8 @@ button{font-family:'DM Sans',sans-serif;}
 <!-- PROFILE -->
 <div id="page-profile" class="page">
   <div class="pg-header">
-    <div class="pg-eyebrow"><div class="pg-eyebrow-line"></div><span class="pg-eyebrow-text">Your Account</span></div>
-    <div class="pg-title">Settings & <em>Profile</em></div>
+    <div class="pg-eyebrow"><div class="pg-eyebrow-line"></div><span class="pg-eyebrow-text" data-i18n="eyebrow_account">Your Account</span></div>
+    <div class="pg-title" data-i18n="title_account">Settings & <em>Profile</em></div>
   </div>
   <div style="padding:20px">
     <div id="authLoggedOut" class="prof-section" style="text-align:center;padding:16px">
@@ -2112,25 +2112,25 @@ button{font-family:'DM Sans',sans-serif;}
 <nav id="nav">
   <button class="nav-btn on" data-p="home" onclick="navGo('home')">
     <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-    <span>Home</span>
+    <span data-i18n="nav_home">Home</span>
   </button>
   <button class="nav-btn" data-p="menu" onclick="navGo('menu')">
     <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-    <span>Recipes</span>
+    <span data-i18n="nav_recipes">Recipes</span>
   </button>
   <button class="nav-fab" data-p="chat" onclick="navGo('chat')">
     <div class="nav-fab-disc">
       <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
     </div>
-    <span class="nav-fab-lbl">Dr. AI</span>
+    <span class="nav-fab-lbl" data-i18n="nav_ai">Dr. AI</span>
   </button>
   <button class="nav-btn" data-p="quiz" onclick="navGo('quiz')">
     <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
-    <span>Analysis</span>
+    <span data-i18n="nav_analysis">Analysis</span>
   </button>
   <button class="nav-btn" data-p="community" onclick="navGo('community')">
     <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-    <span>Community</span>
+    <span data-i18n="nav_community">Community</span>
   </button>
 </nav>
 
@@ -2327,8 +2327,75 @@ const CATS=[
 function navGo(p){showPage(p);}
 function showPage(p){document.querySelectorAll('.page').forEach(function(pg){pg.classList.remove('active');pg.style.opacity='0';});var t=document.getElementById('page-'+p);if(t){t.classList.add('active');t.style.opacity='1';t.style.transform='translateY(0)';t.scrollTop=0;}document.querySelectorAll('.nav-btn,.nav-fab').forEach(function(b){b.classList.remove('on');});var btn=document.querySelector('[data-p="'+p+'"]');if(btn)btn.classList.add('on');if(p==='home'){try{renderHome();}catch(e){}try{renderCatsScroll();}catch(e){}}if(p==='menu')try{renderRecipes();}catch(e){}if(p==='videos')try{renderVids('detox');}catch(e){}if(p==='routine'){try{updateStreak();}catch(e){}try{loadReminders();}catch(e){}}if(p==='quiz')try{calcBMI();}catch(e){}}
 
-const LANGS=['en','es','pt','fr'],FLAGS={en:'🇺🇸',es:'🇪🇸',pt:'🇧🇷',fr:'🇫🇷'};
-function cycleLang(){lang=LANGS[(LANGS.indexOf(lang)+1)%LANGS.length];document.getElementById('langFlag').textContent=FLAGS[lang];document.getElementById('langCode').textContent=lang.toUpperCase();showToast(FLAGS[lang]+' '+lang.toUpperCase());}
+const LANGS=['en','es','fr','pt','it'],FLAGS={en:'🇺🇸',es:'🇪🇸',fr:'🇫🇷',pt:'🇧🇷',it:'🇮🇹'};
+const I18N={
+  en:{nav_home:'Home',nav_recipes:'Recipes',nav_ai:'Dr. AI',nav_analysis:'Analysis',nav_community:'Community',
+    hero_line1:'Wellness that',hero_sub:'AI-powered smoothie plans personalized to your body, goals and conditions. Not a diet — a lifestyle.',
+    btn_analysis:'Start My Analysis',btn_ask:'Ask Dr. AI',stat_members:'Members',stat_countries:'Countries',stat_rating:'Rating',
+    vitality:'Vitality',daily_progress:'Daily Progress',wellness_score:'Your <em>Wellness</em><br>Score',start_streak:'Start your streak',tap_checkin:'Tap to check in →',
+    eyebrow_recipes:'Smoothie Recipes',title_recipes:'Personalized <em>Recipes</em>',sub_recipes:'Curated for your wellness goals',
+    eyebrow_videos:'Tutorial Videos',title_videos:'Learn to <em>Blend</em>',
+    eyebrow_quiz:'Wellness Analysis',title_quiz:'Your <em>Profile</em>',
+    eyebrow_community:'Community',eyebrow_routine:'Daily Routine',title_routine:'Your <em>Reminders</em>',sub_routine:'Stay consistent · Never miss your smoothie',
+    eyebrow_kai:'Kai · AI Generator',title_kai:'Generate <em>Content</em>',
+    eyebrow_account:'Your Account',title_account:'Settings & <em>Profile</em>',
+    cycle:['you','your body','your goals','your health','science']},
+  es:{nav_home:'Inicio',nav_recipes:'Recetas',nav_ai:'Dr. IA',nav_analysis:'Análisis',nav_community:'Comunidad',
+    hero_line1:'Bienestar que',hero_sub:'Planes de smoothies con IA, personalizados a tu cuerpo, objetivos y condiciones. No es una dieta — es un estilo de vida.',
+    btn_analysis:'Iniciar mi análisis',btn_ask:'Preguntar al Dr. IA',stat_members:'Miembros',stat_countries:'Países',stat_rating:'Calificación',
+    vitality:'Vitalidad',daily_progress:'Progreso diario',wellness_score:'Tu <em>Puntaje</em><br>de bienestar',start_streak:'Comenzá tu racha',tap_checkin:'Toca para registrar →',
+    eyebrow_recipes:'Recetas de smoothies',title_recipes:'Recetas <em>personalizadas</em>',sub_recipes:'Curadas para tus objetivos de bienestar',
+    eyebrow_videos:'Videos tutoriales',title_videos:'Aprendé a <em>licuar</em>',
+    eyebrow_quiz:'Análisis de bienestar',title_quiz:'Tu <em>perfil</em>',
+    eyebrow_community:'Comunidad',eyebrow_routine:'Rutina diaria',title_routine:'Tus <em>recordatorios</em>',sub_routine:'Mantené la constancia · Nunca te pierdas tu smoothie',
+    eyebrow_kai:'Kai · Generador IA',title_kai:'Generar <em>contenido</em>',
+    eyebrow_account:'Tu cuenta',title_account:'Ajustes y <em>Perfil</em>',
+    cycle:['vos','tu cuerpo','tus objetivos','tu salud','la ciencia']},
+  fr:{nav_home:'Accueil',nav_recipes:'Recettes',nav_ai:'Dr. IA',nav_analysis:'Analyse',nav_community:'Communauté',
+    hero_line1:'Le bien-être qui',hero_sub:'Des plans de smoothies alimentés par IA, personnalisés selon votre corps, vos objectifs et vos conditions. Pas un régime — un mode de vie.',
+    btn_analysis:'Démarrer mon analyse',btn_ask:'Demander au Dr. IA',stat_members:'Membres',stat_countries:'Pays',stat_rating:'Note',
+    vitality:'Vitalité',daily_progress:'Progrès quotidien',wellness_score:'Votre <em>score</em><br>de bien-être',start_streak:'Démarrez votre série',tap_checkin:'Touchez pour vous enregistrer →',
+    eyebrow_recipes:'Recettes de smoothies',title_recipes:'Recettes <em>personnalisées</em>',sub_recipes:'Sélectionnées pour vos objectifs de bien-être',
+    eyebrow_videos:'Vidéos tutorielles',title_videos:'Apprenez à <em>mixer</em>',
+    eyebrow_quiz:'Analyse de bien-être',title_quiz:'Votre <em>profil</em>',
+    eyebrow_community:'Communauté',eyebrow_routine:'Routine quotidienne',title_routine:'Vos <em>rappels</em>',sub_routine:'Restez régulier · Ne manquez jamais votre smoothie',
+    eyebrow_kai:'Kai · Générateur IA',title_kai:'Générer du <em>contenu</em>',
+    eyebrow_account:'Votre compte',title_account:'Paramètres et <em>Profil</em>',
+    cycle:['vous','votre corps','vos objectifs','votre santé','la science']},
+  pt:{nav_home:'Início',nav_recipes:'Receitas',nav_ai:'Dr. IA',nav_analysis:'Análise',nav_community:'Comunidade',
+    hero_line1:'Bem-estar que',hero_sub:'Planos de smoothies com IA, personalizados para seu corpo, objetivos e condições. Não é dieta — é um estilo de vida.',
+    btn_analysis:'Iniciar minha análise',btn_ask:'Perguntar ao Dr. IA',stat_members:'Membros',stat_countries:'Países',stat_rating:'Avaliação',
+    vitality:'Vitalidade',daily_progress:'Progresso diário',wellness_score:'Sua <em>pontuação</em><br>de bem-estar',start_streak:'Comece sua sequência',tap_checkin:'Toque para registrar →',
+    eyebrow_recipes:'Receitas de smoothies',title_recipes:'Receitas <em>personalizadas</em>',sub_recipes:'Selecionadas para seus objetivos de bem-estar',
+    eyebrow_videos:'Vídeos tutoriais',title_videos:'Aprenda a <em>bater</em>',
+    eyebrow_quiz:'Análise de bem-estar',title_quiz:'Seu <em>perfil</em>',
+    eyebrow_community:'Comunidade',eyebrow_routine:'Rotina diária',title_routine:'Seus <em>lembretes</em>',sub_routine:'Mantenha a constância · Nunca perca seu smoothie',
+    eyebrow_kai:'Kai · Gerador IA',title_kai:'Gerar <em>conteúdo</em>',
+    eyebrow_account:'Sua conta',title_account:'Configurações e <em>Perfil</em>',
+    cycle:['você','seu corpo','seus objetivos','sua saúde','a ciência']},
+  it:{nav_home:'Home',nav_recipes:'Ricette',nav_ai:'Dr. IA',nav_analysis:'Analisi',nav_community:'Community',
+    hero_line1:'Il benessere che',hero_sub:'Piani di smoothie basati su IA, personalizzati in base al tuo corpo, obiettivi e condizioni. Non una dieta — uno stile di vita.',
+    btn_analysis:'Inizia la mia analisi',btn_ask:'Chiedi al Dr. IA',stat_members:'Membri',stat_countries:'Paesi',stat_rating:'Valutazione',
+    vitality:'Vitalità',daily_progress:'Progresso giornaliero',wellness_score:'Il tuo <em>punteggio</em><br>di benessere',start_streak:'Inizia la tua serie',tap_checkin:'Tocca per registrarti →',
+    eyebrow_recipes:'Ricette di smoothie',title_recipes:'Ricette <em>personalizzate</em>',sub_recipes:'Curate per i tuoi obiettivi di benessere',
+    eyebrow_videos:'Video tutorial',title_videos:'Impara a <em>frullare</em>',
+    eyebrow_quiz:'Analisi del benessere',title_quiz:'Il tuo <em>profilo</em>',
+    eyebrow_community:'Community',eyebrow_routine:'Routine quotidiana',title_routine:'I tuoi <em>promemoria</em>',sub_routine:'Resta costante · Non perdere mai il tuo smoothie',
+    eyebrow_kai:'Kai · Generatore IA',title_kai:'Genera <em>contenuti</em>',
+    eyebrow_account:'Il tuo account',title_account:'Impostazioni e <em>Profilo</em>',
+    cycle:['te','il tuo corpo','i tuoi obiettivi','la tua salute','la scienza']}
+};
+function applyLang(){
+  const dict=I18N[lang]||I18N.en;
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key=el.getAttribute('data-i18n');
+    if(dict[key]!==undefined)el.innerHTML=dict[key];
+  });
+  CYCLE_WORDS.length=0;dict.cycle.forEach(w=>CYCLE_WORDS.push(w));
+  cycleIdx=0;const cw=document.getElementById('cycleWord');if(cw)cw.textContent=CYCLE_WORDS[0];
+  localStorage.setItem('lang',lang);
+}
+function cycleLang(){lang=LANGS[(LANGS.indexOf(lang)+1)%LANGS.length];document.getElementById('langFlag').textContent=FLAGS[lang];document.getElementById('langCode').textContent=lang.toUpperCase();showToast(FLAGS[lang]+' '+lang.toUpperCase());applyLang();}
 
 // Onboarding
 function checkOb(){var ob=document.getElementById('onboarding');if(!ob)return;if(localStorage.getItem('ob_done')){ob.style.display='none';}}
@@ -2748,6 +2815,10 @@ function updateVitalityBig() {
 }
 
 document.addEventListener('DOMContentLoaded',()=>{
+  // Idioma: restaurar preferencia guardada y aplicar traducción real
+  const savedLang=localStorage.getItem('lang');
+  if(savedLang&&LANGS.includes(savedLang)){lang=savedLang;const f=document.getElementById('langFlag'),c=document.getElementById('langCode');if(f)f.textContent=FLAGS[lang];if(c)c.textContent=lang.toUpperCase();}
+  applyLang();
   // Init all data first
   renderCats();
   renderCatsScroll();
