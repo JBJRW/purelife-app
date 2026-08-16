@@ -2320,9 +2320,9 @@ const LANGS=['en','es','pt','fr'],FLAGS={en:'🇺🇸',es:'🇪🇸',pt:'🇧�
 function cycleLang(){lang=LANGS[(LANGS.indexOf(lang)+1)%LANGS.length];document.getElementById('langFlag').textContent=FLAGS[lang];document.getElementById('langCode').textContent=lang.toUpperCase();showToast(FLAGS[lang]+' '+lang.toUpperCase());}
 
 // Onboarding
-function checkOb(){var ob=document.getElementById('onboarding');if(ob)ob.classList.remove('hidden');}
-function startApp(){var ob=document.getElementById('onboarding');if(ob){ob.style.display='none';}localStorage.setItem('ob_done','1');var pages=document.querySelectorAll('.page');pages.forEach(function(p){p.classList.remove('active');p.style.opacity='0';});var h=document.getElementById('page-home');if(h){h.classList.add('active');h.style.opacity='1';h.style.transform='translateY(0)';}document.querySelectorAll('.nav-btn,.nav-fab').forEach(function(b){b.classList.remove('on');});var hb=document.querySelector('[data-p="home"]');if(hb)hb.classList.add('on');try{renderHome();}catch(e){}try{renderCatsScroll();}catch(e){}showToast('🌿 Welcome to PureLive!');}
-function skipOb(){var ob=document.getElementById('onboarding');if(ob)ob.style.display='none';localStorage.setItem('ob_done','1');var h=document.getElementById('page-home');if(h){h.classList.add('active');h.style.opacity='1';h.style.transform='translateY(0)';}document.querySelectorAll('.nav-btn,.nav-fab').forEach(function(b){b.classList.remove('on');});var hb=document.querySelector('[data-p="home"]');if(hb)hb.classList.add('on');try{renderHome();}catch(e){}try{renderCatsScroll();}catch(e){}}
+function checkOb(){var ob=document.getElementById('onboarding');if(!ob)return;if(localStorage.getItem('ob_done')){ob.style.display='none';}}
+function startApp(){var ob=document.getElementById('onboarding');if(ob){ob.style.transition='opacity 0.3s ease';ob.style.opacity='0';setTimeout(function(){ob.style.display='none';},300);}localStorage.setItem('ob_done','1');showToast('🌿 Welcome to PureLive!');}
+function skipOb(){var ob=document.getElementById('onboarding');if(ob){ob.style.transition='opacity 0.3s ease';ob.style.opacity='0';setTimeout(function(){ob.style.display='none';},300);}localStorage.setItem('ob_done','1');}
 
 // Home
 function renderHome(){
