@@ -104,15 +104,7 @@ export default async function handler(req, res) {
   // Protección: solo Vercel Cron puede llamar esto
   const authHeader = req.headers['authorization'];
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    // TEMP DEBUG — se saca apenas se resuelva
-    return res.status(401).json({
-      error: 'No autorizado',
-      debug_received_length: (authHeader || '').length,
-      debug_received_last8: (authHeader || '').slice(-8),
-      debug_expected_length: `Bearer ${process.env.CRON_SECRET || ''}`.length,
-      debug_expected_last8: `Bearer ${process.env.CRON_SECRET || ''}`.slice(-8),
-      debug_env_secret_defined: !!process.env.CRON_SECRET,
-    });
+    return res.status(401).json({ error: 'No autorizado' });
   }
 
   const results = { inserted: 0, skipped: 0, errors: 0, byCategory: {} };
@@ -134,7 +126,7 @@ export default async function handler(req, res) {
             category: article.category,
             source_name: article.source_name,
             source_url: article.source_url,
-            published_date: article.published_date || null,
+            published_at: article.published_date || null,
             relevance_score: article.relevance_score ?? 0.5
           });
 
