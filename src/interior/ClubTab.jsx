@@ -17,10 +17,13 @@ function TeamPostRow({ post, lang }) {
         body: JSON.stringify({ content: post.content, topic: post.topic }),
       });
       const startData = await startRes.json();
-      if (!startRes.ok) throw new Error(startData.error || 'No se pudo iniciar el video');
+      if (!startRes.ok) throw new Error(startData.error || tui(lang, 'itClubVideoError'));
 
-      for (let i = 0; i < 20; i++) {
-        await new Promise(r => setTimeout(r, 2500));
+      // Medido en producción: los renders pueden tardar 40-65s+.
+      // 40 intentos x 3s = 120s de margen (antes daba solo 50s, lo que
+      // cortaba renders que iban bien pero no habían terminado).
+      for (let i = 0; i < 40; i++) {
+        await new Promise(r => setTimeout(r, 3000));
         const pollRes = await fetch(`/api/render-recipe-video-status?renderId=${startData.renderId}&bucketName=${startData.bucketName}`);
         const pollData = await pollRes.json();
         if (pollData.error) throw new Error(pollData.error);
@@ -30,9 +33,9 @@ function TeamPostRow({ post, lang }) {
           return;
         }
       }
-      throw new Error('El video tardó demasiado, intentá de nuevo');
+      throw new Error(tui(lang, 'itClubVideoTimeout'));
     } catch (e) {
-      setVideoError(e.message || 'Error generando el video');
+      setVideoError(e.message || tui(lang, 'itClubVideoError'));
       setVideoState('error');
     }
   };
@@ -59,7 +62,7 @@ function TeamPostRow({ post, lang }) {
           background: videoState === 'rendering' ? IT.divider : 'linear-gradient(135deg,#C9A84C,#B8935A)',
           color: '#000', fontSize: 11, fontWeight: 700,
           cursor: videoState === 'rendering' ? 'default' : 'pointer',
-        }}>{videoState === 'rendering' ? '⏳ Generando…' : '🎬 Generar video'}</button>
+        }}>{videoState === 'rendering' ? tui(lang, 'itClubGenerating') : tui(lang, 'itClubGenVideo')}</button>
       )}
     </div>
   );

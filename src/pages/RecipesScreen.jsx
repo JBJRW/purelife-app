@@ -56,6 +56,7 @@ const RS = {
       'starter-3': { name: 'Purple Shield', ingredients: ['1 cup blueberries', '½ cup raspberries', '1 cup coconut milk', '1 tsp spirulina', '1 tsp Manuka honey'], instructions: 'Blend blueberries and raspberries with coconut milk. Add spirulina and honey. Mix well.', benefits: 'High in antioxidants, vitamin C, strengthens immune system' },
     },
     starterBadge: 'STARTER', servingUnit: 'serving', viewRecipe: 'View recipe →', addToList: '🛒 Add to list',
+    videoStartError: 'Could not start the video', videoTimeout: 'The video is taking longer than usual — try again', videoGenError: 'Error generating the video',
     benefitsLabel: 'Benefits:', ingredientsTitle: 'Ingredients', instructionsTitle: 'Preparation', addIngredientsBtn: '🛒 Add ingredients to my list',
     aiPromptTemplate: (name, category) => `Create a smoothie/juice recipe called "${name}" for the ${category} category. Respond ONLY in JSON with this exact format: {"ingredients":["ingredient 1","ingredient 2"],"instructions":"instructions in 2-3 steps","benefits":"benefits in 1 line","emoji":"relevant emoji","calories":number,"prep_time":number}`,
     newRecipeTitle: '✨ New Recipe', namePlaceholder: 'Smoothie or juice name...', aiCreating: '🤖 Dr. Smoothie creating recipe...', aiGenerate: '🤖 Generate with Dr. Smoothie AI',
@@ -77,6 +78,7 @@ const RS = {
       'starter-3': { name: 'Escudo Morado', ingredients: ['1 taza arándanos', '½ taza frambuesas', '1 taza leche de coco', '1 cdta spirulina', '1 cdta miel de Manuka'], instructions: 'Licúa arándanos y frambuesas con leche de coco. Añade spirulina y miel. Mezcla bien.', benefits: 'Alto en antioxidantes, vitamina C, fortalece sistema inmune' },
     },
     starterBadge: 'STARTER', servingUnit: 'porción', viewRecipe: 'Ver receta →', addToList: '🛒 Añadir a lista',
+    videoStartError: 'No se pudo iniciar el video', videoTimeout: 'El video está tardando más de lo normal — intentá de nuevo', videoGenError: 'Error generando el video',
     benefitsLabel: 'Beneficios:', ingredientsTitle: 'Ingredientes', instructionsTitle: 'Preparación', addIngredientsBtn: '🛒 Agregar ingredientes a mi lista',
     aiPromptTemplate: (name, category) => `Crea una receta de smoothie/jugo llamada "${name}" para la categoría ${category}. Responde SOLO en JSON con este formato exacto: {"ingredients":["ingrediente 1","ingrediente 2"],"instructions":"instrucciones en 2-3 pasos","benefits":"beneficios en 1 línea","emoji":"emoji relevante","calories":numero,"prep_time":numero}`,
     newRecipeTitle: '✨ Nueva Receta', namePlaceholder: 'Nombre del smoothie o jugo...', aiCreating: '🤖 Dr. Smoothie creando receta...', aiGenerate: '🤖 Generar con Dr. Smoothie AI',
@@ -98,6 +100,7 @@ const RS = {
       'starter-3': { name: 'Bouclier Violet', ingredients: ['1 tasse de myrtilles', '½ tasse de framboises', '1 tasse de lait de coco', '1 c.à.c spiruline', '1 c.à.c miel de Manuka'], instructions: 'Mixez myrtilles et framboises avec le lait de coco. Ajoutez spiruline et miel. Bien mélanger.', benefits: 'Riche en antioxydants, vitamine C, renforce le système immunitaire' },
     },
     starterBadge: 'STARTER', servingUnit: 'portion', viewRecipe: 'Voir la recette →', addToList: '🛒 Ajouter à la liste',
+    videoStartError: 'Impossible de démarrer la vidéo', videoTimeout: 'La vidéo prend plus de temps que prévu — réessayez', videoGenError: 'Erreur lors de la génération de la vidéo',
     benefitsLabel: 'Bienfaits :', ingredientsTitle: 'Ingrédients', instructionsTitle: 'Préparation', addIngredientsBtn: '🛒 Ajouter les ingrédients à ma liste',
     aiPromptTemplate: (name, category) => `Créez une recette de smoothie/jus appelée "${name}" pour la catégorie ${category}. Répondez UNIQUEMENT en JSON avec ce format exact : {"ingredients":["ingrédient 1","ingrédient 2"],"instructions":"instructions en 2-3 étapes","benefits":"bienfaits en 1 ligne","emoji":"emoji pertinent","calories":nombre,"prep_time":nombre}`,
     newRecipeTitle: '✨ Nouvelle Recette', namePlaceholder: 'Nom du smoothie ou jus...', aiCreating: '🤖 Dr. Smoothie crée la recette...', aiGenerate: '🤖 Générer avec Dr. Smoothie AI',
@@ -119,6 +122,7 @@ const RS = {
       'starter-3': { name: 'Escudo Roxo', ingredients: ['1 xícara de mirtilos', '½ xícara de framboesas', '1 xícara de leite de coco', '1 colher chá spirulina', '1 colher chá mel de Manuka'], instructions: 'Bata mirtilos e framboesas com leite de coco. Adicione spirulina e mel. Misture bem.', benefits: 'Alto em antioxidantes, vitamina C, fortalece o sistema imunológico' },
     },
     starterBadge: 'STARTER', servingUnit: 'porção', viewRecipe: 'Ver receita →', addToList: '🛒 Adicionar à lista',
+    videoStartError: 'Não foi possível iniciar o vídeo', videoTimeout: 'O vídeo está demorando mais que o normal — tente de novo', videoGenError: 'Erro ao gerar o vídeo',
     benefitsLabel: 'Benefícios:', ingredientsTitle: 'Ingredientes', instructionsTitle: 'Preparo', addIngredientsBtn: '🛒 Adicionar ingredientes à minha lista',
     aiPromptTemplate: (name, category) => `Crie uma receita de smoothie/suco chamada "${name}" para a categoria ${category}. Responda APENAS em JSON com este formato exato: {"ingredients":["ingrediente 1","ingrediente 2"],"instructions":"instruções em 2-3 passos","benefits":"benefícios em 1 linha","emoji":"emoji relevante","calories":numero,"prep_time":numero}`,
     newRecipeTitle: '✨ Nova Receita', namePlaceholder: 'Nome do smoothie ou suco...', aiCreating: '🤖 Dr. Smoothie criando receita...', aiGenerate: '🤖 Gerar com Dr. Smoothie AI',
@@ -140,6 +144,7 @@ const RS = {
       'starter-3': { name: 'Scudo Viola', ingredients: ['1 tazza di mirtilli', '½ tazza di lamponi', '1 tazza di latte di cocco', '1 cucchiaino di spirulina', '1 cucchiaino di miele di Manuka'], instructions: 'Frulla mirtilli e lamponi con il latte di cocco. Aggiungi spirulina e miele. Mescola bene.', benefits: 'Ricco di antiossidanti, vitamina C, rafforza il sistema immunitario' },
     },
     starterBadge: 'STARTER', servingUnit: 'porzione', viewRecipe: 'Vedi ricetta →', addToList: '🛒 Aggiungi alla lista',
+    videoStartError: 'Impossibile avviare il video', videoTimeout: 'Il video sta impiegando più del solito — riprova', videoGenError: 'Errore nella generazione del video',
     benefitsLabel: 'Benefici:', ingredientsTitle: 'Ingredienti', instructionsTitle: 'Preparazione', addIngredientsBtn: '🛒 Aggiungi ingredienti alla mia lista',
     aiPromptTemplate: (name, category) => `Crea una ricetta di smoothie/succo chiamata "${name}" per la categoria ${category}. Rispondi SOLO in JSON con questo formato esatto: {"ingredients":["ingrediente 1","ingrediente 2"],"instructions":"istruzioni in 2-3 passi","benefits":"benefici in 1 riga","emoji":"emoji pertinente","calories":numero,"prep_time":numero}`,
     newRecipeTitle: '✨ Nuova Ricetta', namePlaceholder: 'Nome dello smoothie o succo...', aiCreating: '🤖 Dr. Smoothie sta creando la ricetta...', aiGenerate: '🤖 Genera con Dr. Smoothie AI',
@@ -180,11 +185,13 @@ function CatalogCard({ item, onAddToShopping, lang = 'en' }) {
         }),
       });
       const startData = await startRes.json();
-      if (!startRes.ok) throw new Error(startData.error || 'No se pudo iniciar el video');
+      if (!startRes.ok) throw new Error(startData.error || t.videoStartError);
 
-      // Poll cada 2.5s hasta que termine (máx ~45s)
-      for (let i = 0; i < 20; i++) {
-        await new Promise(r => setTimeout(r, 2500));
+      // Medido en producción: los renders pueden tardar 60-90s+
+      // (esta composición tiene más elementos: vaso animado + íconos).
+      // 40 intentos x 3s = 120s de margen.
+      for (let i = 0; i < 40; i++) {
+        await new Promise(r => setTimeout(r, 3000));
         const pollRes = await fetch(`/api/render-recipe-video-status?renderId=${startData.renderId}&bucketName=${startData.bucketName}`);
         const pollData = await pollRes.json();
         if (pollData.error) throw new Error(pollData.error);
@@ -194,9 +201,9 @@ function CatalogCard({ item, onAddToShopping, lang = 'en' }) {
           return;
         }
       }
-      throw new Error('El video tardó demasiado, intentá de nuevo');
+      throw new Error(t.videoTimeout);
     } catch (e) {
-      setVideoError(e.message || 'Error generando el video');
+      setVideoError(e.message || t.videoGenError);
       setVideoState('error');
     }
   };
