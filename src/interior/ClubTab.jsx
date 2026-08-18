@@ -4,6 +4,39 @@ import { IT, IT_FONT_HEAD, IT_FONT_BODY } from './tokens';
 import { tui } from '../i18n';
 
 function TeamPostRow({ post, lang }) {
+  const [videoState, setVideoState] = useState('idle'); // idle | rendering | done | error
+  const [videoUrl, setVideoUrl] = useState(null);
+  const [videoError, setVideoError] = useState('');
+
+  const generateVideo = async () => {
+    setVideoState('rendering'); setVideoError('');
+    try {
+      const startRes = await fetch('/api/render-tip-video', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: post.content, topic: post.topic }),
+      });
+      const startData = await startRes.json();
+      if (!startRes.ok) throw new Error(startData.error || 'No se pudo iniciar el video');
+
+      for (let i = 0; i < 20; i++) {
+        await new Promise(r => setTimeout(r, 2500));
+        const pollRes = await fetch(`/api/render-recipe-video-status?renderId=${startData.renderId}&bucketName=${startData.bucketName}`);
+        const pollData = await pollRes.json();
+        if (pollData.error) throw new Error(pollData.error);
+        if (pollData.done) {
+          setVideoUrl(pollData.output_url);
+          setVideoState('done');
+          return;
+        }
+      }
+      throw new Error('El video tardó demasiado, intentá de nuevo');
+    } catch (e) {
+      setVideoError(e.message || 'Error generando el video');
+      setVideoState('error');
+    }
+  };
+
   return (
     <div style={{ padding: '14px 0', borderTop: `1px solid ${IT.divider}` }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
@@ -12,7 +45,22 @@ function TeamPostRow({ post, lang }) {
           {tui(lang, 'itClubTeamBadge')}
         </span>
       </div>
-      <p style={{ fontSize: 13, color: IT.cream, opacity: 0.85, lineHeight: 1.6, margin: 0 }}>{post.content}</p>
+      <p style={{ fontSize: 13, color: IT.cream, opacity: 0.85, lineHeight: 1.6, margin: '0 0 8px' }}>{post.content}</p>
+
+      {videoState === 'done' && videoUrl && (
+        <video src={videoUrl} controls playsInline style={{ width: '100%', maxWidth: 220, borderRadius: 12, marginBottom: 8, display: 'block' }} />
+      )}
+      {videoState === 'error' && (
+        <p style={{ color: '#FF6B6B', fontSize: 11, margin: '0 0 8px' }}>❌ {videoError}</p>
+      )}
+      {videoState !== 'done' && (
+        <button onClick={generateVideo} disabled={videoState === 'rendering'} style={{
+          padding: '6px 14px', borderRadius: 16, border: 'none',
+          background: videoState === 'rendering' ? IT.divider : 'linear-gradient(135deg,#C9A84C,#B8935A)',
+          color: '#000', fontSize: 11, fontWeight: 700,
+          cursor: videoState === 'rendering' ? 'default' : 'pointer',
+        }}>{videoState === 'rendering' ? '⏳ Generando…' : '🎬 Generar video'}</button>
+      )}
     </div>
   );
 }
