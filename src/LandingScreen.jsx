@@ -39,6 +39,8 @@ const GLOBAL_CSS = `
   @keyframes drift { 0%{transform:translate(0,0) scale(1)} 100%{transform:translate(30px,-40px) scale(1.1)} }
   @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
   @keyframes spin { from{transform:rotate(0)} to{transform:rotate(360deg)} }
+  @keyframes orbGlow { 0%,100%{box-shadow:0 0 30px rgba(201,168,76,0.25)} 50%{box-shadow:0 0 60px rgba(201,168,76,0.5)} }
+  @keyframes orbFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
   @keyframes glow { 0%,100%{box-shadow:0 4px 16px rgba(201,168,76,0.25)} 50%{box-shadow:0 4px 24px rgba(201,168,76,0.5)} }
   @keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-6px)} }
 `;
@@ -328,22 +330,40 @@ export default function LandingScreen({ onStart, lang, onLangChange }) {
             {L("heroDesc")}
           </p>
 
-          {/* Vitality Ring */}
-          <div style={{ width: 180, height: 180, margin: "0 auto 40px", position: "relative", animation: "fadeUp 1s 0.4s ease both" }}>
-            <svg viewBox="0 0 160 160" style={{ width: "100%", height: "100%", transform: "rotate(-90deg)" }}>
-              <defs>
-                <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#C9A84C" />
-                  <stop offset="100%" stopColor="#00C97B" />
-                </linearGradient>
-              </defs>
-              <circle fill="none" stroke="rgba(201,168,76,0.1)" strokeWidth="6" cx="80" cy="80" r="70" />
-              <circle fill="none" stroke="url(#ringGrad)" strokeWidth="6" strokeLinecap="round" strokeDasharray="440" strokeDashoffset="112" cx="80" cy="80" r="70" />
-            </svg>
-            <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-              <img src="/purelife-logo.png" alt="PureLife" style={{ width: "80px", height: "80px", borderRadius: "50%", objectFit: "cover", animation: "spin 20s linear infinite" }} />
-              <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.4rem", color: "var(--gold2)", marginTop: 4 }}>74%</div>
-              <div style={{ fontSize: "0.6rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--muted)" }}>{L("vitality")}</div>
+          {/* Vitality Ring — con anillo punteado rotando y brillo pulsante (inspirado en el diseño de Lovable) */}
+          <div style={{ width: 200, height: 200, margin: "0 auto 40px", position: "relative", animation: "fadeUp 1s 0.4s ease both" }}>
+            {/* Glow de fondo, pulsante */}
+            <div style={{ position: "absolute", inset: -10, borderRadius: "50%", background: "radial-gradient(circle, rgba(201,168,76,0.25), transparent 70%)", filter: "blur(20px)", opacity: 0.6 }} />
+            {/* Contenedor con flotado suave */}
+            <div style={{ position: "relative", width: "100%", height: "100%", animation: "orbFloat 5s ease-in-out infinite" }}>
+              {/* Anillo punteado decorativo, rotando lento */}
+              <svg viewBox="0 0 200 200" style={{ position: "absolute", inset: -10, width: "calc(100% + 20px)", height: "calc(100% + 20px)", animation: "spin 24s linear infinite" }}>
+                <circle fill="none" stroke="url(#dashGrad)" strokeWidth="1.5" strokeDasharray="6 9" opacity="0.6" cx="100" cy="100" r="94" />
+                <defs>
+                  <linearGradient id="dashGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#E8C76A" />
+                    <stop offset="100%" stopColor="#C9A84C" />
+                  </linearGradient>
+                </defs>
+              </svg>
+              {/* Progreso real */}
+              <svg viewBox="0 0 160 160" style={{ position: "absolute", inset: 20, width: "calc(100% - 40px)", height: "calc(100% - 40px)", transform: "rotate(-90deg)" }}>
+                <defs>
+                  <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#C9A84C" />
+                    <stop offset="100%" stopColor="#00C97B" />
+                  </linearGradient>
+                </defs>
+                <circle fill="none" stroke="rgba(201,168,76,0.1)" strokeWidth="6" cx="80" cy="80" r="70" />
+                <circle fill="none" stroke="url(#ringGrad)" strokeWidth="6" strokeLinecap="round" strokeDasharray="440" strokeDashoffset="112" cx="80" cy="80" r="70" />
+              </svg>
+              <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                <div style={{ borderRadius: "50%", animation: "orbGlow 3s ease-in-out infinite" }}>
+                  <img src="/purelife-logo.png" alt="PureLife" style={{ width: "76px", height: "76px", borderRadius: "50%", objectFit: "cover", display: "block" }} />
+                </div>
+                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.4rem", color: "var(--gold2)", marginTop: 8 }}>74%</div>
+                <div style={{ fontSize: "0.6rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--muted)" }}>{L("vitality")}</div>
+              </div>
             </div>
           </div>
 
