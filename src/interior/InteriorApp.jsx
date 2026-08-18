@@ -15,6 +15,7 @@ const INTERIOR_CSS = `
   .it-scroll-hide::-webkit-scrollbar { display: none; }
   .it-snap-y { scroll-snap-type: y mandatory; }
   .it-snap-item { scroll-snap-align: start; scroll-snap-stop: always; }
+  @keyframes it-mic-pulse { 0%,100%{box-shadow:0 0 0 0 rgba(0,201,123,0.4)} 50%{box-shadow:0 0 0 8px rgba(0,201,123,0)} }
 
   /* Fondos de figura (Progreso, Club): cover + bordes desvanecidos (resplandor, no marco) */
   .it-bg-figure {

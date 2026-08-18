@@ -1,9 +1,29 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import { IT, IT_FONT_HEAD, IT_FONT_BODY } from './tokens';
 import { askDrSmoothie } from '../App';
 import { tui } from '../i18n';
+
+// Divide texto en fragmentos de máximo 200 caracteres (límite real de
+// /api/tts-proxy) sin cortar palabras, respetando fin de oración cuando
+// se puede.
+function splitForTTS(text) {
+  const clean = text.replace(/[#*_`]/g, '').replace(/\n+/g, ' ').trim();
+  const sentences = clean.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [clean];
+  const chunks = [];
+  let current = '';
+  for (const s of sentences) {
+    if ((current + s).length > 190) {
+      if (current) chunks.push(current.trim());
+      current = s.length > 190 ? s.slice(0, 190) : s;
+    } else {
+      current += s;
+    }
+  }
+  if (current.trim()) chunks.push(current.trim());
+  return chunks.filter(Boolean);
+}
 
 // Instrucción interna para el modelo (no visible al usuario) — se mantiene en español
 // porque el AI la interpreta como instrucción de formato, no como contenido a mostrar.
@@ -106,7 +126,61 @@ export default function ChatTab({ user, hermes, lang = 'en', onNavigate }) {
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [speakingIdx, setSpeakingIdx] = useState(null);
+  const [listening, setListening] = useState(false);
   const bottomRef = useRef(null);
+  const audioRef = useRef(null);
+  const recognitionRef = useRef(null);
+
+  const stopSpeaking = useCallback(() => {
+    if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
+    setSpeakingIdx(null);
+  }, []);
+
+  const speakMessage = useCallback(async (idx, text) => {
+    if (speakingIdx === idx) { stopSpeaking(); return; }
+    stopSpeaking();
+    setSpeakingIdx(idx);
+    const chunks = splitForTTS(text);
+    const ttsLang = lang === 'en' ? 'en' : lang === 'fr' ? 'fr' : lang === 'pt' ? 'pt' : lang === 'it' ? 'it' : 'es';
+    for (const chunk of chunks) {
+      try {
+        const url = `/api/tts-proxy?text=${encodeURIComponent(chunk)}&lang=${ttsLang}`;
+        await new Promise((resolve) => {
+          const audio = new Audio(url);
+          audioRef.current = audio;
+          audio.onended = resolve;
+          audio.onerror = resolve;
+          audio.play().catch(resolve);
+        });
+      } catch { /* seguir con el próximo fragmento */ }
+      if (!audioRef.current) break; // se canceló durante la reproducción
+    }
+    setSpeakingIdx(null);
+    audioRef.current = null;
+  }, [lang, speakingIdx, stopSpeaking]);
+
+  const toggleListen = useCallback(() => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) return;
+    if (listening) {
+      recognitionRef.current?.stop();
+      return;
+    }
+    const recog = new SpeechRecognition();
+    const sttLang = { en: 'en-US', es: 'es-ES', fr: 'fr-FR', pt: 'pt-BR', it: 'it-IT' }[lang] || 'en-US';
+    recog.lang = sttLang;
+    recog.interimResults = false;
+    recog.maxAlternatives = 1;
+    recog.onresult = (e) => setInput(prev => (prev ? prev + ' ' : '') + e.results[0][0].transcript);
+    recog.onend = () => setListening(false);
+    recog.onerror = () => setListening(false);
+    recognitionRef.current = recog;
+    setListening(true);
+    recog.start();
+  }, [lang, listening]);
+
+  useEffect(() => () => { stopSpeaking(); recognitionRef.current?.stop(); }, [stopSpeaking]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -145,7 +219,35 @@ export default function ChatTab({ user, hermes, lang = 'en', onNavigate }) {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', position: 'relative' }}>
+      {/* Barra vertical de acciones (flotante, borde derecho) */}
+      <div style={{
+        position: 'fixed', right: 12, top: '38%', zIndex: 15,
+        display: 'flex', flexDirection: 'column', gap: 8,
+        background: 'rgba(11,15,13,0.75)', backdropFilter: 'blur(10px)',
+        border: `1px solid ${IT.divider}`, borderRadius: 24, padding: 8,
+      }}>
+        {[
+          { icon: '👨‍🍳', label: tui(lang, 'itChatChipRecipe'), onClick: () => handleChip('recipe') },
+          { icon: '🩺', label: tui(lang, 'itChatChipDiagnosis'), onClick: () => handleChip('diagnosis') },
+          { icon: '🔔', label: tui(lang, 'itChatChipReminders'), onClick: () => handleChip('reminders') },
+        ].map((it, i) => (
+          <button
+            key={i}
+            onClick={it.onClick}
+            aria-label={it.label}
+            title={it.label}
+            className="it-tap"
+            style={{
+              width: 38, height: 38, borderRadius: '50%', border: 'none', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17,
+              background: 'rgba(201,168,76,0.08)', color: IT.gold,
+            }}
+          >
+            {it.icon}
+          </button>
+        ))}
+      </div>
       {/* Header */}
       <div style={{ padding: '18px 20px 14px', display: 'flex', alignItems: 'center', gap: 12 }}>
         <div style={{ position: 'relative', flexShrink: 0 }}>
@@ -200,11 +302,26 @@ export default function ChatTab({ user, hermes, lang = 'en', onNavigate }) {
               </div>
             ) : (
               <div style={{ padding: '6px 0' }}>
-                <div style={{
-                  fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase',
-                  color: IT.textSecondary, marginBottom: 6,
-                }}>
-                  Dr. Smoothie AI
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                  <div style={{
+                    fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase',
+                    color: IT.textSecondary,
+                  }}>
+                    Dr. Smoothie AI
+                  </div>
+                  <button
+                    onClick={() => speakMessage(i, m.text)}
+                    aria-label={speakingIdx === i ? 'Stop' : 'Listen'}
+                    className="it-tap"
+                    style={{
+                      width: 22, height: 22, borderRadius: '50%', border: 'none', cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      background: speakingIdx === i ? IT.gold : 'rgba(255,255,255,0.06)',
+                      color: speakingIdx === i ? IT.obsidian : IT.textSecondary, fontSize: 11,
+                    }}
+                  >
+                    {speakingIdx === i ? '■' : '🔊'}
+                  </button>
                 </div>
                 <div style={{ fontSize: 14, lineHeight: 1.65, color: IT.cream }}>
                   <ReactMarkdown
@@ -242,6 +359,22 @@ export default function ChatTab({ user, hermes, lang = 'en', onNavigate }) {
         background: IT.obsidian, borderTop: `1px solid ${IT.divider}`,
         display: 'flex', alignItems: 'flex-end', gap: 10,
       }}>
+        {(window.SpeechRecognition || window.webkitSpeechRecognition) && (
+          <motion.button
+            onClick={toggleListen}
+            whileTap={{ scale: 0.92 }}
+            aria-label={listening ? 'Stop listening' : 'Voice input'}
+            style={{
+              width: 42, height: 42, borderRadius: '50%', flexShrink: 0, marginBottom: 2,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer',
+              background: listening ? IT.emerald : 'rgba(255,255,255,0.04)',
+              color: listening ? IT.obsidian : IT.cream,
+              animation: listening ? 'it-mic-pulse 1.2s ease-in-out infinite' : 'none',
+            }}
+          >
+            🎤
+          </motion.button>
+        )}
         <div style={{
           flex: 1, display: 'flex', alignItems: 'center',
           border: `1px solid ${IT.gold}55`, borderRadius: 28,
