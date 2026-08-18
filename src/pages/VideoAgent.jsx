@@ -122,10 +122,37 @@ const TIER_LIMITS   = { free: 0, seed: 3, bloom: 15, canopy: 999 };
 const ENHANCE_TIERS = { upscale: ['seed','bloom','canopy'], animate: ['bloom','canopy'] };
 
 // ── 3D Parallax Viewer ──────────────────────────────────────
-function ParallaxViewer({ src, type, label3d = '↔ 3D effect', altText = 'Generated' }) {
+function ParallaxViewer({ src, type, label3d = '↔ 3D effect', altText = 'Generated', lang = 'en' }) {
   const [tilt, setTilt]     = useState({ x: 0, y: 0 });
   const [active, setActive] = useState(false);
   const containerRef        = useRef(null);
+  const [status, setStatus] = useState('loading'); // loading | loaded | error
+  const [attempt, setAttempt] = useState(0);
+
+  // Pollinations.ai a veces tarda mucho o falla de forma transitoria
+  // (es un servicio comunitario gratuito, no siempre confiable). Antes
+  // esto se mostraba como el ícono roto del navegador sin ningún
+  // aviso. Ahora: muestra un loader mientras carga, y si falla
+  // reintenta automáticamente con una key distinta (fuerza al
+  // navegador a pedir la imagen de nuevo) hasta 3 veces.
+  useEffect(() => {
+    setStatus('loading');
+    setAttempt(0);
+  }, [src]);
+
+  const handleError = useCallback(() => {
+    if (attempt < 2) {
+      setTimeout(() => setAttempt((a) => a + 1), 1500);
+    } else {
+      setStatus('error');
+    }
+  }, [attempt]);
+
+  const handleLoad = useCallback(() => setStatus('loaded'), []);
+
+  const transform = active
+    ? `perspective(900px) rotateY(${tilt.x}deg) rotateX(${tilt.y}deg) scale3d(1.02,1.02,1)`
+    : 'perspective(900px) rotateY(0deg) rotateX(0deg) scale3d(1,1,1)';
 
   const handleMouseMove = useCallback((e) => {
     if (!containerRef.current) return;
@@ -137,9 +164,17 @@ function ParallaxViewer({ src, type, label3d = '↔ 3D effect', altText = 'Gener
 
   const reset = useCallback(() => { setActive(false); setTilt({ x: 0, y: 0 }); }, []);
 
-  const transform = active
-    ? `perspective(900px) rotateY(${tilt.x}deg) rotateX(${tilt.y}deg) scale3d(1.02,1.02,1)`
-    : 'perspective(900px) rotateY(0deg) rotateX(0deg) scale3d(1,1,1)';
+  if (status === 'error') {
+    return (
+      <div style={{
+        borderRadius: 14, background: 'rgba(255,255,255,0.04)', padding: '28px 16px',
+        textAlign: 'center', color: '#C8D5C0', fontSize: 13,
+      }}>
+        <div style={{ fontSize: 28, marginBottom: 8 }}>⚠️</div>
+        {lang === 'es' ? 'No se pudo cargar la imagen. Probá generar de nuevo.' : "Couldn't load the image. Try generating again."}
+      </div>
+    );
+  }
 
   return (
     <div
@@ -147,18 +182,34 @@ function ParallaxViewer({ src, type, label3d = '↔ 3D effect', altText = 'Gener
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setActive(true)}
       onMouseLeave={reset}
-      style={{ borderRadius: 14, overflow: 'hidden', background: '#000', cursor: 'crosshair', position: 'relative' }}
+      style={{ borderRadius: 14, overflow: 'hidden', background: '#000', cursor: 'crosshair', position: 'relative', minHeight: status === 'loading' ? 220 : undefined }}
     >
+      {status === 'loading' && (
+        <div style={{
+          position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center', gap: 10, color: '#C8D5C0', fontSize: 12, zIndex: 2,
+        }}>
+          <div style={{
+            width: 28, height: 28, borderRadius: '50%',
+            border: '3px solid rgba(255,255,255,0.15)', borderTopColor: '#E8B84B',
+            animation: 'pl-spin 0.8s linear infinite',
+          }} />
+          {lang === 'es' ? 'Generando imagen…' : 'Generating image…'}
+          <style>{'@keyframes pl-spin{to{transform:rotate(360deg)}}'}</style>
+        </div>
+      )}
       {type === 'video' ? (
         <video src={src} controls loop
-          style={{ width: '100%', display: 'block', borderRadius: 14, transform, transition: active ? 'transform 0.1s ease-out' : 'transform 0.5s ease' }}
+          style={{ width: '100%', display: 'block', borderRadius: 14, transform, transition: active ? 'transform 0.1s ease-out' : 'transform 0.5s ease', opacity: status === 'loaded' ? 1 : 0 }}
+          onLoadedData={handleLoad} onError={handleError}
         />
       ) : (
-        <img src={src} alt={altText}
-          style={{ width: '100%', display: 'block', borderRadius: 14, transform, transition: active ? 'transform 0.1s ease-out' : 'transform 0.5s ease' }}
+        <img src={`${src}${src.includes('?') ? '&' : '?'}retry=${attempt}`} alt={altText}
+          style={{ width: '100%', display: 'block', borderRadius: 14, transform, transition: active ? 'transform 0.1s ease-out' : 'transform 0.5s ease', opacity: status === 'loaded' ? 1 : 0 }}
+          onLoad={handleLoad} onError={handleError}
         />
       )}
-      {!active && (
+      {!active && status === 'loaded' && (
         <div style={{ position: 'absolute', bottom: 8, right: 10, fontSize: 10, color: 'rgba(255,255,255,0.3)', pointerEvents: 'none' }}>
           {label3d}
         </div>
@@ -363,7 +414,7 @@ export default function VideoAgent({ user, hermes, lang = 'en' }) {
           </div>
 
           {activeResult?.output_url && (
-            <ParallaxViewer src={activeResult.output_url} type={activeResult.output_type} label3d={t.threeDEffect} altText={t.generated} />
+            <ParallaxViewer src={activeResult.output_url} type={activeResult.output_type} label3d={t.threeDEffect} altText={t.generated} lang={lang} />
           )}
 
           {result.output_type === 'image' && (
