@@ -77,6 +77,24 @@ function RecipeBlock({ recipe, lang }) {
   );
 }
 
+function Shimmer({ children }) {
+  return (
+    <motion.p
+      initial={{ backgroundPosition: '100% center' }}
+      animate={{ backgroundPosition: '0% center' }}
+      transition={{ duration: 1.6, ease: 'linear', repeat: Infinity }}
+      style={{
+        margin: 0, fontSize: 13, fontStyle: 'italic',
+        backgroundImage: `linear-gradient(90deg, ${IT.textSecondary} 0%, ${IT.goldLight} 50%, ${IT.textSecondary} 100%)`,
+        backgroundSize: '250% 100%',
+        WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent',
+      }}
+    >
+      {children}
+    </motion.p>
+  );
+}
+
 export default function ChatTab({ user, hermes, lang = 'en', onNavigate }) {
   const CHIPS = [
     { id: 'recipe', label: tui(lang, 'itChatChipRecipe') },
@@ -169,43 +187,50 @@ export default function ChatTab({ user, hermes, lang = 'en', onNavigate }) {
       </div>
 
       {/* Messages */}
-      <div style={{ flex: 1, padding: '4px 20px 16px', display: 'flex', flexDirection: 'column', gap: 4 }}>
+      <div style={{ flex: 1, padding: '4px 20px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
         {messages.map((m, i) => (
-          <div key={i} style={{ padding: '10px 0', borderTop: i === 0 ? 'none' : `1px solid ${IT.divider}` }}>
-            <div style={{
-              fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase',
-              color: IT.textSecondary, marginBottom: 4, textAlign: m.role === 'user' ? 'right' : 'left',
-            }}>
-              {m.role === 'user' ? tui(lang, 'itChatYou') : 'Dr. Smoothie AI'}
-            </div>
-            <div style={{
-              fontSize: 14, lineHeight: 1.65, whiteSpace: m.role === 'user' ? 'pre-wrap' : 'normal',
-              color: IT.cream, textAlign: m.role === 'user' ? 'right' : 'left',
-            }}>
-              {m.role === 'user' ? m.text : (
-                <ReactMarkdown
-                  components={{
-                    p: ({ children }) => <p style={{ margin: '0 0 10px' }}>{children}</p>,
-                    h1: ({ children }) => <div style={{ fontSize: 16, fontWeight: 700, margin: '4px 0 8px', color: IT.goldLight }}>{children}</div>,
-                    h2: ({ children }) => <div style={{ fontSize: 15, fontWeight: 700, margin: '10px 0 6px', color: IT.goldLight }}>{children}</div>,
-                    h3: ({ children }) => <div style={{ fontSize: 14, fontWeight: 700, margin: '8px 0 4px' }}>{children}</div>,
-                    ul: ({ children }) => <ul style={{ margin: '0 0 10px', paddingLeft: 18 }}>{children}</ul>,
-                    ol: ({ children }) => <ol style={{ margin: '0 0 10px', paddingLeft: 18 }}>{children}</ol>,
-                    li: ({ children }) => <li style={{ marginBottom: 4 }}>{children}</li>,
-                    strong: ({ children }) => <strong style={{ color: IT.goldLight, fontWeight: 700 }}>{children}</strong>,
-                    hr: () => <div style={{ borderTop: `1px solid ${IT.divider}`, margin: '10px 0' }} />,
-                  }}
-                >
-                  {m.text}
-                </ReactMarkdown>
-              )}
-            </div>
+          <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: m.role === 'user' ? 'flex-end' : 'stretch' }}>
+            {m.role === 'user' ? (
+              <div style={{
+                maxWidth: '86%', background: 'rgba(201,168,76,0.14)', border: `1px solid ${IT.gold}33`,
+                borderRadius: '18px 18px 4px 18px', padding: '10px 16px',
+                fontSize: 14, lineHeight: 1.55, whiteSpace: 'pre-wrap', color: IT.cream,
+              }}>
+                {m.text}
+              </div>
+            ) : (
+              <div style={{ padding: '6px 0' }}>
+                <div style={{
+                  fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase',
+                  color: IT.textSecondary, marginBottom: 6,
+                }}>
+                  Dr. Smoothie AI
+                </div>
+                <div style={{ fontSize: 14, lineHeight: 1.65, color: IT.cream }}>
+                  <ReactMarkdown
+                    components={{
+                      p: ({ children }) => <p style={{ margin: '0 0 10px' }}>{children}</p>,
+                      h1: ({ children }) => <div style={{ fontSize: 16, fontWeight: 700, margin: '4px 0 8px', color: IT.goldLight }}>{children}</div>,
+                      h2: ({ children }) => <div style={{ fontSize: 15, fontWeight: 700, margin: '10px 0 6px', color: IT.goldLight }}>{children}</div>,
+                      h3: ({ children }) => <div style={{ fontSize: 14, fontWeight: 700, margin: '8px 0 4px' }}>{children}</div>,
+                      ul: ({ children }) => <ul style={{ margin: '0 0 10px', paddingLeft: 18 }}>{children}</ul>,
+                      ol: ({ children }) => <ol style={{ margin: '0 0 10px', paddingLeft: 18 }}>{children}</ol>,
+                      li: ({ children }) => <li style={{ marginBottom: 4 }}>{children}</li>,
+                      strong: ({ children }) => <strong style={{ color: IT.goldLight, fontWeight: 700 }}>{children}</strong>,
+                      hr: () => <div style={{ borderTop: `1px solid ${IT.divider}`, margin: '10px 0' }} />,
+                    }}
+                  >
+                    {m.text}
+                  </ReactMarkdown>
+                </div>
+              </div>
+            )}
             {m.recipe && <RecipeBlock recipe={m.recipe} lang={lang} />}
           </div>
         ))}
         {loading && (
-          <div style={{ padding: '10px 0', color: IT.textSecondary, fontSize: 13, fontStyle: 'italic' }}>
-            {tui(lang, 'itChatTyping')}
+          <div style={{ padding: '6px 0' }}>
+            <Shimmer>{tui(lang, 'itChatTyping')}</Shimmer>
           </div>
         )}
         <div ref={bottomRef} />
@@ -215,30 +240,39 @@ export default function ChatTab({ user, hermes, lang = 'en', onNavigate }) {
       <div style={{
         position: 'sticky', bottom: 0, padding: '10px 16px calc(10px + env(safe-area-inset-bottom))',
         background: IT.obsidian, borderTop: `1px solid ${IT.divider}`,
-        display: 'flex', gap: 8,
+        display: 'flex', alignItems: 'flex-end', gap: 10,
       }}>
-        <input
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && sendMessage()}
-          placeholder={tui(lang, 'itChatPlaceholder')}
-          style={{
-            flex: 1, background: 'transparent', border: 'none', borderBottom: `1px solid ${IT.divider}`,
-            color: IT.cream, fontSize: 14, fontFamily: IT_FONT_BODY, padding: '8px 2px', outline: 'none',
-          }}
-        />
-        <motion.button
-          onClick={() => sendMessage()}
-          disabled={loading || !input.trim()}
-          whileTap={{ scale: 0.96 }}
-          transition={{ duration: 0.12, ease: 'easeOut' }}
-          style={{
-            background: 'none', border: 'none', cursor: input.trim() ? 'pointer' : 'default',
-            color: input.trim() ? IT.goldLight : IT.textSecondary, fontSize: 18, fontFamily: IT_FONT_BODY,
-          }}
-        >
-          →
-        </motion.button>
+        <div style={{
+          flex: 1, display: 'flex', alignItems: 'center',
+          border: `1px solid ${IT.gold}55`, borderRadius: 28,
+          background: 'rgba(255,255,255,0.02)', padding: '4px 6px 4px 18px',
+        }}>
+          <input
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && sendMessage()}
+            placeholder={tui(lang, 'itChatPlaceholder')}
+            style={{
+              flex: 1, background: 'transparent', border: 'none',
+              color: IT.cream, fontSize: 14, fontFamily: IT_FONT_BODY, padding: '10px 0', outline: 'none',
+            }}
+          />
+          <motion.button
+            onClick={() => sendMessage()}
+            disabled={loading || !input.trim()}
+            whileTap={{ scale: 0.92 }}
+            transition={{ duration: 0.12, ease: 'easeOut' }}
+            style={{
+              width: 38, height: 38, borderRadius: '50%', flexShrink: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              border: 'none', cursor: input.trim() ? 'pointer' : 'default',
+              background: input.trim() ? IT.gold : 'rgba(255,255,255,0.06)',
+              color: input.trim() ? IT.obsidian : IT.textSecondary, fontSize: 16,
+            }}
+          >
+            →
+          </motion.button>
+        </div>
       </div>
     </div>
   );
