@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
+import ReactMarkdown from 'react-markdown';
 import { IT, IT_FONT_HEAD, IT_FONT_BODY } from './tokens';
 import { askDrSmoothie } from '../App';
 import { tui } from '../i18n';
@@ -178,10 +179,26 @@ export default function ChatTab({ user, hermes, lang = 'en', onNavigate }) {
               {m.role === 'user' ? tui(lang, 'itChatYou') : 'Dr. Smoothie AI'}
             </div>
             <div style={{
-              fontSize: 14, lineHeight: 1.65, whiteSpace: 'pre-wrap',
+              fontSize: 14, lineHeight: 1.65, whiteSpace: m.role === 'user' ? 'pre-wrap' : 'normal',
               color: IT.cream, textAlign: m.role === 'user' ? 'right' : 'left',
             }}>
-              {m.text}
+              {m.role === 'user' ? m.text : (
+                <ReactMarkdown
+                  components={{
+                    p: ({ children }) => <p style={{ margin: '0 0 10px' }}>{children}</p>,
+                    h1: ({ children }) => <div style={{ fontSize: 16, fontWeight: 700, margin: '4px 0 8px', color: IT.goldLight }}>{children}</div>,
+                    h2: ({ children }) => <div style={{ fontSize: 15, fontWeight: 700, margin: '10px 0 6px', color: IT.goldLight }}>{children}</div>,
+                    h3: ({ children }) => <div style={{ fontSize: 14, fontWeight: 700, margin: '8px 0 4px' }}>{children}</div>,
+                    ul: ({ children }) => <ul style={{ margin: '0 0 10px', paddingLeft: 18 }}>{children}</ul>,
+                    ol: ({ children }) => <ol style={{ margin: '0 0 10px', paddingLeft: 18 }}>{children}</ol>,
+                    li: ({ children }) => <li style={{ marginBottom: 4 }}>{children}</li>,
+                    strong: ({ children }) => <strong style={{ color: IT.goldLight, fontWeight: 700 }}>{children}</strong>,
+                    hr: () => <div style={{ borderTop: `1px solid ${IT.divider}`, margin: '10px 0' }} />,
+                  }}
+                >
+                  {m.text}
+                </ReactMarkdown>
+              )}
             </div>
             {m.recipe && <RecipeBlock recipe={m.recipe} lang={lang} />}
           </div>
