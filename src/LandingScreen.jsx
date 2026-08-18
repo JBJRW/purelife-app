@@ -304,6 +304,11 @@ export default function LandingScreen({ onStart, lang, onLangChange }) {
 
       {/* ═══ SPLASH ═══ */}
       <section style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", position: "relative", overflow: "hidden", padding: "40px 24px" }}>
+        {/* Fondo: ser humano con raíces/hojas (inspirado en Lovable) */}
+        <div style={{ position: "absolute", inset: 0, zIndex: 0 }}>
+          <img src="/bg-human-nature.jpg" alt="" aria-hidden="true" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 30%" }} />
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(15,31,23,0.55) 0%, rgba(15,31,23,0.65) 45%, rgba(15,31,23,0.95) 92%, var(--obsidian) 100%)" }} />
+        </div>
         {/* Orbs */}
         {[
           { style: { width: 600, height: 600, background: "radial-gradient(circle, rgba(74,124,89,0.25), transparent 70%)", top: -150, left: -200, animationDelay: "0s" } },
