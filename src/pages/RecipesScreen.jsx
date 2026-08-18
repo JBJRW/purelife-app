@@ -162,6 +162,45 @@ const getStarterRecipes = (lang='en') => STARTER_META.map(s => ({ ...s, ...rs(la
 function CatalogCard({ item, onAddToShopping, lang = 'en' }) {
   const t = rs(lang);
   const [open, setOpen] = useState(false);
+  const [videoState, setVideoState] = useState('idle'); // idle | rendering | done | error
+  const [videoUrl, setVideoUrl] = useState(null);
+  const [videoError, setVideoError] = useState('');
+
+  const generateVideo = async () => {
+    setVideoState('rendering'); setVideoError('');
+    try {
+      const startRes = await fetch('/api/render-recipe-video', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: item.name,
+          ingredients: item.ingredients || [],
+          benefits: item.benefits || item.description || '',
+          category: item.category || '',
+        }),
+      });
+      const startData = await startRes.json();
+      if (!startRes.ok) throw new Error(startData.error || 'No se pudo iniciar el video');
+
+      // Poll cada 2.5s hasta que termine (máx ~45s)
+      for (let i = 0; i < 20; i++) {
+        await new Promise(r => setTimeout(r, 2500));
+        const pollRes = await fetch(`/api/render-recipe-video-status?renderId=${startData.renderId}&bucketName=${startData.bucketName}`);
+        const pollData = await pollRes.json();
+        if (pollData.error) throw new Error(pollData.error);
+        if (pollData.done) {
+          setVideoUrl(pollData.output_url);
+          setVideoState('done');
+          return;
+        }
+      }
+      throw new Error('El video tardó demasiado, intentá de nuevo');
+    } catch (e) {
+      setVideoError(e.message || 'Error generando el video');
+      setVideoState('error');
+    }
+  };
+
   return (
     <div style={{
       background: C.glass, border: `1px solid ${C.glassBorder}`,
@@ -184,6 +223,12 @@ function CatalogCard({ item, onAddToShopping, lang = 'en' }) {
           {item.ingredients.map((ing, i) => <li key={i}>{ing}</li>)}
         </ul>
       )}
+      {videoState === 'done' && videoUrl && (
+        <video src={videoUrl} controls playsInline style={{ width: '100%', maxWidth: 260, borderRadius: 14, marginBottom: 12, display: 'block' }} />
+      )}
+      {videoState === 'error' && (
+        <p style={{ color: '#FF6B6B', fontSize: 12, margin: '0 0 10px' }}>❌ {videoError}</p>
+      )}
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
         <button onClick={() => setOpen(o => !o)} style={{
           padding: '8px 16px', borderRadius: 20,
@@ -194,6 +239,14 @@ function CatalogCard({ item, onAddToShopping, lang = 'en' }) {
           padding: '8px 16px', borderRadius: 20, border: 'none',
           background: C.mint, color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: FONT,
         }}>{t.addToList}</button>
+        {videoState !== 'done' && (
+          <button onClick={generateVideo} disabled={videoState === 'rendering'} style={{
+            padding: '8px 16px', borderRadius: 20, border: 'none',
+            background: videoState === 'rendering' ? C.muted : 'linear-gradient(135deg,#C9A84C,#B8935A)',
+            color: '#000', fontSize: 12, fontWeight: 700,
+            cursor: videoState === 'rendering' ? 'default' : 'pointer', fontFamily: FONT,
+          }}>{videoState === 'rendering' ? '⏳ Generando…' : '🎬 Generar video'}</button>
+        )}
       </div>
     </div>
   );
