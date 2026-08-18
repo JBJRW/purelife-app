@@ -231,7 +231,7 @@ function CatalogCard({ item, onAddToShopping, lang = 'en' }) {
         </ul>
       )}
       {videoState === 'done' && videoUrl && (
-        <video src={videoUrl} controls playsInline style={{ width: '100%', maxWidth: 260, borderRadius: 14, marginBottom: 12, display: 'block' }} />
+        <video src={videoUrl} controls playsInline preload="auto" style={{ width: '100%', maxWidth: 260, borderRadius: 14, marginBottom: 12, display: 'block', background: '#000' }} />
       )}
       {videoState === 'error' && (
         <p style={{ color: '#FF6B6B', fontSize: 12, margin: '0 0 10px' }}>❌ {videoError}</p>

@@ -51,7 +51,7 @@ function TeamPostRow({ post, lang }) {
       <p style={{ fontSize: 13, color: IT.cream, opacity: 0.85, lineHeight: 1.6, margin: '0 0 8px' }}>{post.content}</p>
 
       {videoState === 'done' && videoUrl && (
-        <video src={videoUrl} controls playsInline style={{ width: '100%', maxWidth: 220, borderRadius: 12, marginBottom: 8, display: 'block' }} />
+        <video src={videoUrl} controls playsInline preload="auto" style={{ width: '100%', maxWidth: 220, borderRadius: 12, marginBottom: 8, display: 'block', background: '#000' }} />
       )}
       {videoState === 'error' && (
         <p style={{ color: '#FF6B6B', fontSize: 11, margin: '0 0 8px' }}>❌ {videoError}</p>

@@ -93,6 +93,8 @@ export const RecipeVideo: React.FC<RecipeVideoProps> = ({
   const bigIconPop = spring({ frame: frame - 15, fps, config: { damping: 10 } });
 
   return (
+    <AbsoluteFill style={{ background: DEEP }}>
+      <div style={{ width: 1080, height: 1920, transform: 'scale(2)', transformOrigin: 'top left' }}>
     <AbsoluteFill style={{ background: DEEP, fontFamily: 'DM Sans, Arial, sans-serif' }}>
       {/* Glow de fondo */}
       <AbsoluteFill
@@ -292,6 +294,8 @@ export const RecipeVideo: React.FC<RecipeVideoProps> = ({
           })()}
         </AbsoluteFill>
       </Sequence>
+    </AbsoluteFill>
+      </div>
     </AbsoluteFill>
   );
 };

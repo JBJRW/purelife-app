@@ -98,6 +98,8 @@ export const TipVideo: React.FC<TipVideoProps> = ({ content, topic }) => {
   const beatDuration = Math.floor((durationInFrames - 55) / Math.max(beats.length, 1));
 
   return (
+    <AbsoluteFill style={{ background: DEEP }}>
+      <div style={{ width: 1080, height: 1920, transform: 'scale(2)', transformOrigin: 'top left' }}>
     <AbsoluteFill style={{ background: DEEP, fontFamily: 'DM Sans, Arial, sans-serif', overflow: 'hidden' }}>
       {/* Orbes de luz ambiental */}
       <GlowOrb x={-80} y={200} size={420} color={JADE} delay={0} />
@@ -202,6 +204,8 @@ export const TipVideo: React.FC<TipVideoProps> = ({ content, topic }) => {
           })()}
         </AbsoluteFill>
       </Sequence>
+    </AbsoluteFill>
+      </div>
     </AbsoluteFill>
   );
 };

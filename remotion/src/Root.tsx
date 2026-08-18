@@ -11,8 +11,8 @@ export const RemotionRoot: React.FC = () => {
         component={RecipeVideo}
         durationInFrames={240}
         fps={30}
-        width={1080}
-        height={1920}
+        width={2160}
+        height={3840}
         defaultProps={{
           name: 'Detox Supreme Green',
           ingredients: ['Spinach (2 cups)', 'Cucumber (1/2)', 'Ginger (2cm)', 'Lemon (1)', 'Coconut water (1 cup)'],
@@ -25,8 +25,8 @@ export const RemotionRoot: React.FC = () => {
         component={TipVideo}
         durationInFrames={210}
         fps={30}
-        width={1080}
-        height={1920}
+        width={2160}
+        height={3840}
         defaultProps={{
           content: 'Drink a glass of water as soon as you wake up. Your body loses fluids overnight, and rehydrating first thing helps kickstart your metabolism and mental clarity.',
           topic: 'Hydration',
