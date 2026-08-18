@@ -6,7 +6,7 @@
 
 import { renderMediaOnLambda } from '@remotion/lambda/client';
 
-const REMOTION_FUNCTION_NAME = 'remotion-render-4-0-512-mem2048mb-disk2048mb-120sec';
+const REMOTION_FUNCTION_NAME = 'remotion-render-4-0-512-mem3008mb-disk2048mb-290sec';
 const REMOTION_SERVE_URL = 'https://remotionlambda-useast1-ghvynwguij.s3.us-east-1.amazonaws.com/sites/purelife-videos/index.html';
 const REMOTION_REGION = 'us-east-1';
 
