@@ -55,19 +55,49 @@ function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
   return lines.length;
 }
 
-function drawScene(ctx, scene, index, total, brandName) {
+function drawScene(ctx, scene, index, total, brandName, bgImage) {
   const w = CANVAS_W, h = CANVAS_H;
 
-  const grad = ctx.createLinearGradient(0, 0, 0, h);
-  grad.addColorStop(0, PALETTE.darkTop);
-  grad.addColorStop(1, PALETTE.darkBottom);
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, w, h);
+  if (bgImage) {
+    // Cover-fit: la imagen llena el cuadro completo sin deformarse,
+    // recortando el sobrante.
+    const imgRatio = bgImage.width / bgImage.height;
+    const canvasRatio = w / h;
+    let drawW, drawH, offX, offY;
+    if (imgRatio > canvasRatio) {
+      drawH = h;
+      drawW = h * imgRatio;
+      offX = (w - drawW) / 2;
+      offY = 0;
+    } else {
+      drawW = w;
+      drawH = w / imgRatio;
+      offX = 0;
+      offY = (h - drawH) / 2;
+    }
+    ctx.drawImage(bgImage, offX, offY, drawW, drawH);
 
-  ctx.fillStyle = PALETTE.circle;
-  ctx.beginPath();
-  ctx.arc(w * 0.8, h * 0.25, 260, 0, Math.PI * 2);
-  ctx.fill();
+    // Velo oscuro para que el texto se lea bien sobre la foto
+    const scrim = ctx.createLinearGradient(0, 0, 0, h);
+    scrim.addColorStop(0, 'rgba(15,31,23,0.55)');
+    scrim.addColorStop(0.55, 'rgba(15,31,23,0.35)');
+    scrim.addColorStop(1, 'rgba(15,31,23,0.85)');
+    ctx.fillStyle = scrim;
+    ctx.fillRect(0, 0, w, h);
+  } else {
+    // Respaldo: si la imagen no cargó, el gradiente de siempre en vez
+    // de un cuadro en blanco.
+    const grad = ctx.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, PALETTE.darkTop);
+    grad.addColorStop(1, PALETTE.darkBottom);
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, w, h);
+
+    ctx.fillStyle = PALETTE.circle;
+    ctx.beginPath();
+    ctx.arc(w * 0.8, h * 0.25, 260, 0, Math.PI * 2);
+    ctx.fill();
+  }
 
   ctx.fillStyle = PALETTE.gold;
   ctx.font = '600 34px Arial';
@@ -100,6 +130,29 @@ async function fetchSceneAudio(text, lang, apiBase) {
   return res.arrayBuffer();
 }
 
+// Pide una foto real de fondo para la escena (mismo Flux/Pollinations
+// ya usado en VideoAgent, con los prompts mejorados de
+// api/generate-image-free.js). Pollinations manda CORS abierto
+// (Access-Control-Allow-Origin: *), así que la imagen se puede dibujar
+// en el canvas sin "mancharlo" — necesario para poder grabar el video
+// después con captureStream()/MediaRecorder.
+async function fetchSceneImage(prompt, lang, apiBase) {
+  const res = await fetch(`${apiBase}/api/generate-image-free`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ category: 'smoothie', lang, custom_prompt: prompt }),
+  });
+  if (!res.ok) throw new Error('image_gen_failed');
+  const data = await res.json();
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error('image_load_failed'));
+    img.src = data.output_url;
+  });
+}
+
 /**
  * Ensambla un video a partir de un guion generado por generate-video-script.js.
  *
@@ -130,14 +183,26 @@ export async function assembleVideo(script, { lang = 'en', brandName = 'PureLife
 
   // Descarga y decodifica el audio de cada escena antes de grabar,
   // para que la grabación no se detenga a mitad de una escena
-  // esperando la red.
+  // esperando la red. Lo mismo con las imágenes de fondo — si alguna
+  // falla, esa escena cae al gradiente de respaldo en vez de romper
+  // todo el video.
   const decodedBuffers = [];
+  const sceneImages = [];
   for (let i = 0; i < scenes.length; i++) {
     onProgress?.('fetching_audio', i, scenes.length);
     const text = (scenes[i].voiceover_line || scenes[i].on_screen_text || '').slice(0, 200);
     const raw = await fetchSceneAudio(text || brandName, lang, apiBase);
     const buf = await audioCtx.decodeAudioData(raw);
     decodedBuffers.push(buf);
+
+    onProgress?.('fetching_image', i, scenes.length);
+    const imagePrompt = scenes[i].visual_direction || scenes[i].on_screen_text || brandName;
+    try {
+      const img = await fetchSceneImage(imagePrompt, lang, apiBase);
+      sceneImages.push(img);
+    } catch {
+      sceneImages.push(null);
+    }
   }
 
   const canvasStream = canvas.captureStream(30);
@@ -159,7 +224,7 @@ export async function assembleVideo(script, { lang = 'en', brandName = 'PureLife
 
   for (let i = 0; i < scenes.length; i++) {
     onProgress?.('rendering', i, scenes.length);
-    drawScene(ctx, scenes[i], i, scenes.length, brandName);
+    drawScene(ctx, scenes[i], i, scenes.length, brandName, sceneImages[i]);
 
     const buf = decodedBuffers[i];
     const source = audioCtx.createBufferSource();
