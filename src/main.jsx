@@ -4,6 +4,16 @@ import { MotionConfig } from 'framer-motion'
 import App from './App.jsx'
 import { AuthProvider } from './context/AuthContext.jsx'
 
+// Register service worker unconditionally so browsers can offer the
+// "Install app" / "Add to Home Screen" prompt. This is separate from the
+// opt-in push-notification registration in ReminderSystem.jsx — calling
+// register('/sw.js') twice is safe (idempotent).
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}
+
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);

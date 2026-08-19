@@ -4,8 +4,8 @@
 // JRMB Food Network LLC · 2026
 // ================================================================
 
-const CACHE = 'purelife-v2';
-const STATIC = ['/', '/purelife-logo.png', '/dr-smoothie-avatar.jpg'];
+const CACHE = 'purelife-v3';
+const STATIC = ['/', '/manifest.json', '/purelife-logo.png', '/dr-smoothie-avatar.jpg', '/icon-192.png', '/icon-512.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(STATIC)).catch(() => {}));
