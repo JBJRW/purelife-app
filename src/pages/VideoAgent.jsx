@@ -7,11 +7,11 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 // ⚠️ fal.ai estuvo bloqueada por falta de saldo ("User is locked.
 // Reason: TOP_UP") — ya se confirmó saldo real ($25, probado en vivo
-// con Recraft V3 el 29 ago 2026). Video (kling/veo3) reactivado.
-// - Imágenes (flux/recraft): siguen usando Pollinations.ai (gratis)
-//   mientras FREE_IMAGE_MODE=true — decisión de costos aparte, no
-//   tocada aquí. Cambiar a false si se prefiere usar fal.ai directo.
-const FREE_IMAGE_MODE = true;
+// con Recraft V3 y Kling v2.6 el 29 ago 2026). Video Y modo gratis de
+// imagen desactivados: ahora imágenes también usan fal.ai real
+// (Flux Pro/Recraft) en vez de Pollinations.ai, que ignoraba prompts
+// ambiguos con frecuencia (imágenes sin relación al texto pedido).
+const FREE_IMAGE_MODE = false;
 const VIDEO_GENERATION_DISABLED = false;
 
 const C = {
