@@ -5,17 +5,14 @@
 // ============================================================
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
-// ⚠️ fal.ai account está bloqueada por falta de saldo ("User is locked.
-// Reason: TOP_UP"). Mientras tanto:
-// - Imágenes (flux/recraft): sustituidas por Pollinations.ai (Flux),
-//   gratis, sin clave, sin límite — ver api/generate-image-free.js.
-//   Disponibles para TODOS los tiers mientras dure este modo gratis,
-//   ya que no tiene sentido cobrar límite de tier por algo gratis.
-// - Video real (kling/veo3): sigue pausado — no existe un equivalente
-//   gratis de calidad comparable. Cambiar VIDEO_GENERATION_DISABLED a
-//   false en cuanto Jorge deposite saldo en fal.ai/dashboard/billing.
+// ⚠️ fal.ai estuvo bloqueada por falta de saldo ("User is locked.
+// Reason: TOP_UP") — ya se confirmó saldo real ($25, probado en vivo
+// con Recraft V3 el 29 ago 2026). Video (kling/veo3) reactivado.
+// - Imágenes (flux/recraft): siguen usando Pollinations.ai (gratis)
+//   mientras FREE_IMAGE_MODE=true — decisión de costos aparte, no
+//   tocada aquí. Cambiar a false si se prefiere usar fal.ai directo.
 const FREE_IMAGE_MODE = true;
-const VIDEO_GENERATION_DISABLED = true;
+const VIDEO_GENERATION_DISABLED = false;
 
 const C = {
   dark: '#0F1F17', green: '#1A3C2E', mint: '#4ADE80',
