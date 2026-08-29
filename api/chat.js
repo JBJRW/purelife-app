@@ -1,6 +1,6 @@
-// api/chat.js — PureLife Dr. Smoothie AI v2
+// api/chat.js — PureLife Dr. Smoothie AI v3
 // Con registro de uso en Supabase para HERMES
-// Modelo: claude-sonnet-4-6 | JRMB Food Network LLC
+// Modelo: deepseek-chat (migrado desde claude-sonnet-4-6) | JRMB Food Network LLC
 
 const ALLOWED_ORIGINS = [
   "https://purelifewellnessclub.org",
@@ -11,8 +11,8 @@ const ALLOWED_ORIGINS = [
   "http://localhost:5173",
 ];
 
-const MODEL = process.env.ANTHROPIC_MODEL || "claude-sonnet-4-6";
-const API_KEY = process.env.ANTHROPIC_API_KEY;
+const MODEL = process.env.DEEPSEEK_MODEL || "deepseek-chat";
+const API_KEY = process.env.DEEPSEEK_API_KEY;
 const SUPABASE_URL = 'https://slcvymfgcpoafjufaplx.supabase.co';
 const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY || '';
 
@@ -65,32 +65,31 @@ export default async function handler(req, res) {
     if (!message) return res.status(400).json({ error: "Message required" });
 
     const messages = [
+      { role: "system", content: systemPromptFor(lang) },
       ...history.slice(-10),
       { role: "user", content: message }
     ];
 
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
+    const response = await fetch("https://api.deepseek.com/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": API_KEY,
-        "anthropic-version": "2023-06-01"
+        "Authorization": `Bearer ${API_KEY}`
       },
       body: JSON.stringify({
         model: MODEL,
         max_tokens: 1024,
-        system: systemPromptFor(lang),
         messages
       })
     });
 
     if (!response.ok) {
-      const err = await response.json();
-      return res.status(response.status).json({ error: err.error?.message || "Anthropic error" });
+      const err = await response.json().catch(() => ({}));
+      return res.status(response.status).json({ error: err.error?.message || "DeepSeek error" });
     }
 
     const data = await response.json();
-    const reply = data.content?.[0]?.text || "No pude generar una respuesta.";
+    const reply = data.choices?.[0]?.message?.content || "No pude generar una respuesta.";
 
     // Registrar uso para HERMES (async, no bloquea)
     logUsage(userId, accessToken, { messageLength: message.length });
