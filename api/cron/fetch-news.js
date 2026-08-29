@@ -4,11 +4,23 @@
 // Busca noticias de wellness vía Claude + web_search, filtra calidad, inserta en Supabase.
 
 import { createClient } from '@supabase/supabase-js';
+import { normalizeTopic } from '../lib/wellnessTopics.js';
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY // NUNCA exponer esta key en frontend
 );
+
+// Mapa: categoría de búsqueda (usada para diversificar las queries) ->
+// topic real de la taxonomía maestra (usado para guardar en Supabase y
+// que coincida con lo que NewsSection.jsx filtra en la UI).
+const CATEGORY_TO_TOPIC = {
+  frutas: 'nutricion',
+  vegetales: 'nutricion',
+  estudios: 'estudios',
+  tendencias: 'habitos_saludables',
+  salud_preventiva: 'salud_preventiva',
+};
 
 const CATEGORIES = [
   {
@@ -92,7 +104,7 @@ async function fetchCategoryNews(category) {
     const jsonStr = arrayMatch ? arrayMatch[0] : textBlocks.replace(/```json|```/g, '').trim();
     const parsed = JSON.parse(jsonStr);
     return Array.isArray(parsed)
-      ? parsed.map(item => ({ ...item, category: category.key }))
+      ? parsed.map(item => ({ ...item, category: normalizeTopic(CATEGORY_TO_TOPIC[category.key]) }))
       : [];
   } catch (err) {
     console.error(`No se pudo parsear JSON para ${category.key}`);

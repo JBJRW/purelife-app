@@ -7,6 +7,7 @@
 // hacen pasar por un usuario real.
 
 import { createClient } from '@supabase/supabase-js';
+import { normalizeTopic } from '../lib/wellnessTopics.js';
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -15,12 +16,15 @@ const supabase = createClient(
 
 const LANGS = ['en', 'es', 'fr', 'pt', 'it'];
 
+// Cada entrada: el prompt que se le da al modelo + el topic real de la
+// taxonomía maestra bajo el que se guarda (en vez de la frase completa
+// en inglés, que antes quedaba tal cual en la columna `topic`).
 const TOPICS = [
-  'a quick, practical hydration tip',
-  'the benefit of one specific fruit or vegetable',
-  'a short motivational message about building healthy daily habits',
-  'a simple tip for better sleep that supports overall wellness',
-  'a quick myth-busting fact about nutrition (correcting a common misconception)',
+  { key: 'habitos_saludables', prompt: 'a quick, practical hydration tip' },
+  { key: 'nutricion', prompt: 'the benefit of one specific fruit or vegetable' },
+  { key: 'habitos_saludables', prompt: 'a short motivational message about building healthy daily habits' },
+  { key: 'habitos_saludables', prompt: 'a simple tip for better sleep that supports overall wellness' },
+  { key: 'nutricion', prompt: 'a quick myth-busting fact about nutrition (correcting a common misconception)' },
 ];
 
 const SYSTEM_PROMPT = `You are writing short, warm, editorial posts for the "PureLife Team" — official content for the Club community feed of a wellness app. You are NOT impersonating a user.
@@ -53,7 +57,7 @@ async function generatePost(topic) {
       model: 'claude-sonnet-4-6',
       max_tokens: 1200,
       system: SYSTEM_PROMPT,
-      messages: [{ role: 'user', content: `Write ${topic}.` }]
+      messages: [{ role: 'user', content: `Write ${topic.prompt}.` }]
     })
   });
 
@@ -105,7 +109,7 @@ export default async function handler(req, res) {
           author_name: 'PureLife Team',
           author_type: 'ai_generated',
           content: post[lang],
-          topic,
+          topic: normalizeTopic(topic.key),
           language: lang,
         });
         if (error) { console.error(`Error insertando team_post (${lang}):`, error); results.errors++; }
@@ -117,5 +121,5 @@ export default async function handler(req, res) {
     results.errors++;
   }
 
-  return res.status(200).json({ success: true, topic, results });
+  return res.status(200).json({ success: true, topic: topic.key, results });
 }

@@ -5,8 +5,10 @@ import { tui } from '../i18n';
 
 const CATEGORIES = [
   { key: 'todas', labelKey: 'newsCatAll' },
-  { key: 'nutrition', labelKey: 'newsCatNutrition' },
-  { key: 'fitness', labelKey: 'newsCatFitness' },
+  { key: 'nutricion', labelKey: 'newsCatNutrition' },
+  { key: 'habitos_saludables', labelKey: 'newsCatHabits' },
+  { key: 'estudios', labelKey: 'newsCatStudies' },
+  { key: 'salud_preventiva', labelKey: 'newsCatPreventive' },
 ];
 
 function relativeDate(dateStr, lang) {
