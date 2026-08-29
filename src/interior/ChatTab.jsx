@@ -4,6 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import { IT, IT_FONT_HEAD, IT_FONT_BODY } from './tokens';
 import { askDrSmoothie } from '../App';
 import { tui } from '../i18n';
+import TalkingAvatar from './TalkingAvatar';
 
 // Divide texto en fragmentos de máximo 200 caracteres (límite real de
 // /api/tts-proxy) sin cortar palabras, respetando fin de oración cuando
@@ -250,22 +251,14 @@ export default function ChatTab({ user, hermes, lang = 'en', onNavigate }) {
       </div>
       {/* Header */}
       <div style={{ padding: '18px 20px 14px', display: 'flex', alignItems: 'center', gap: 12 }}>
-        <div style={{ position: 'relative', flexShrink: 0 }}>
-          <img
-            src="/dr-smoothie-avatar.jpg"
-            alt="Dr. Smoothie AI"
-            style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', border: `2px solid ${IT.emerald}` }}
-          />
-          <div style={{
-            position: 'absolute', bottom: 0, right: 0, width: 10, height: 10,
-            borderRadius: '50%', background: IT.emerald, border: `2px solid ${IT.obsidian}`,
-          }} />
-        </div>
+        <TalkingAvatar isSpeaking={speakingIdx !== null} size={44} />
         <div>
           <div style={{ fontFamily: IT_FONT_HEAD, color: IT.goldLight, fontSize: 20, fontStyle: 'italic' }}>
             Dr. Smoothie AI
           </div>
-          <div style={{ fontSize: 11, color: IT.emerald, letterSpacing: '0.04em' }}>{tui(lang, 'itChatOnline')}</div>
+          <div style={{ fontSize: 11, color: IT.emerald, letterSpacing: '0.04em' }}>
+            {speakingIdx !== null ? (lang === 'es' ? 'Hablando…' : 'Speaking…') : tui(lang, 'itChatOnline')}
+          </div>
         </div>
       </div>
       <div className="it-divider" />
